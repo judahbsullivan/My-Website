@@ -120,6 +120,10 @@
 </template>
 
 <script setup lang="ts">
+// definePageMeta({
+//   layout: 'auth',
+// })
+
 const { user, isAuthenticated, login, register, logout } = useAuth()
 
 const isLogin = ref(true)
