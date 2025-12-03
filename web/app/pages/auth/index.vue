@@ -1,8 +1,51 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4">
+  <ClientOnly>
+    <div class="min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md space-y-8">
-      <!-- Auth Card -->
-      <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
+      <!-- Already Logged In Card -->
+      <div v-if="isAuthenticated" class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
+        <div class="text-center mb-8">
+          <div class="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+            <Icon name="heroicons:check-circle" class="w-8 h-8 text-emerald-500" />
+          </div>
+          <h1 class="text-3xl font-bold text-white mb-2">Already Logged In</h1>
+          <p class="text-neutral-400">
+            You're already authenticated. Go to your dashboard to continue.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <NuxtLink
+            to="/admin/dashboard"
+            class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+          >
+            <Icon name="heroicons:chart-bar-square" class="w-5 h-5" />
+            Go to Dashboard
+          </NuxtLink>
+
+          <button
+            @click="handleLogout"
+            class="w-full py-3 px-4 bg-red-600/20 hover:bg-red-600/30 text-red-400 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5" />
+            Sign Out
+          </button>
+        </div>
+
+        <!-- Back to Site -->
+        <div class="mt-6 text-center">
+          <NuxtLink
+            to="/"
+            class="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-neutral-300 transition-colors"
+          >
+            <Icon name="heroicons:home" class="w-4 h-4" />
+            Back to Site
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Auth Card (Login/Register) -->
+      <div v-else class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
         <!-- Header -->
         <div class="text-center mb-8">
           <h1 class="text-3xl font-bold text-white mb-2">
@@ -56,9 +99,18 @@
 
           <!-- Password -->
           <div>
-            <label for="password" class="block text-sm font-medium text-neutral-300 mb-2">
-              Password
-            </label>
+            <div class="flex items-center justify-between mb-2">
+              <label for="password" class="block text-sm font-medium text-neutral-300">
+                Password
+              </label>
+              <NuxtLink
+                v-if="isLogin"
+                to="/auth/forgot-password"
+                class="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Forgot password?
+              </NuxtLink>
+            </div>
             <input
               id="password"
               v-model="form.password"
@@ -98,33 +150,46 @@
             </button>
           </p>
         </div>
-      </div>
 
-      <!-- User Info (when logged in) -->
-      <div v-if="isAuthenticated" class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
-        <h2 class="text-xl font-semibold text-white mb-4">Logged in as:</h2>
-        <div class="space-y-2 text-neutral-300">
-          <p><span class="text-neutral-500">Name:</span> {{ user?.displayName }}</p>
-          <p><span class="text-neutral-500">Email:</span> {{ user?.email }}</p>
-          <p><span class="text-neutral-500">ID:</span> {{ user?.id }}</p>
+        <!-- Back to Site -->
+        <div class="mt-4 text-center">
+          <NuxtLink
+            to="/"
+            class="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-neutral-300 transition-colors"
+          >
+            <Icon name="heroicons:arrow-left" class="w-4 h-4" />
+            Back to Site
+          </NuxtLink>
         </div>
-        <button
-          @click="handleLogout"
-          class="mt-4 w-full py-2 px-4 bg-red-600/20 hover:bg-red-600/30 text-red-400 font-medium rounded-lg transition-colors"
-        >
-          Sign Out
-        </button>
       </div>
     </div>
-  </div>
+    </div>
+    <template #fallback>
+      <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+          <div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-2xl">
+            <div class="text-center">
+              <p class="text-neutral-400">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">
-// definePageMeta({
-//   layout: 'auth',
-// })
+// Use a simple layout without navbar/footer for auth pages
+definePageMeta({
+  layout: false,
+})
 
-const { user, isAuthenticated, login, register, logout } = useAuth()
+const { user, isAuthenticated, login, register, logout, initAuth } = useAuth()
+
+// Initialize auth state on mount
+onMounted(() => {
+  initAuth()
+})
 
 const isLogin = ref(true)
 const isLoading = ref(false)
@@ -143,6 +208,9 @@ const toggleMode = () => {
   successMessage.value = ''
 }
 
+const route = useRoute()
+const router = useRouter()
+
 const handleSubmit = async () => {
   isLoading.value = true
   errorMessage.value = ''
@@ -155,6 +223,12 @@ const handleSubmit = async () => {
         password: form.password,
       })
       successMessage.value = 'Successfully logged in!'
+      
+      // Redirect to admin dashboard or return URL after successful login
+      const redirectTo = (route.query.redirect as string) || '/admin/dashboard'
+      setTimeout(() => {
+        router.push(redirectTo)
+      }, 500)
     } else {
       await register({
         email: form.email,
@@ -162,6 +236,11 @@ const handleSubmit = async () => {
         displayName: form.displayName,
       })
       successMessage.value = 'Account created successfully!'
+      
+      // Redirect to admin dashboard after registration
+      setTimeout(() => {
+        router.push('/admin/dashboard')
+      }, 500)
     }
 
     // Clear form
@@ -186,9 +265,13 @@ const handleSubmit = async () => {
   }
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
   logout()
-  successMessage.value = 'Successfully logged out!'
+  // Clear form
+  form.email = ''
+  form.password = ''
+  form.displayName = ''
+  // The logout function will handle the redirect to /auth
 }
 </script>
 

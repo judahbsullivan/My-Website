@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col min-h-screen w-full overflow-hidden">
     <Navbar />
     <main>
       <slot />

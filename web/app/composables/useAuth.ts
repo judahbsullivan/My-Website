@@ -70,6 +70,8 @@ export const useAuth = () => {
     if (import.meta.client) {
       localStorage.removeItem('auth_token')
       localStorage.removeItem('auth_user')
+      // Redirect to auth page after logout
+      navigateTo('/auth')
     }
   }
 

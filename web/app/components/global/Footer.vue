@@ -1,11 +1,20 @@
 <template>
-  <footer class="w-full bg-background border-t border-border/50 pt-20 pb-4">
-    <section>
-      <div class="container max-w-5xl mx-auto px-4 sm:px-6">
-        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
+  <footer class=" px-4 sm:px-6 w-full bg-muted border-t border-border/50 pt-12">
+    <section class="flex flex-col">
+      <div class="">
+        <div class="">
+          <UiTitle as="h2" size="4xl" weight="bold" align="left" class="mb-6">
+            Let's Connect
+          </UiTitle>
+          <p class="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed">
+            Have a project in mind? Let's work together to bring your ideas to life.
+          </p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6 ">
           <!-- Navigation -->
-          <div class="bg-card/50 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-border/50 shadow-sm">
-            <UiTitle as="h3" size="md" weight="semibold" class="mb-6">Navigation</UiTitle>
+          <div class="bg-card/50 backdrop-blur-xl h-auto rounded-2xl p-6 flex-col flex gap-5 border border-border/50 shadow-sm">
+            <UiTitle as="h3" size="md" weight="semibold" class="">Navigation</UiTitle>
             <div class="space-y-4">
               <div>
                 <NuxtLink to="/" class="text-lg font-medium hover:text-primary transition-colors block">Home</NuxtLink>
@@ -42,7 +51,7 @@
               </div>
 
               <div>
-                <p class="text-sm text-muted-foreground mb-4">Social</p>
+                <p class="text-sm text-muted-foreground ">Social</p>
                 <div class="flex gap-3">
                   <UiButton href="https://github.com/judahbsullivan" target="_blank" variant="primary" size="sm"
                     class="w-11 h-11 p-0">

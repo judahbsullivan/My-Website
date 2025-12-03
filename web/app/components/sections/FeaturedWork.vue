@@ -25,35 +25,35 @@
       <!-- Creative Grid Layout -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
         <!-- Large Featured Card -->
-        <div class="md:col-span-2 aspect-video rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
+        <div class="md:col-span-2 aspect-video rounded-xl bg-linear-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
           <div class="text-center">
             <span class="text-muted-foreground text-sm group-hover:text-primary transition-colors">Featured Project</span>
           </div>
         </div>
         
         <!-- Small Card 1 -->
-        <div class="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
+        <div class="aspect-square rounded-xl bg-linear-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
           <div class="text-center">
             <span class="text-muted-foreground text-sm group-hover:text-primary transition-colors">Project</span>
           </div>
         </div>
         
         <!-- Small Card 2 -->
-        <div class="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
+        <div class="aspect-square rounded-xl bg-linear-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
           <div class="text-center">
             <span class="text-muted-foreground text-sm group-hover:text-primary transition-colors">Project</span>
           </div>
         </div>
         
         <!-- Medium Card -->
-        <div class="md:col-span-2 aspect-video rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
+        <div class="md:col-span-2 aspect-video rounded-xl bg-linear-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
           <div class="text-center">
             <span class="text-muted-foreground text-sm group-hover:text-primary transition-colors">Project Preview</span>
           </div>
         </div>
         
         <!-- Small Card 3 -->
-        <div class="aspect-square rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
+        <div class="aspect-square rounded-xl bg-linear-to-br from-primary/20 to-primary/5 border border-border/30 flex items-center justify-center overflow-hidden group hover:border-primary/50 transition-colors">
           <div class="text-center">
             <span class="text-muted-foreground text-sm group-hover:text-primary transition-colors">Project</span>
           </div>

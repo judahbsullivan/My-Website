@@ -44,14 +44,28 @@ var connectionString =
     $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true";
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
-// Identity
+// Identity with secure password reset token configuration
 builder
-    .Services.AddIdentity<AppUser, IdentityRole>()
+    .Services.AddIdentity<AppUser, IdentityRole>(options =>
+    {
+        // Password reset token expiration: 1 hour (3600 seconds)
+        options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+    })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+// Configure token provider options for password reset
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    // Password reset tokens expire after 1 hour
+    options.TokenLifespan = TimeSpan.FromHours(1);
+});
+
 // JWT Token Service
 builder.Services.AddSingleton<TokenService>();
+
+// Email Service
+builder.Services.AddSingleton<EmailService>();
 
 // Add Controllers with JSON options
 builder.Services.AddControllers()

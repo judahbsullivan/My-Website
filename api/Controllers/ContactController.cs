@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyPortfolio.Api.Services;
 using MyPortfolio.Data;
 using MyPortfolio.Models;
 
@@ -9,10 +10,12 @@ namespace MyPortfolio.Controllers
     public class ContactController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly EmailService _emailService;
 
-        public ContactController(AppDbContext context)
+        public ContactController(AppDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         // POST: api/contact
@@ -37,7 +40,21 @@ namespace MyPortfolio.Controllers
             _context.ContactMessages.Add(message);
             await _context.SaveChangesAsync();
 
-            // TODO: Send email notification here if needed
+            // Send email notification
+            try
+            {
+                await _emailService.SendContactFormEmailAsync(
+                    message.Name,
+                    message.Email,
+                    string.IsNullOrWhiteSpace(message.Subject) ? "No Subject" : message.Subject,
+                    message.Message
+                );
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the request - message is already saved
+                Console.WriteLine($"Error sending contact form email: {ex.Message}");
+            }
 
             return Ok(new { message = "Message sent successfully" });
         }
