@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen pt-24">
     <!-- Loading -->
-    <div v-if="pending" class="container max-w-6xl mx-auto py-20">
+    <div v-if="pending" class=" py-20">
       <div class="animate-pulse space-y-8">
         <div class="h-4 bg-gray-800 rounded w-32" />
         <div class="h-12 bg-gray-800 rounded w-2/3" />

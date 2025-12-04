@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyPortfolio.Data;
@@ -32,7 +33,7 @@ namespace MyPortfolio.Controllers
                     Title = p.Title,
                     Category = p.Category,
                     Excerpt = p.Excerpt,
-                    ImageUrl = p.ImageUrl,
+                    Image = p.Image,
                     ReadTimeMinutes = p.ReadTimeMinutes,
                     IsFeatured = p.IsFeatured,
                     PublishedAt = p.PublishedAt
@@ -57,7 +58,7 @@ namespace MyPortfolio.Controllers
                     Title = p.Title,
                     Category = p.Category,
                     Excerpt = p.Excerpt,
-                    ImageUrl = p.ImageUrl,
+                    Image = p.Image,
                     ReadTimeMinutes = p.ReadTimeMinutes,
                     IsFeatured = p.IsFeatured,
                     PublishedAt = p.PublishedAt
@@ -86,7 +87,7 @@ namespace MyPortfolio.Controllers
                 Category = post.Category,
                 Excerpt = post.Excerpt,
                 Content = post.Content,
-                ImageUrl = post.ImageUrl,
+                Image = post.Image,
                 Tags = JsonSerializer.Deserialize<List<string>>(post.Tags) ?? new List<string>(),
                 ReadTimeMinutes = post.ReadTimeMinutes,
                 PublishedAt = post.PublishedAt,
@@ -120,7 +121,7 @@ namespace MyPortfolio.Controllers
                     Title = p.Title,
                     Category = p.Category,
                     Excerpt = p.Excerpt,
-                    ImageUrl = p.ImageUrl,
+                    Image = p.Image,
                     ReadTimeMinutes = p.ReadTimeMinutes,
                     PublishedAt = p.PublishedAt
                 })
@@ -131,6 +132,7 @@ namespace MyPortfolio.Controllers
 
         // POST: api/blog (Admin only)
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<BlogPost>> CreatePost([FromBody] CreateBlogPostRequest request)
         {
             if (await _context.BlogPosts.AnyAsync(p => p.Slug == request.Slug))
@@ -143,7 +145,7 @@ namespace MyPortfolio.Controllers
                 Category = request.Category,
                 Excerpt = request.Excerpt,
                 Content = request.Content,
-                ImageUrl = request.ImageUrl,
+                Image = request.Image,
                 Tags = JsonSerializer.Serialize(request.Tags ?? new List<string>()),
                 ReadTimeMinutes = request.ReadTimeMinutes,
                 IsFeatured = request.IsFeatured,
@@ -167,7 +169,7 @@ namespace MyPortfolio.Controllers
         public string Title { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public string Excerpt { get; set; } = string.Empty;
-        public string? ImageUrl { get; set; }
+        public string? Image { get; set; }
         public int ReadTimeMinutes { get; set; }
         public bool IsFeatured { get; set; }
         public DateTime? PublishedAt { get; set; }
@@ -194,7 +196,7 @@ namespace MyPortfolio.Controllers
         public string Category { get; set; } = string.Empty;
         public string Excerpt { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
-        public string? ImageUrl { get; set; }
+        public string? Image { get; set; }
         public List<string>? Tags { get; set; }
         public int ReadTimeMinutes { get; set; } = 5;
         public bool IsFeatured { get; set; }

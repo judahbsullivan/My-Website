@@ -12,6 +12,7 @@ namespace MyPortfolio.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
+        public DbSet<Playground> Playgrounds { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -40,6 +41,18 @@ namespace MyPortfolio.Data
             builder.Entity<ContactMessage>(entity =>
             {
                 entity.HasIndex(e => e.CreatedAt);
+            });
+
+            // Playground configuration
+            builder.Entity<Playground>(entity =>
+            {
+                entity.HasIndex(e => e.Slug).IsUnique();
+                entity.Property(e => e.Dependencies).HasDefaultValue("[]");
+                entity.Property(e => e.Tags).HasDefaultValue("[]");
+                entity.HasOne(e => e.Author)
+                    .WithMany()
+                    .HasForeignKey(e => e.AuthorId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }

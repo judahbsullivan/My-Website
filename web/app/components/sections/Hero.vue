@@ -1,9 +1,17 @@
 <template>
-  <div class="min-h-screen mt-10 pt-10 pb-24 bg-background">
+  <div class="min-h-screen  bg-background">
     <section>
       <div class=" px-4 sm:px-6">
         <div class="grid gap-6 items-center">
-          <div class="bg-card/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border-2 border-border shadow-lg">
+          <UiBentoBox
+            container
+            backdrop
+            border
+            shadow
+            padding="lg"
+            rounded="2xl"
+            :className="homepageData.sections.hero.background"
+          >
             <!-- Small badge, similar subtle styling -->
             <div
               class="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/40 px-3 py-1 text-xs font-medium text-muted-foreground mb-4 sm:mb-5">
@@ -42,9 +50,9 @@
               </div>
             </div>
 
-            <!-- Availability pill (mirrors contact page “open to opportunities”) -->
+            <!-- Availability pill (mirrors contact page "open to opportunities") -->
 
-          </div>
+          </UiBentoBox>
 
         </div>
       </div>
@@ -53,5 +61,6 @@
 </template>
 
 <script setup lang="ts">
+import homepageData from '../../data/homepage.json'
 // Hero section component
 </script>

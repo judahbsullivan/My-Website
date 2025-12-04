@@ -19,6 +19,7 @@ namespace MyPortfolio.Models
         public string Subject { get; set; } = string.Empty;
 
         [Required]
+        [MaxLength(5000)]
         public string Message { get; set; } = string.Empty;
 
         public bool IsRead { get; set; } = false;

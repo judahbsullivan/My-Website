@@ -192,12 +192,12 @@ namespace MyPortfolio.Api.Services
             html.AppendLine("<div style='background: #ffffff; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e5e7eb;'>");
             html.AppendLine("<div style='margin-bottom: 20px;'>");
             html.AppendLine($"<p style='font-size: 14px; color: #6b7280; margin-bottom: 5px;'>From:</p>");
-            html.AppendLine($"<p style='font-size: 16px; font-weight: 600; margin: 0;'>{fromName}</p>");
-            html.AppendLine($"<p style='font-size: 14px; color: #6b7280; margin: 0;'>{fromEmail}</p>");
+            html.AppendLine($"<p style='font-size: 16px; font-weight: 600; margin: 0;'>{System.Net.WebUtility.HtmlEncode(fromName)}</p>");
+            html.AppendLine($"<p style='font-size: 14px; color: #6b7280; margin: 0;'>{System.Net.WebUtility.HtmlEncode(fromEmail)}</p>");
             html.AppendLine("</div>");
             html.AppendLine("<div style='margin-bottom: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;'>");
             html.AppendLine($"<p style='font-size: 14px; color: #6b7280; margin-bottom: 5px;'>Subject:</p>");
-            html.AppendLine($"<p style='font-size: 16px; font-weight: 600; margin: 0;'>{subject}</p>");
+            html.AppendLine($"<p style='font-size: 16px; font-weight: 600; margin: 0;'>{System.Net.WebUtility.HtmlEncode(subject)}</p>");
             html.AppendLine("</div>");
             html.AppendLine("<div style='margin-bottom: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;'>");
             html.AppendLine($"<p style='font-size: 14px; color: #6b7280; margin-bottom: 10px;'>Message:</p>");
@@ -206,7 +206,7 @@ namespace MyPortfolio.Api.Services
             html.AppendLine("</div>");
             html.AppendLine("</div>");
             html.AppendLine($"<div style='margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;'>");
-            html.AppendLine($"<a href='mailto:{fromEmail}' style='display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;'>Reply to {fromName}</a>");
+            html.AppendLine($"<a href='mailto:{System.Net.WebUtility.HtmlEncode(fromEmail)}' style='display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;'>Reply to {System.Net.WebUtility.HtmlEncode(fromName)}</a>");
             html.AppendLine("</div>");
             html.AppendLine("</div>");
             html.AppendLine("</body>");

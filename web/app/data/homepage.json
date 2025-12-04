@@ -1,0 +1,20 @@
+{
+  "sections": {
+    "hero": {
+      "background": "bg-primary/8"
+    },
+    "whatIDo": {
+      "background": "bg-white dark:bg-background"
+    },
+    "quickFacts": {
+      "background": "bg-white dark:bg-background"
+    },
+    "featuredWork": {
+      "background": "bg-white dark:bg-background"
+    },
+    "aboutMe": {
+      "background": "bg-white dark:bg-background"
+    }
+  }
+}
+

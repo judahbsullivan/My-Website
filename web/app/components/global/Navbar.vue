@@ -5,16 +5,21 @@
         Judah Sullivan
       </NuxtLink>
       <nav class="hidden md:flex items-center gap-6 min-w-0">
-        <NuxtLink to="/">Home</NuxtLink>
         <NuxtLink to="/about">About</NuxtLink>
         <NuxtLink to="/projects">Projects</NuxtLink>
         <NuxtLink to="/blog">Blog</NuxtLink>
-        <UiButton to="/contact" class="shrink-0">Contact</UiButton>
-      </nav>  
+        <NuxtLink to="/playground">PlayGround</NuxtLink>
+        <NuxtLink to="/contact">Contact</NuxtLink>
+      </nav>
+
+      <div class="space-x-5">
+        <ThemeToggle />
+        <UiButton to="/auth" class="shrink-0">Login</UiButton>
+      </div>
     </div>
-   
-    
-        <MobileMenu :is-open="isMobileMenuOpen" @close="isMobileMenuOpen = false" />
+
+
+    <MobileMenu :is-open="isMobileMenuOpen" @close="isMobileMenuOpen = false" />
   </header>
 </template>
 

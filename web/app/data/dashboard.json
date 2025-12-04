@@ -1,0 +1,240 @@
+{
+  "quickActions": [
+    {
+      "id": "create-playground",
+      "title": "Create Playground",
+      "icon": "heroicons:sparkles",
+      "variant": "primary",
+      "to": null,
+      "action": null
+    },
+    {
+      "id": "code",
+      "title": "Code",
+      "icon": "heroicons:code-bracket",
+      "variant": "secondary",
+      "to": null,
+      "action": null
+    },
+    {
+      "id": "add-blog",
+      "title": "Add Blog",
+      "icon": "heroicons:pencil-square",
+      "variant": "success",
+      "to": "/admin/blog/create",
+      "action": null
+    },
+    {
+      "id": "add-project",
+      "title": "Add Project",
+      "icon": "heroicons:plus-circle",
+      "variant": "info",
+      "to": null,
+      "action": null
+    },
+    {
+      "id": "reply-messages",
+      "title": "Reply to Messages",
+      "icon": "heroicons:chat-bubble-left-right",
+      "variant": "warning",
+      "to": null,
+      "action": null,
+      "colSpan": 2,
+      "size": "md"
+    }
+  ],
+  "analytics": [
+    {
+      "label": "Visits",
+      "value": "2.4K",
+      "change": "+12.5%",
+      "color": "primary"
+    },
+    {
+      "label": "Clicks",
+      "value": "1.8K",
+      "change": "+8.3%",
+      "color": "secondary"
+    },
+    {
+      "label": "Page Views",
+      "value": "5.2K",
+      "change": "+15.2%",
+      "color": "success"
+    },
+    {
+      "label": "Bounce Rate",
+      "value": "32%",
+      "change": "-4.1%",
+      "color": "warning"
+    },
+    {
+      "label": "Avg. Session",
+      "value": "3m 24s",
+      "change": "+0.8m",
+      "color": "info"
+    }
+  ],
+  "projectStatus": [
+    {
+      "title": "E-commerce Platform",
+      "due": "Due in 2 weeks",
+      "progress": 85,
+      "color": "primary"
+    },
+    {
+      "title": "Mobile App Redesign",
+      "due": "Due in 1 month",
+      "progress": 60,
+      "color": "secondary"
+    },
+    {
+      "title": "Brand Identity",
+      "due": "Due in 3 weeks",
+      "progress": 40,
+      "color": "success"
+    },
+    {
+      "title": "API Development",
+      "due": "Due in 5 days",
+      "progress": 92,
+      "color": "info"
+    }
+  ],
+  "quickInfo": [
+    {
+      "title": "Projects",
+      "value": "24 total",
+      "icon": "heroicons:folder",
+      "variant": "primary"
+    },
+    {
+      "title": "Tasks",
+      "value": "8 pending",
+      "icon": "heroicons:clipboard-document-check",
+      "variant": "secondary"
+    },
+    {
+      "title": "Actions",
+      "value": "Quick links",
+      "icon": "heroicons:bolt",
+      "variant": "success"
+    },
+    {
+      "title": "Activity",
+      "value": "Recent updates",
+      "icon": "heroicons:clock",
+      "variant": "info"
+    }
+  ],
+  "blogActions": [
+    {
+      "id": "create-blog",
+      "title": "Create Blog",
+      "icon": "heroicons:plus-circle",
+      "variant": "success",
+      "to": "/admin/blog/create",
+      "tooltip": "Create a new blog post"
+    },
+    {
+      "id": "edit-blog",
+      "title": "Edit Blog",
+      "icon": "heroicons:pencil-square",
+      "variant": "primary",
+      "to": "/admin/blog",
+      "tooltip": "Edit existing blog posts"
+    },
+    {
+      "id": "view-blog",
+      "title": "View Blog",
+      "icon": "heroicons:eye",
+      "variant": "secondary",
+      "to": "/blog",
+      "tooltip": "View published blog posts"
+    },
+    {
+      "id": "manage-blog",
+      "title": "Manage Blog",
+      "icon": "heroicons:cog-6-tooth",
+      "variant": "info",
+      "to": "/admin/blog",
+      "tooltip": "Manage blog settings and categories"
+    }
+  ],
+  "projectActions": [
+    {
+      "id": "create-project",
+      "title": "Create Project",
+      "icon": "heroicons:plus-circle",
+      "variant": "success",
+      "to": "/admin/projects/create",
+      "tooltip": "Create a new project"
+    },
+    {
+      "id": "edit-project",
+      "title": "Edit Project",
+      "icon": "heroicons:pencil-square",
+      "variant": "primary",
+      "to": "/admin/projects",
+      "tooltip": "Edit existing projects"
+    },
+    {
+      "id": "view-projects",
+      "title": "View Projects",
+      "icon": "heroicons:eye",
+      "variant": "secondary",
+      "to": "/projects",
+      "tooltip": "View all published projects"
+    }
+  ],
+  "playgroundActions": [
+    {
+      "id": "create-playground",
+      "title": "Create Playground",
+      "icon": "heroicons:sparkles",
+      "variant": "primary",
+      "to": "/admin/playground/create",
+      "tooltip": "Create a new code playground"
+    },
+    {
+      "id": "edit-playground",
+      "title": "Edit Playground",
+      "icon": "heroicons:pencil-square",
+      "variant": "info",
+      "to": "/admin/playground",
+      "tooltip": "Edit existing playgrounds"
+    },
+    {
+      "id": "view-playground",
+      "title": "View Playground",
+      "icon": "heroicons:code-bracket",
+      "variant": "secondary",
+      "to": "/playground",
+      "tooltip": "View all playgrounds"
+    }
+  ],
+  "sections": {
+    "projectStatus": {
+      "background": "bg-white dark:bg-background"
+    },
+    "quickActions": {
+      "background": "bg-white dark:bg-background"
+    },
+    "analytics": {
+      "background": "bg-white dark:bg-background"
+    },
+    "quickInfo": {
+      "background": "bg-white dark:bg-background"
+    },
+    "blogActions": {
+      "background": "bg-white dark:bg-background"
+    },
+    "projectActions": {
+      "background": "bg-white dark:bg-background"
+    },
+    "playgroundActions": {
+      "background": "bg-white dark:bg-background"
+    }
+  }
+}
+

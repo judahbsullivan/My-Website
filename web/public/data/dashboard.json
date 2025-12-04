@@ -1,0 +1,131 @@
+{
+  "quickActions": [
+    {
+      "id": "create-playground",
+      "title": "Create Playground",
+      "icon": "heroicons:sparkles",
+      "variant": "primary",
+      "to": null,
+      "action": null
+    },
+    {
+      "id": "code",
+      "title": "Code",
+      "icon": "heroicons:code-bracket",
+      "variant": "secondary",
+      "to": null,
+      "action": null
+    },
+    {
+      "id": "add-blog",
+      "title": "Add Blog",
+      "icon": "heroicons:pencil-square",
+      "variant": "success",
+      "to": "/admin/blog/create",
+      "action": null
+    },
+    {
+      "id": "add-project",
+      "title": "Add Project",
+      "icon": "heroicons:plus-circle",
+      "variant": "info",
+      "to": null,
+      "action": null
+    },
+    {
+      "id": "reply-messages",
+      "title": "Reply to Messages",
+      "icon": "heroicons:chat-bubble-left-right",
+      "variant": "warning",
+      "to": null,
+      "action": null,
+      "colSpan": 2,
+      "size": "sm"
+    }
+  ],
+  "analytics": [
+    {
+      "label": "Visits",
+      "value": "2.4K",
+      "change": "+12.5%",
+      "color": "primary"
+    },
+    {
+      "label": "Clicks",
+      "value": "1.8K",
+      "change": "+8.3%",
+      "color": "secondary"
+    },
+    {
+      "label": "Page Views",
+      "value": "5.2K",
+      "change": "+15.2%",
+      "color": "success"
+    },
+    {
+      "label": "Bounce Rate",
+      "value": "32%",
+      "change": "-4.1%",
+      "color": "warning"
+    },
+    {
+      "label": "Avg. Session",
+      "value": "3m 24s",
+      "change": "+0.8m",
+      "color": "info"
+    }
+  ],
+  "projectStatus": [
+    {
+      "title": "E-commerce Platform",
+      "due": "Due in 2 weeks",
+      "progress": 85,
+      "color": "primary"
+    },
+    {
+      "title": "Mobile App Redesign",
+      "due": "Due in 1 month",
+      "progress": 60,
+      "color": "secondary"
+    },
+    {
+      "title": "Brand Identity",
+      "due": "Due in 3 weeks",
+      "progress": 40,
+      "color": "success"
+    },
+    {
+      "title": "API Development",
+      "due": "Due in 5 days",
+      "progress": 92,
+      "color": "info"
+    }
+  ],
+  "quickInfo": [
+    {
+      "title": "Projects",
+      "value": "24 total",
+      "icon": "heroicons:folder",
+      "variant": "primary"
+    },
+    {
+      "title": "Tasks",
+      "value": "8 pending",
+      "icon": "heroicons:clipboard-document-check",
+      "variant": "secondary"
+    },
+    {
+      "title": "Actions",
+      "value": "Quick links",
+      "icon": "heroicons:bolt",
+      "variant": "success"
+    },
+    {
+      "title": "Activity",
+      "value": "Recent updates",
+      "icon": "heroicons:clock",
+      "variant": "info"
+    }
+  ]
+}
+

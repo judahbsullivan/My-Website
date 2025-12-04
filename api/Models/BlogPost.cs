@@ -23,7 +23,7 @@ namespace MyPortfolio.Models
         public string Content { get; set; } = string.Empty;
 
         [MaxLength(500)]
-        public string? ImageUrl { get; set; }
+        public string? Image { get; set; }
 
         // Stored as JSON array of strings
         public string Tags { get; set; } = "[]";

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyPortfolio.Data;
@@ -98,8 +99,9 @@ namespace MyPortfolio.Controllers
             return Ok(dto);
         }
 
-        // POST: api/projects (Admin only - add auth later)
+        // POST: api/projects (Admin only)
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<Project>> CreateProject([FromBody] CreateProjectRequest request)
         {
             if (await _context.Projects.AnyAsync(p => p.Slug == request.Slug))

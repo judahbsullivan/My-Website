@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen pt-24">
     <!-- Back Link -->
-    <div class="container max-w-4xl mx-auto px-6 py-8">
+    <div class=" px-6 py-8">
       <NuxtLink to="/blog" class="text-neutral-400 hover:text-white transition-colors">
         ← Back to Blog
       </NuxtLink>

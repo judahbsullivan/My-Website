@@ -105,6 +105,10 @@
 html {
   scroll-behavior: smooth;
 }
+body{
+  @apply bg-background box-border;
+  
+}
 
 p, a{ 
   @apply text-muted-foreground leading-relaxed mb-6 font-light;

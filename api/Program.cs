@@ -1,6 +1,10 @@
+using System.Text;
+using AspNetCoreRateLimit;
 using DotNetEnv;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using MyPortfolio.Api.Services;
 using MyPortfolio.Data;
 using MyPortfolio.Models;
@@ -8,9 +12,12 @@ using MyPortfolio.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // -------------------------
-// Load .env
+// Load .env (Development only)
 // -------------------------
-Env.Load("../.env"); // adjust if your .env is in root outside api/
+if (builder.Environment.IsDevelopment())
+{
+    Env.Load("../.env"); // adjust if your .env is in root outside api/
+}
 
 var dbHost =
     Environment.GetEnvironmentVariable("DB_HOST") ?? throw new Exception("DB_HOST missing");
@@ -35,9 +42,72 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         "AllowFrontend",
-        policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000")
+        policy =>
+        {
+            if (builder.Environment.IsDevelopment())
+            {
+                policy.AllowAnyHeader()
+                     .AllowAnyMethod()
+                     .WithOrigins("http://localhost:3000");
+            }
+            else
+            {
+                // Configure production origins
+                var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries) 
+                    ?? new[] { "https://judahsullivan.com" };
+                
+                policy.AllowAnyHeader()
+                     .AllowAnyMethod()
+                     .WithOrigins(allowedOrigins)
+                     .AllowCredentials();
+            }
+        }
     );
 });
+
+// Rate Limiting
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.HttpStatusCode = 429;
+    options.RealIpHeader = "X-Real-IP";
+    options.ClientIdHeader = "X-ClientId";
+    options.GeneralRules = new List<RateLimitRule>
+    {
+        new RateLimitRule
+        {
+            Endpoint = "POST:/api/contact",
+            Period = "1m",
+            Limit = 5
+        },
+        new RateLimitRule
+        {
+            Endpoint = "POST:/api/auth/register",
+            Period = "1h",
+            Limit = 3
+        },
+        new RateLimitRule
+        {
+            Endpoint = "POST:/api/auth/login",
+            Period = "15m",
+            Limit = 5
+        },
+        new RateLimitRule
+        {
+            Endpoint = "POST:/api/auth/forgot-password",
+            Period = "1h",
+            Limit = 3
+        }
+    };
+});
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
 
 // EF Core / Postgres
 var connectionString =
@@ -50,6 +120,19 @@ builder
     {
         // Password reset token expiration: 1 hour (3600 seconds)
         options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultProvider;
+        
+        // Account lockout configuration
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.AllowedForNewUsers = true;
+        
+        // Password requirements
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequiredUniqueChars = 1;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -63,6 +146,30 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 
 // JWT Token Service
 builder.Services.AddSingleton<TokenService>();
+
+// JWT Authentication
+var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new Exception("JWT_KEY missing");
+var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? "MyPortfolio";
+var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? "MyPortfolioUsers";
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
 
 // Email Service
 builder.Services.AddSingleton<EmailService>();
@@ -86,8 +193,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Only force HTTPS in production (Fly.io handles this)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+app.UseIpRateLimiting();
 app.UseCors("AllowFrontend");
+
+// Enable static file serving for uploaded images
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

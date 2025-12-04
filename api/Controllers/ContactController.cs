@@ -29,6 +29,20 @@ namespace MyPortfolio.Controllers
             if (string.IsNullOrWhiteSpace(request.Message))
                 return BadRequest(new { message = "Message is required" });
 
+            // Input validation: length checks
+            if (request.Name.Length > 100)
+                return BadRequest(new { message = "Name must be 100 characters or less" });
+            if (request.Email.Length > 200)
+                return BadRequest(new { message = "Email must be 200 characters or less" });
+            if (request.Subject != null && request.Subject.Length > 100)
+                return BadRequest(new { message = "Subject must be 100 characters or less" });
+            if (request.Message.Length > 5000)
+                return BadRequest(new { message = "Message must be 5000 characters or less" });
+
+            // Basic email format validation
+            if (!System.Text.RegularExpressions.Regex.IsMatch(request.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                return BadRequest(new { message = "Invalid email format" });
+
             var message = new ContactMessage
             {
                 Name = request.Name.Trim(),
