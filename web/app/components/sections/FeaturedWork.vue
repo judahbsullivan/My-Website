@@ -25,6 +25,11 @@
         <div v-if="pending" class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div v-for="i in 5" :key="i" class="aspect-video rounded-xl bg-muted animate-pulse" />
         </div>
+        <div v-else-if="error" class="text-center py-12">
+          <Icon name="heroicons:exclamation-triangle" class="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+          <p class="text-muted-foreground">Unable to load featured projects</p>
+          <p class="text-xs text-muted-foreground mt-2">API may be unavailable</p>
+        </div>
         <div v-else-if="featuredProjects && featuredProjects.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Large Featured Card (First Project) -->
         <NuxtLink
@@ -230,10 +235,12 @@ const config = useRuntimeConfig()
 const apiBase = config.public.apiBase
 
 // Fetch featured projects
-const { data: projects, pending } = await useFetch<Project[]>(
+const { data: projects, pending, error } = await useFetch<Project[]>(
   `${apiBase}/api/projects/featured`,
   {
-    default: () => []
+    default: () => [],
+    server: false, // Fetch on client-side only to avoid blocking SSR
+    lazy: true // Don't block page rendering
   }
 )
 
