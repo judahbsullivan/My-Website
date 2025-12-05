@@ -22,48 +22,86 @@ namespace MyPortfolio.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
         {
-            var projects = await _context.Projects
-                .OrderByDescending(p => p.IsFeatured)
-                .ThenBy(p => p.DisplayOrder)
-                .ThenByDescending(p => p.CreatedAt)
-                .Select(p => new ProjectDto
-                {
-                    Id = p.Id,
-                    Slug = p.Slug,
-                    Title = p.Title,
-                    Category = p.Category,
-                    Year = p.Year,
-                    Description = p.Description,
-                    ImageUrl = p.ImageUrl,
-                    IsFeatured = p.IsFeatured
-                })
-                .ToListAsync();
+            try
+            {
+                var projects = await _context.Projects
+                    .OrderByDescending(p => p.IsFeatured)
+                    .ThenBy(p => p.DisplayOrder)
+                    .ThenByDescending(p => p.CreatedAt)
+                    .Select(p => new ProjectDto
+                    {
+                        Id = p.Id,
+                        Slug = p.Slug,
+                        Title = p.Title,
+                        Category = p.Category,
+                        Year = p.Year,
+                        Description = p.Description,
+                        ImageUrl = p.ImageUrl,
+                        IsFeatured = p.IsFeatured
+                    })
+                    .ToListAsync();
 
-            return Ok(projects);
+                return Ok(projects);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching projects: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                return StatusCode(500, new { 
+                    message = "Error fetching projects",
+                    error = ex.Message,
+                    details = ex.InnerException?.Message
+                });
+            }
         }
 
         // GET: api/projects/featured
         [HttpGet("featured")]
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetFeaturedProjects()
         {
-            var projects = await _context.Projects
-                .Where(p => p.IsFeatured)
-                .OrderBy(p => p.DisplayOrder)
-                .Take(4)
-                .Select(p => new ProjectDto
-                {
-                    Id = p.Id,
-                    Slug = p.Slug,
-                    Title = p.Title,
-                    Category = p.Category,
-                    Year = p.Year,
-                    Description = p.Description,
-                    ImageUrl = p.ImageUrl,
-                    IsFeatured = p.IsFeatured
-                })
-                .ToListAsync();
+            try
+            {
+                var projects = await _context.Projects
+                    .Where(p => p.IsFeatured)
+                    .OrderBy(p => p.DisplayOrder)
+                    .Take(4)
+                    .Select(p => new ProjectDto
+                    {
+                        Id = p.Id,
+                        Slug = p.Slug,
+                        Title = p.Title,
+                        Category = p.Category,
+                        Year = p.Year,
+                        Description = p.Description,
+                        ImageUrl = p.ImageUrl,
+                        IsFeatured = p.IsFeatured
+                    })
+                    .ToListAsync();
 
-            return Ok(projects);
+                return Ok(projects);
+            }
+            catch (Exception ex)
+            {
+                // Log the error for debugging
+                Console.WriteLine($"Error fetching featured projects: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                // Return error details in development, generic message in production
+                return StatusCode(500, new { 
+                    message = "Error fetching featured projects",
+                    error = ex.Message,
+                    details = ex.InnerException?.Message
+                });
+            }
         }
 
         // GET: api/projects/{slug}

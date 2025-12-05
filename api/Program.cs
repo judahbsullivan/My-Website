@@ -55,7 +55,7 @@ builder.Services.AddCors(options =>
                 // Configure production origins
                 var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?
                     .Split(',', StringSplitOptions.RemoveEmptyEntries) 
-                    ?? new[] { "https://judahsullivan.com" };
+                    ?? new[] { "https://judahsullivan.dev" };
                 
                 policy.AllowAnyHeader()
                      .AllowAnyMethod()

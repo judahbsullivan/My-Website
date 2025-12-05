@@ -22,25 +22,43 @@ namespace MyPortfolio.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BlogPostDto>>> GetPosts()
         {
-            var posts = await _context.BlogPosts
-                .Where(p => p.IsPublished)
-                .OrderByDescending(p => p.IsFeatured)
-                .ThenByDescending(p => p.PublishedAt)
-                .Select(p => new BlogPostDto
-                {
-                    Id = p.Id,
-                    Slug = p.Slug,
-                    Title = p.Title,
-                    Category = p.Category,
-                    Excerpt = p.Excerpt,
-                    Image = p.Image,
-                    ReadTimeMinutes = p.ReadTimeMinutes,
-                    IsFeatured = p.IsFeatured,
-                    PublishedAt = p.PublishedAt
-                })
-                .ToListAsync();
+            try
+            {
+                var posts = await _context.BlogPosts
+                    .Where(p => p.IsPublished)
+                    .OrderByDescending(p => p.IsFeatured)
+                    .ThenByDescending(p => p.PublishedAt)
+                    .Select(p => new BlogPostDto
+                    {
+                        Id = p.Id,
+                        Slug = p.Slug,
+                        Title = p.Title,
+                        Category = p.Category,
+                        Excerpt = p.Excerpt,
+                        Image = p.Image,
+                        ReadTimeMinutes = p.ReadTimeMinutes,
+                        IsFeatured = p.IsFeatured,
+                        PublishedAt = p.PublishedAt
+                    })
+                    .ToListAsync();
 
-            return Ok(posts);
+                return Ok(posts);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching blog posts: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                
+                return StatusCode(500, new { 
+                    message = "Error fetching blog posts",
+                    error = ex.Message,
+                    details = ex.InnerException?.Message
+                });
+            }
         }
 
         // GET: api/blog/latest
