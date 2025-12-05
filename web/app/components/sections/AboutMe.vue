@@ -15,10 +15,10 @@
         </UiTitle>
         <div class="space-y-4">
           <div>
-            <p class="text-lg sm:text-xl font-semibold text-secondary mb-2">
+            <p class="text-lg sm:text-xl font-semibold text-foreground mb-2">
               {{ aboutData.bio.tagline }}
             </p>
-            <p class="text-base sm:text-xl text-mute-foreground/10 max-w-2xl leading-relaxed">
+            <p class="text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
               {{ aboutData.bio.description }}
             </p>
           </div>
