@@ -56,48 +56,48 @@ const sizeClasses = {
   full: 'h-full'
 }
 
-// Variant background classes - subtle theme colors that don't overpower content
+// Variant background classes - better contrast for dark/light modes
 const variantBackgroundClasses = {
-  primary: 'bg-primary/10',
-  secondary: 'bg-blue-500/10',
-  success: 'bg-success/10',
-  warning: 'bg-amber-500/10',
-  danger: 'bg-destructive/10',
-  info: 'bg-purple-500/10',
-  default: 'bg-muted/30'
+  primary: 'bg-primary/15 dark:bg-primary/20',
+  secondary: 'bg-blue-500/15 dark:bg-blue-500/20',
+  success: 'bg-success/15 dark:bg-success/20',
+  warning: 'bg-amber-500/15 dark:bg-amber-500/20',
+  danger: 'bg-destructive/15 dark:bg-destructive/20',
+  info: 'bg-purple-500/15 dark:bg-purple-500/20',
+  default: 'bg-card dark:bg-card/80'
 }
 
-// Variant background classes for containers - lighter so content is visible
+// Variant background classes for containers - more visible backgrounds
 const variantContainerBackgroundClasses = {
-  primary: 'bg-primary/8',
-  secondary: 'bg-blue-500/8',
-  success: 'bg-success/8',
-  warning: 'bg-amber-500/8',
-  danger: 'bg-destructive/8',
-  info: 'bg-purple-500/8',
-  default: 'bg-muted/20'
+  primary: 'bg-primary/12 dark:bg-primary/18',
+  secondary: 'bg-blue-500/12 dark:bg-blue-500/18',
+  success: 'bg-success/12 dark:bg-success/18',
+  warning: 'bg-amber-500/12 dark:bg-amber-500/18',
+  danger: 'bg-destructive/12 dark:bg-destructive/18',
+  info: 'bg-purple-500/12 dark:bg-purple-500/18',
+  default: 'bg-card dark:bg-card/90'
 }
 
-// Variant gradient classes (for gradient mode)
+// Variant gradient classes (for gradient mode) - better contrast
 const variantGradientClasses = {
-  primary: 'from-primary/15 via-primary/8 to-primary/5',
-  secondary: 'from-blue-500/15 via-blue-500/8 to-blue-500/5',
-  success: 'from-success/15 via-success/8 to-success/5',
-  warning: 'from-amber-500/15 via-amber-500/8 to-amber-500/5',
-  danger: 'from-destructive/15 via-destructive/8 to-destructive/5',
-  info: 'from-purple-500/15 via-purple-500/8 to-purple-500/5',
-  default: 'from-muted/25 via-muted/15 to-muted/8'
+  primary: 'from-primary/20 via-primary/12 to-primary/8 dark:from-primary/25 dark:via-primary/18 dark:to-primary/12',
+  secondary: 'from-blue-500/20 via-blue-500/12 to-blue-500/8 dark:from-blue-500/25 dark:via-blue-500/18 dark:to-blue-500/12',
+  success: 'from-success/20 via-success/12 to-success/8 dark:from-success/25 dark:via-success/18 dark:to-success/12',
+  warning: 'from-amber-500/20 via-amber-500/12 to-amber-500/8 dark:from-amber-500/25 dark:via-amber-500/18 dark:to-amber-500/12',
+  danger: 'from-destructive/20 via-destructive/12 to-destructive/8 dark:from-destructive/25 dark:via-destructive/18 dark:to-destructive/12',
+  info: 'from-purple-500/20 via-purple-500/12 to-purple-500/8 dark:from-purple-500/25 dark:via-purple-500/18 dark:to-purple-500/12',
+  default: 'from-card via-card/90 to-card/80 dark:from-card dark:via-card/95 dark:to-card/90'
 }
 
-// Variant gradient classes for containers - lighter so content is visible
+// Variant gradient classes for containers - more visible
 const variantContainerGradientClasses = {
-  primary: 'from-primary/12 via-primary/8 to-primary/5',
-  secondary: 'from-blue-500/12 via-blue-500/8 to-blue-500/5',
-  success: 'from-success/12 via-success/8 to-success/5',
-  warning: 'from-amber-500/12 via-amber-500/8 to-amber-500/5',
-  danger: 'from-destructive/12 via-destructive/8 to-destructive/5',
-  info: 'from-purple-500/12 via-purple-500/8 to-purple-500/5',
-  default: 'from-muted/20 via-muted/12 to-muted/8'
+  primary: 'from-primary/18 via-primary/12 to-primary/8 dark:from-primary/22 dark:via-primary/18 dark:to-primary/14',
+  secondary: 'from-blue-500/18 via-blue-500/12 to-blue-500/8 dark:from-blue-500/22 dark:via-blue-500/18 dark:to-blue-500/14',
+  success: 'from-success/18 via-success/12 to-success/8 dark:from-success/22 dark:via-success/18 dark:to-success/14',
+  warning: 'from-amber-500/18 via-amber-500/12 to-amber-500/8 dark:from-amber-500/22 dark:via-amber-500/18 dark:to-amber-500/14',
+  danger: 'from-destructive/18 via-destructive/12 to-destructive/8 dark:from-destructive/22 dark:via-destructive/18 dark:to-destructive/14',
+  info: 'from-purple-500/18 via-purple-500/12 to-purple-500/8 dark:from-purple-500/22 dark:via-purple-500/18 dark:to-purple-500/14',
+  default: 'from-card via-card/95 to-card/90 dark:from-card dark:via-card/98 dark:to-card/95'
 }
 
 // Padding classes - increased for better content spacing
@@ -128,9 +128,9 @@ const bentoClasses = computed(() => {
       roundedClasses[props.rounded],
       paddingClasses[props.padding],
       props.backdrop ? 'backdrop-blur-xl' : '',
-      props.border ? 'border border-border/50' : '',
-      props.shadow ? 'shadow-lg' : '',
-      props.hover ? 'hover:border-primary/50 transition-all duration-300' : ''
+      props.border ? 'border border-border/50 dark:border-border/70' : '',
+      props.shadow ? 'shadow-lg dark:shadow-xl' : '',
+      props.hover ? 'hover:border-primary/50 dark:hover:border-primary/70 transition-all duration-300' : ''
     )
     
     // Add background color based on variant - more visible for containers
@@ -186,9 +186,9 @@ const bentoClasses = computed(() => {
     classes.push(props.className)
   }
 
-  // Add border if enabled
+  // Add border if enabled - better visibility in dark mode
   if (props.border) {
-    classes.push('border border-border/30')
+    classes.push('border border-border/40 dark:border-border/60')
   }
 
   // Add hover effect if enabled

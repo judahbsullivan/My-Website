@@ -325,22 +325,22 @@
   ],
   "sections": {
     "intro": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "stats": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "experience": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "education": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "interests": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "callToAction": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     }
   }
 }

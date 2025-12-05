@@ -1,19 +1,19 @@
 {
   "sections": {
     "hero": {
-      "background": "bg-primary/8"
+      "background": "bg-primary/8 dark:bg-primary/12"
     },
     "whatIDo": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "quickFacts": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-secondary dark:bg-secondary/90"
     },
     "featuredWork": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-background/90 dark:bg-background/10"
     },
     "aboutMe": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-foreground/10 dark:bg-foreground/90 text-secondary dark:text-secondary"
     }
   }
 }

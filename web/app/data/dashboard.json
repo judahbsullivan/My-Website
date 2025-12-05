@@ -215,25 +215,25 @@
   ],
   "sections": {
     "projectStatus": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "quickActions": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "analytics": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "quickInfo": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "blogActions": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "projectActions": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     },
     "playgroundActions": {
-      "background": "bg-white dark:bg-background"
+      "background": "bg-card dark:bg-card/90"
     }
   }
 }

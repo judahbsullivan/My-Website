@@ -41,6 +41,21 @@
   --color-red-600: #dc2626;
   --color-amber-500: #f59e0b;
   --color-purple-500: #8b5cf6;
+
+  /* Theme Colors - Defined for Tailwind v4 utilities (bg-primary, text-primary, etc.) */
+  /* These use CSS variables that change based on light/dark mode */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--destructive);
+  --color-destructive: var(--destructive);
+  --color-info: var(--color-purple-500);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -70,6 +85,15 @@
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.08);
   --ring: var(--color-blue-500);
+  
+  /* For Tailwind v4 - direct color values */
+  --color-primary: var(--color-blue-500);
+  --color-secondary: var(--color-gray-800);
+  --color-success: var(--color-green-500);
+  --color-warning: var(--color-amber-500);
+  --color-danger: var(--color-red-500);
+  --color-destructive: var(--color-red-500);
+  --color-info: var(--color-purple-500);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -83,14 +107,36 @@
   --card-foreground: var(--color-gray-900);
   --popover: #ffffff;
   --popover-foreground: var(--color-gray-900);
+  --primary: var(--color-blue-500);
+  --primary-foreground: #ffffff;
   --secondary: var(--color-gray-100);
   --secondary-foreground: var(--color-gray-900);
   --muted: var(--color-gray-100);
   --muted-foreground: var(--color-gray-500);
   --accent: var(--color-gray-100);
   --accent-foreground: var(--color-gray-900);
+  --success: var(--color-green-500);
+  --success-foreground: #ffffff;
+  --destructive: var(--color-red-500);
+  --destructive-foreground: #ffffff;
+  --warning: var(--color-amber-500);
   --border: rgba(0, 0, 0, 0.08);
   --input: rgba(0, 0, 0, 0.08);
+  --ring: var(--color-blue-500);
+  
+  /* Override theme colors for light mode */
+  --color-primary: var(--color-blue-500);
+  --color-secondary: var(--color-gray-100);
+  --color-success: var(--color-green-500);
+  --color-warning: var(--color-amber-500);
+  --color-danger: var(--color-red-500);
+  --color-destructive: var(--color-red-500);
+  --color-info: var(--color-purple-500);
+  --color-background: #ffffff;
+  --color-foreground: var(--color-gray-900);
+  --color-card: #ffffff;
+  --color-muted: var(--color-gray-100);
+  --color-accent: var(--color-gray-100);
 }
 
 

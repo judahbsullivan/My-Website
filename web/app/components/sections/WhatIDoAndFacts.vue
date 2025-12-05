@@ -18,15 +18,15 @@
             </UiTitle>
             <div class="space-y-4">
                 <div>
-                <p class="text-sm font-semibold text-foreground mb-2">
+                <p class="text-sm font-semibold text-secondary! mb-2">
                   {{ aboutData.bio.tagline }}
                 </p>
-                <p class="text-xs text-muted-foreground max-w-2xl leading-relaxed">
+                <p class="text-xs text-secondary! max-w-2xl leading-relaxed">
                   {{ aboutData.bio.description }}
                 </p>
               </div>
               <div class="flex flex-wrap items-center gap-4 pt-4 border-t border-border/50">
-                <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                <div class="flex items-center gap-2 text-xs text-secondary-foreground">
                   <Icon name="heroicons:map-pin" class="w-4 h-4" />
                   <span>{{ aboutData.bio.location }}</span>
                 </div>
