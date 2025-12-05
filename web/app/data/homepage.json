@@ -10,10 +10,10 @@
       "background": "bg-secondary dark:bg-secondary/90"
     },
     "featuredWork": {
-      "background": "bg-background/90 dark:bg-background/10"
+      "background": "bg-muted/90 dark:bg-muted/10"
     },
     "aboutMe": {
-      "background": "bg-foreground/10 dark:bg-foreground/90 text-secondary dark:text-secondary"
+      "background": "bg-foreground dark:bg-foreground/90 text-secondary dark:text-secondary"
     }
   }
 }
