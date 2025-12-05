@@ -218,7 +218,7 @@
           </UiBentoBox>
         </NuxtLink>
       </div>
-        <div v-else class="text-center py-12">
+        <div v-else-if="!pending && !error" class="text-center py-12">
           <Icon name="heroicons:folder" class="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <p class="text-muted-foreground">No featured projects yet</p>
         </div>
@@ -240,7 +240,10 @@ const { data: projects, pending, error } = await useFetch<Project[]>(
   {
     default: () => [],
     server: false, // Fetch on client-side only to avoid blocking SSR
-    lazy: true // Don't block page rendering
+    lazy: true, // Don't block page rendering
+    onResponseError({ response }) {
+      console.error('Featured projects API error:', response.status, response._data)
+    }
   }
 )
 

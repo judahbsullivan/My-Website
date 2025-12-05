@@ -151,7 +151,7 @@
             <p class="text-sm font-medium text-foreground">{{ info.title }}</p>
             <p class="text-xs text-muted-foreground">{{ info.value }}</p>
           </UiBentoBox>
-        </div>
+            </div>
       </UiBentoBox>
 
       <!-- Blog Actions: 4 Mini Bento Boxes -->
@@ -192,7 +192,7 @@
               </UiBentoBox>
             </template>
           </UiTooltip>
-        </div>
+            </div>
       </UiBentoBox>
 
       <!-- Projects & Playground Actions: 3 Column Grid -->

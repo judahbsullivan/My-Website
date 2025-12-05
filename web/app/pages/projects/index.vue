@@ -17,6 +17,14 @@
         <p class="text-muted-foreground">Loading projects...</p>
       </div>
 
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <Icon name="heroicons:exclamation-triangle" class="w-16 h-16 text-danger mx-auto mb-4" />
+        <p class="text-foreground font-semibold mb-2">Failed to load projects</p>
+        <p class="text-sm text-muted-foreground">{{ error.message || 'Check console for details' }}</p>
+        <p class="text-xs text-muted-foreground mt-2">API: {{ apiBase }}/api/projects</p>
+      </div>
+
       <!-- Projects Grid -->
       <div v-else-if="projects && projects.length > 0" class="space-y-6">
         <!-- Featured Projects -->
@@ -138,12 +146,33 @@ useHead({
 })
 
 // Fetch projects
-const { data: projects, pending } = await useFetch<Project[]>(
+const { data: projects, pending, error } = await useFetch<Project[]>(
   `${apiBase}/api/projects`,
   {
-    default: () => []
+    default: () => [],
+    onResponse({ response }) {
+      console.log('Projects API Response:', {
+        status: response.status,
+        data: response._data,
+        count: Array.isArray(response._data) ? response._data.length : 0
+      })
+    },
+    onResponseError({ response }) {
+      console.error('Projects API Error:', {
+        status: response.status,
+        error: response._data
+      })
+    }
   }
 )
+
+// Log projects data
+watch(projects, (newProjects) => {
+  console.log('Projects data:', {
+    count: newProjects?.length || 0,
+    projects: newProjects
+  })
+}, { immediate: true })
 
 // Separate featured and regular projects
 const featuredProjects = computed(() => {

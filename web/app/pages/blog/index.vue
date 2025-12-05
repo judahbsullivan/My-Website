@@ -17,6 +17,14 @@
         <p class="text-muted-foreground">Loading blog posts...</p>
       </div>
 
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <Icon name="heroicons:exclamation-triangle" class="w-16 h-16 text-danger mx-auto mb-4" />
+        <p class="text-foreground font-semibold mb-2">Failed to load blog posts</p>
+        <p class="text-sm text-muted-foreground">{{ error.message || 'Check console for details' }}</p>
+        <p class="text-xs text-muted-foreground mt-2">API: {{ apiBase }}/api/blog</p>
+      </div>
+
       <!-- Blog Posts Grid -->
       <div v-else-if="posts && posts.length > 0" class="space-y-6">
         <!-- Featured Post (if any) -->
@@ -146,12 +154,33 @@ useHead({
 })
 
 // Fetch blog posts
-const { data: posts, pending } = await useFetch<BlogPost[]>(
+const { data: posts, pending, error } = await useFetch<BlogPost[]>(
   `${apiBase}/api/blog`,
   {
-    default: () => []
+    default: () => [],
+    onResponse({ response }) {
+      console.log('Blog API Response:', {
+        status: response.status,
+        data: response._data,
+        count: Array.isArray(response._data) ? response._data.length : 0
+      })
+    },
+    onResponseError({ response }) {
+      console.error('Blog API Error:', {
+        status: response.status,
+        error: response._data
+      })
+    }
   }
 )
+
+// Log posts data
+watch(posts, (newPosts) => {
+  console.log('Blog posts data:', {
+    count: newPosts?.length || 0,
+    posts: newPosts
+  })
+}, { immediate: true })
 
 // Separate featured and regular posts
 const featuredPosts = computed(() => {

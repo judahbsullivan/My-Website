@@ -2,7 +2,7 @@
   <ClientOnly>
   <button
     @click="cycleTheme"
-    class="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
+    class="p-2 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all"
     :aria-label="`Current theme: ${colorMode.value}. Click to change.`"
   >
     <!-- Sun Icon (Light Mode) -->

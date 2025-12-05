@@ -14,7 +14,7 @@
 
       <div class="space-x-5">
         <ThemeToggle />
-        <UiButton to="/auth" class="shrink-0">Login</UiButton>
+        <!-- <UiButton to="/auth" class="shrink-0">Login</UiButton> -->
       </div>
     </div>
 

@@ -17,7 +17,7 @@
               About Me
             </UiTitle>
             <div class="space-y-4">
-              <div>
+                <div>
                 <p class="text-sm font-semibold text-foreground mb-2">
                   {{ aboutData.bio.tagline }}
                 </p>
