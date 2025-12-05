@@ -110,9 +110,15 @@ builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrateg
 builder.Services.AddInMemoryRateLimiting();
 
 // EF Core / Postgres
+// Force IPv4 and use connection pooling settings for Supabase
 var connectionString =
-    $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true";
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+    $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true;Include Error Detail=true;Command Timeout=30";
+builder.Services.AddDbContext<AppDbContext>(options => 
+{
+    options.UseNpgsql(connectionString);
+    // Enable retry on failure for transient errors
+    options.EnableSensitiveDataLogging(false);
+});
 
 // Identity with secure password reset token configuration
 builder

@@ -23,26 +23,26 @@ namespace MyPortfolio.Controllers
         public async Task<ActionResult<IEnumerable<BlogPostDto>>> GetPosts()
         {
             try
-            {
-                var posts = await _context.BlogPosts
-                    .Where(p => p.IsPublished)
-                    .OrderByDescending(p => p.IsFeatured)
-                    .ThenByDescending(p => p.PublishedAt)
-                    .Select(p => new BlogPostDto
-                    {
-                        Id = p.Id,
-                        Slug = p.Slug,
-                        Title = p.Title,
-                        Category = p.Category,
-                        Excerpt = p.Excerpt,
+        {
+            var posts = await _context.BlogPosts
+                .Where(p => p.IsPublished)
+                .OrderByDescending(p => p.IsFeatured)
+                .ThenByDescending(p => p.PublishedAt)
+                .Select(p => new BlogPostDto
+                {
+                    Id = p.Id,
+                    Slug = p.Slug,
+                    Title = p.Title,
+                    Category = p.Category,
+                    Excerpt = p.Excerpt,
                         Image = p.Image,
-                        ReadTimeMinutes = p.ReadTimeMinutes,
-                        IsFeatured = p.IsFeatured,
-                        PublishedAt = p.PublishedAt
-                    })
-                    .ToListAsync();
+                    ReadTimeMinutes = p.ReadTimeMinutes,
+                    IsFeatured = p.IsFeatured,
+                    PublishedAt = p.PublishedAt
+                })
+                .ToListAsync();
 
-                return Ok(posts);
+            return Ok(posts);
             }
             catch (Exception ex)
             {

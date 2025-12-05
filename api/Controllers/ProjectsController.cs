@@ -23,25 +23,25 @@ namespace MyPortfolio.Controllers
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjects()
         {
             try
-            {
-                var projects = await _context.Projects
-                    .OrderByDescending(p => p.IsFeatured)
-                    .ThenBy(p => p.DisplayOrder)
-                    .ThenByDescending(p => p.CreatedAt)
-                    .Select(p => new ProjectDto
-                    {
-                        Id = p.Id,
-                        Slug = p.Slug,
-                        Title = p.Title,
-                        Category = p.Category,
-                        Year = p.Year,
-                        Description = p.Description,
-                        ImageUrl = p.ImageUrl,
-                        IsFeatured = p.IsFeatured
-                    })
-                    .ToListAsync();
+        {
+            var projects = await _context.Projects
+                .OrderByDescending(p => p.IsFeatured)
+                .ThenBy(p => p.DisplayOrder)
+                .ThenByDescending(p => p.CreatedAt)
+                .Select(p => new ProjectDto
+                {
+                    Id = p.Id,
+                    Slug = p.Slug,
+                    Title = p.Title,
+                    Category = p.Category,
+                    Year = p.Year,
+                    Description = p.Description,
+                    ImageUrl = p.ImageUrl,
+                    IsFeatured = p.IsFeatured
+                })
+                .ToListAsync();
 
-                return Ok(projects);
+            return Ok(projects);
             }
             catch (Exception ex)
             {
@@ -65,25 +65,25 @@ namespace MyPortfolio.Controllers
         public async Task<ActionResult<IEnumerable<ProjectDto>>> GetFeaturedProjects()
         {
             try
-            {
-                var projects = await _context.Projects
-                    .Where(p => p.IsFeatured)
-                    .OrderBy(p => p.DisplayOrder)
-                    .Take(4)
-                    .Select(p => new ProjectDto
-                    {
-                        Id = p.Id,
-                        Slug = p.Slug,
-                        Title = p.Title,
-                        Category = p.Category,
-                        Year = p.Year,
-                        Description = p.Description,
-                        ImageUrl = p.ImageUrl,
-                        IsFeatured = p.IsFeatured
-                    })
-                    .ToListAsync();
+        {
+            var projects = await _context.Projects
+                .Where(p => p.IsFeatured)
+                .OrderBy(p => p.DisplayOrder)
+                .Take(4)
+                .Select(p => new ProjectDto
+                {
+                    Id = p.Id,
+                    Slug = p.Slug,
+                    Title = p.Title,
+                    Category = p.Category,
+                    Year = p.Year,
+                    Description = p.Description,
+                    ImageUrl = p.ImageUrl,
+                    IsFeatured = p.IsFeatured
+                })
+                .ToListAsync();
 
-                return Ok(projects);
+            return Ok(projects);
             }
             catch (Exception ex)
             {
