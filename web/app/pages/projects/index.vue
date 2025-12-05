@@ -20,9 +20,7 @@
       <!-- Error State -->
       <div v-else-if="error" class="text-center py-12">
         <Icon name="heroicons:exclamation-triangle" class="w-16 h-16 text-danger mx-auto mb-4" />
-        <p class="text-foreground font-semibold mb-2">Failed to load projects</p>
-        <p class="text-sm text-muted-foreground">{{ error.message || 'Check console for details' }}</p>
-        <p class="text-xs text-muted-foreground mt-2">API: {{ apiBase }}/api/projects</p>
+        <p class="text-muted-foreground">No Projects yet. Check back soon!</p>
       </div>
 
       <!-- Projects Grid -->
