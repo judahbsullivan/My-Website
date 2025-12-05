@@ -83,8 +83,12 @@ const colorMode = useColorMode()
 const themes = ['dark', 'light', 'system'] as const
 
 const cycleTheme = () => {
-  const currentIndex = themes.indexOf(colorMode.preference as typeof themes[number])
+  const currentIndex = themes.indexOf(
+    colorMode.preference && themes.includes(colorMode.preference as typeof themes[number])
+      ? (colorMode.preference as typeof themes[number])
+      : 'system'
+  )
   const nextIndex = (currentIndex + 1) % themes.length
-  colorMode.preference = themes[nextIndex]
+  colorMode.preference = themes[nextIndex] as typeof colorMode.preference
 }
 </script>
