@@ -1,22 +1,44 @@
 <template>
-  <div class="flex flex-col min-h-screen w-full overflow-hidden">
-    <Navbar />
-    <main>
-      <slot />
-    </main>
-    <Footer />
-
-    <!-- Page Transition Overlay - CSS Mask Effect -->
-    <div class="page-transition-overlay fixed inset-0 z-99999 bg-black pointer-events-none" aria-hidden="true" />
-
-    <!-- Intro Loader -->
-    <IntroLoader />
+  <!-- ScrollSmoother Wrapper -->
+  <div id="smooth-wrapper" class="w-full">
+    <!-- ScrollSmoother Content -->
+    <div id="smooth-content" class="flex flex-col min-h-screen w-full">
+      <ClientOnly>
+        <!-- Show IntroLoader as the main content while loading -->
+        <IntroLoader v-if="!isIntroLoaderComplete" />
+        
+        <!-- Only render page content after intro is complete -->
+        <template v-else>
+          <Navbar />
+          <main>
+            <NuxtPage />
+          </main>
+          <Footer />
+        </template>
+        
+        <template #fallback>
+          <!-- SSR fallback - show loader screen -->
+          <div class="min-h-screen w-full bg-white dark:bg-gray-950" />
+        </template>
+      </ClientOnly>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Ensure layout always renders consistently
-// No client-only logic here to prevent hydration mismatches
+import { onMounted } from 'vue'
+
+const { isIntroLoaderComplete, setIntroLoaderComplete } = useIntroLoader()
+
+// Safety fallback: if loader doesn't complete within 10 seconds, show content anyway
+onMounted(() => {
+  setTimeout(() => {
+    if (!isIntroLoaderComplete.value) {
+      console.warn('Intro loader timeout - showing content anyway')
+      setIntroLoaderComplete(true)
+    }
+  }, 10000)
+})
 </script>
 
 <style scoped>

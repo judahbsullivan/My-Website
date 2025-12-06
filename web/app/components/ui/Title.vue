@@ -1,6 +1,7 @@
 <template>
   <component
     :is="as"
+    ref="elementRef"
     :class="titleClasses"
   >
     <slot />
@@ -8,7 +9,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+// Expose element ref for external animation access
+const elementRef = ref<HTMLElement | null>(null)
+defineExpose({ el: elementRef })
 
 interface Props {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div'

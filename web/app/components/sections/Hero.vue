@@ -1,9 +1,8 @@
 <template>
-  <div class="min-h-screen  bg-background">
-    <section>
-      <div class=" px-4 sm:px-6">
-        <div class="grid gap-6 items-center">
-          <UiBentoBox
+  <section class="w-full">
+    <div class="px-4 sm:px-6">
+      <UiBentoBox
+            ref="bentoBoxRef"
             container
             backdrop
             border
@@ -12,55 +11,376 @@
             rounded="2xl"
             :className="homepageData.sections.hero.background"
           >
-            <!-- Small badge, similar subtle styling -->
+            <!-- Badge -->
             <div
-              class="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/40 px-3 py-1 text-xs font-medium text-muted-foreground mb-4 sm:mb-5">
+              ref="badgeRef"
+              class="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/40 px-3 py-1 text-xs font-medium text-muted-foreground mb-4 sm:mb-5 opacity-0 scale-80 translate-y-8 -rotate-5"
+            >
               <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0" />
               <span>Building thoughtful web experiences</span>
             </div>
 
-            <UiTitle as="h1" size="5xl" weight="bold" align="left" class="mb-6 leading-tight text-3xl sm:text-4xl md:text-5xl">
-              Crafting modern
-              high-quality digital products.
-            </UiTitle>
+            <!-- Title -->
+            <div ref="titleWrapperRef" class="mb-6 overflow-hidden">
+              <UiTitle 
+                ref="titleRef"
+                as="h1"
+                size="4xl"
+                weight="bold"
+                align="left"
+                class="uppercase leading-[0.9] tracking-tight font-bold text-left"
+              >
+                Crafting modern
+                high-quality digital products.
+              </UiTitle>
+            </div>
 
-            <p class="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed mb-8">
-              I'm Judah, a full‑stack developer focused on clean design,
-              performant code, and experiences that feel polished from first
-              click to final deploy.
-            </p>
+            <!-- Paragraph -->
+            <div ref="paragraphWrapperRef" class="overflow-hidden mb-8">
+              <p 
+                ref="paragraphRef"
+                class="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed"
+              >
+                I'm Judah, a full‑stack developer focused on clean design,
+                performant code, and experiences that feel polished from first
+                click to final deploy.
+              </p>
+            </div>
+
             <!-- CTA Buttons -->
-            <div class="flex flex-col md:flex-row w-full md:justify-between md:items-center gap-6">
+            <div ref="ctaRef" class="flex flex-col md:flex-row w-full md:justify-between md:items-center gap-6">
               <div class='flex flex-wrap items-center gap-3 sm:gap-4'>
-                <UiButton to="/contact" variant="primary" size="lg" class="flex items-center gap-2 text-sm sm:text-base">
-                  Work with me
-                  <span aria-hidden="true">→</span>
-                </UiButton>
+                <div ref="primaryBtnRef" class="opacity-0 scale-80 translate-y-8 -rotate-5">
+                  <UiButton to="/contact" variant="primary" size="lg" class="flex items-center gap-2 text-sm sm:text-base">
+                    Work with me
+                    <span aria-hidden="true">→</span>
+                  </UiButton>
+                </div>
 
-                <UiButton to="/projects" variant="outline" size="lg" class="border-border/60 bg-background/40 text-sm sm:text-base">
-                  View projects
-                </UiButton>
+                <div ref="secondaryBtnRef" class="opacity-0 scale-80 translate-y-8 -rotate-5">
+                  <UiButton to="/projects" variant="outline" size="lg" class="border-border/60 bg-background/40 text-sm sm:text-base">
+                    View projects
+                  </UiButton>
+                </div>
               </div>
 
-              <div class="flex items-center gap-3 shrink-0">
+              <div 
+                ref="statusRef"
+                class="flex items-center gap-3 shrink-0 opacity-0 translate-y-2.5"
+              >
                 <span class="w-2.5 h-2.5 rounded-full bg-success animate-pulse shrink-0" />
                 <span class="text-xs sm:text-sm text-muted-foreground">
-                  Currently open for freelance work & collaborations
+                  Currently open for Work & New Opportunities
                 </span>
               </div>
             </div>
 
-            <!-- Availability pill (mirrors contact page "open to opportunities") -->
-
-          </UiBentoBox>
-
-        </div>
-      </div>
-    </section>
-  </div>
+      </UiBentoBox>
+    </div>
+  </section>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch, nextTick } from 'vue'
+import { useNuxtApp } from '#app'
+import { useIntroLoader } from '../../composables/useIntroLoader'
 import homepageData from '../../data/homepage.json'
-// Hero section component
+
+const { isIntroLoaderComplete } = useIntroLoader()
+
+const bentoBoxRef = ref<any>(null)
+const badgeRef = ref<HTMLElement | null>(null)
+const titleWrapperRef = ref<HTMLElement | null>(null)
+const titleRef = ref<any>(null)
+const paragraphWrapperRef = ref<HTMLElement | null>(null)
+const paragraphRef = ref<HTMLElement | null>(null)
+const primaryBtnRef = ref<HTMLElement | null>(null)
+const secondaryBtnRef = ref<HTMLElement | null>(null)
+const statusRef = ref<HTMLElement | null>(null)
+
+let hasAnimated = false
+
+function animateHero() {
+  if (import.meta.server || hasAnimated) return
+
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
+  
+  if (!gsap) {
+    hasAnimated = true
+    return
+  }
+  
+  nextTick(() => {
+    const bentoBox = bentoBoxRef.value?.el || bentoBoxRef.value?.$el || bentoBoxRef.value
+    const badge = badgeRef.value
+    const titleWrapper = titleWrapperRef.value
+    const titleComponent = titleRef.value as any
+    const title = titleComponent?.el || titleComponent?.$el || (titleWrapper?.querySelector('h1, h2, h3, h4, h5, h6') as HTMLElement)
+    const paragraphWrapper = paragraphWrapperRef.value
+    const paragraph = paragraphRef.value
+    const primaryBtn = primaryBtnRef.value
+    const secondaryBtn = secondaryBtnRef.value
+    const status = statusRef.value
+    
+    if (!bentoBox || !badge || !title || !paragraph) {
+      setTimeout(() => animateHero(), 50)
+      return
+    }
+    
+    // Split title text with mask (like IntroLoader)
+    let titleSplit: any = null
+    try {
+      if (SplitText) {
+        // Ensure title maintains line-height before splitting
+        gsap.set(title, { lineHeight: '0.9' })
+        
+        titleSplit = new SplitText(title, { 
+          type: 'chars',
+          mask: 'chars',
+          smartWrap: true,
+          charsClass: 'char++',
+        })
+        if (titleSplit.chars && titleSplit.chars.length > 0) {
+          // For masked chars, use yPercent instead of y
+          // Set line-height on each char to prevent changes
+          titleSplit.chars.forEach((char: HTMLElement) => {
+            gsap.set(char, {
+              opacity: 0,
+              yPercent: 120,
+              rotationX: -90,
+              lineHeight: '0.9'
+            })
+          })
+        }
+      }
+    } catch (e) {
+      // SplitText failed, continue without it
+    }
+    
+    // Split paragraph into lines with mask
+    let paragraphSplit: any = null
+    try {
+      if (SplitText && paragraph) {
+        paragraphSplit = new SplitText(paragraph, { 
+          type: 'lines',
+          mask: 'lines',
+          smartWrap: true,
+          linesClass: 'line++',
+        })
+        if (paragraphSplit.lines && paragraphSplit.lines.length > 0) {
+          // For masked lines, use yPercent
+          gsap.set(paragraphSplit.lines, {
+            opacity: 0,
+            yPercent: 100
+          })
+        }
+      }
+    } catch (e) {
+      // SplitText failed, continue without it
+    }
+    
+    // Collect button boxes for animation
+    const buttonBoxes = [
+      primaryBtn,
+      secondaryBtn
+    ].filter(Boolean) as HTMLElement[]
+    
+    // Create master timeline (matching IntroLoader pattern)
+    const tl = gsap.timeline()
+    
+    // 1. Fade in container with scale (like IntroLoader container)
+    gsap.set(bentoBox, {
+      opacity: 0,
+      scale: 0.9
+    })
+    tl.fromTo(bentoBox, 
+      {
+        opacity: 0,
+        scale: 0.9
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        ease: 'power3.out'
+      }
+    )
+    
+    // 2. Animate badge first (like IntroLoader name box) with bounce
+    tl.fromTo(badge,
+      {
+        opacity: 0,
+        scale: 0.8,
+        y: 30,
+        rotation: -5
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.6,
+        ease: 'back.out(1.4)'
+      }, '-=0.3')
+    
+    // 3. Animate title characters with mask reveal and 3D rotation (like IntroLoader name)
+    if (titleSplit && titleSplit.chars) {
+      tl.to(titleSplit.chars, {
+        opacity: 1,
+        yPercent: 0,
+        rotationX: 0,
+        duration: 0.5,
+        stagger: {
+          amount: 0.4,
+          from: 'start'
+        },
+        ease: 'power3.out'
+      }, '-=0.3')
+    } else {
+      // Fallback if SplitText not available
+      tl.fromTo(title,
+        {
+          opacity: 0,
+          y: 20
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out'
+        }, '-=0.2')
+    }
+    
+    // 4. Animate paragraph lines with mask reveal and stagger (like IntroLoader tagline)
+    if (paragraphSplit && paragraphSplit.lines) {
+      tl.to(paragraphSplit.lines, {
+        opacity: 1,
+        yPercent: 0,
+        duration: 0.5,
+        stagger: {
+          amount: 0.3,
+          from: 'start'
+        },
+        ease: 'power2.out'
+      }, '-=0.3')
+    } else if (paragraph) {
+      // Fallback if SplitText not available
+      tl.fromTo(paragraph,
+        {
+          opacity: 0,
+          y: 10
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out'
+        }, '-=0.2')
+    }
+    
+    // 5. Animate button boxes with creative stagger (like IntroLoader other boxes)
+    tl.fromTo(buttonBoxes,
+      {
+        opacity: 0,
+        scale: 0.8,
+        y: 30,
+        rotation: -5
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.5,
+        stagger: {
+          amount: 0.4,
+          from: 'start',
+          ease: 'power2.out'
+        },
+        ease: 'back.out(1.2)'
+      }, '-=0.3')
+    
+    // 6. Animate status with subtle delay
+    if (status) {
+      tl.fromTo(status,
+        {
+          opacity: 0,
+          y: 10
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: 'power2.out'
+        }, '-=0.2')
+    }
+    
+    hasAnimated = true
+    
+    // Don't revert SplitText immediately - keep it for the hero section
+    // Revert only after a long delay to prevent text jumping
+    tl.call(() => {
+      // Wait much longer before reverting to ensure everything is settled
+      setTimeout(() => {
+        // Only revert if user wants to - for hero sections, keeping SplitText active is often better
+        // Uncomment below if you want to revert after animation:
+        // if (titleSplit && titleSplit.revert) {
+        //   titleSplit.revert()
+        // }
+        // if (paragraphSplit && paragraphSplit.revert) {
+        //   paragraphSplit.revert()
+        // }
+      }, 2000)
+    })
+  })
+}
+
+// Watch for intro loader completion
+watch(isIntroLoaderComplete, (complete) => {
+  if (complete && !hasAnimated) {
+    // Small delay after loader completes for smooth transition
+    setTimeout(() => {
+      animateHero()
+    }, 150)
+  }
+})
+
+onMounted(() => {
+  // If loader is already complete, animate immediately
+  if (isIntroLoaderComplete.value && !hasAnimated) {
+    setTimeout(() => {
+      animateHero()
+    }, 150)
+  }
+})
 </script>
+
+<style scoped>
+/* SplitText mask styles - prevent line-height changes */
+:deep(.char) {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: baseline;
+  transform-style: preserve-3d;
+  line-height: 0.9;
+  white-space: pre-wrap;
+}
+
+:deep(.line) {
+  overflow: hidden;
+}
+
+/* Ensure title maintains line-height and prevents reflow */
+:deep(h1) {
+  line-height: 0.9 !important;
+  display: block;
+  min-height: 1.8em; /* Prevent height changes */
+}
+
+/* Title wrapper should maintain height */
+[ref="titleWrapperRef"] {
+  min-height: fit-content;
+}
+</style>

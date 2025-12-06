@@ -205,7 +205,6 @@ onMounted(async () => {
       hasValidToken.value = false
     }
   } catch (error: any) {
-    console.error('Token validation error:', error)
     tokenValidationError.value = 'Failed to validate reset token. Please request a new password reset link.'
     hasValidToken.value = false
   } finally {
@@ -250,12 +249,6 @@ const handleSubmit = async () => {
   successMessage.value = ''
 
   try {
-    console.log('Resetting password with:', {
-      userId: userId.value,
-      tokenLength: token.value?.length,
-      hasToken: !!token.value,
-    })
-    
     const response = await $fetch(`${apiBase}/api/Auth/reset-password`, {
       method: 'POST',
       body: {
@@ -264,8 +257,6 @@ const handleSubmit = async () => {
         newPassword: form.newPassword,
       },
     })
-    
-    console.log('Reset password response:', response)
 
     successMessage.value = 'Password has been reset successfully! You can now login with your new password.'
 
@@ -278,14 +269,6 @@ const handleSubmit = async () => {
       router.push('/auth')
     }, 3000)
   } catch (error: any) {
-    console.error('Reset password error:', error)
-    console.error('Error details:', {
-      status: error?.status,
-      statusCode: error?.statusCode,
-      statusText: error?.statusText,
-      data: error?.data,
-      message: error?.message,
-    })
     
     const errorData = error?.data || error?.response?._data
     if (error?.statusCode === 500 || error?.status === 500) {

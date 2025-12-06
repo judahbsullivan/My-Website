@@ -633,7 +633,6 @@ const uploadImage = async (file: File) => {
       success.value = ''
     }, 3000)
   } catch (err: any) {
-    console.error('Error uploading image:', err)
     let errorMessage = 'Failed to upload image. Please try again.'
     if (err.data?.message) {
       errorMessage = err.data.message
@@ -717,7 +716,6 @@ const handleSubmit = async () => {
       router.push(`/projects/${response.slug}`)
     }, 1500)
   } catch (err: any) {
-    console.error('Error creating project:', err)
     error.value = err.data?.message || err.message || 'Failed to create project. Please try again.'
   } finally {
     isSubmitting.value = false

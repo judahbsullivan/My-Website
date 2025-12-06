@@ -31,6 +31,9 @@ export default defineNuxtConfig({
     clubPlugins: {
       splitText: true,
       scrollSmoother: true,
+    },
+    extraPlugins: {
+      scrollTrigger: true,
     }
   },
   typescript: {

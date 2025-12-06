@@ -6,7 +6,7 @@ export const useIntroLoader = () => {
   }
   
   return {
-    isIntroLoaderComplete: readonly(isIntroLoaderComplete),
+    isIntroLoaderComplete: isIntroLoaderComplete, // Remove readonly to ensure reactivity
     setIntroLoaderComplete
   }
 }

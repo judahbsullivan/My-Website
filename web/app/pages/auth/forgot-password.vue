@@ -107,8 +107,6 @@ const form = reactive({
 })
 
 const handleSubmit = async () => {
-  console.log('Forgot password form submitted', { email: form.email, apiBase })
-  
   if (!form.email) {
     errorMessage.value = 'Please enter your email address.'
     return
@@ -119,8 +117,6 @@ const handleSubmit = async () => {
   successMessage.value = ''
 
   try {
-    console.log('Calling forgot password API:', `${apiBase}/api/Auth/forgot-password`)
-    
     const response = await $fetch<{
       message: string
     }>(`${apiBase}/api/Auth/forgot-password`, {
@@ -130,20 +126,11 @@ const handleSubmit = async () => {
       },
     })
 
-    console.log('Forgot password response:', response)
     successMessage.value = response.message
     
     // Clear email field after successful submission
     form.email = ''
   } catch (error: any) {
-    console.error('Forgot password error:', error)
-    console.error('Error details:', {
-      status: error?.status,
-      statusCode: error?.statusCode,
-      statusText: error?.statusText,
-      data: error?.data,
-      message: error?.message,
-    })
     
     // Handle network errors
     if (error?.statusCode === 404 || error?.status === 404) {

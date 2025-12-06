@@ -155,30 +155,9 @@ useHead({
 const { data: posts, pending, error } = await useFetch<BlogPost[]>(
   `${apiBase}/api/blog`,
   {
-    default: () => [],
-    onResponse({ response }) {
-      console.log('Blog API Response:', {
-        status: response.status,
-        data: response._data,
-        count: Array.isArray(response._data) ? response._data.length : 0
-      })
-    },
-    onResponseError({ response }) {
-      console.error('Blog API Error:', {
-        status: response.status,
-        error: response._data
-      })
-    }
+    default: () => []
   }
 )
-
-// Log posts data
-watch(posts, (newPosts) => {
-  console.log('Blog posts data:', {
-    count: newPosts?.length || 0,
-    posts: newPosts
-  })
-}, { immediate: true })
 
 // Separate featured and regular posts
 const featuredPosts = computed(() => {

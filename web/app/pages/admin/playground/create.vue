@@ -576,7 +576,6 @@ const uploadImage = async (file: File) => {
       success.value = ''
     }, 3000)
   } catch (err: any) {
-    console.error('Error uploading image:', err)
     error.value = err.data?.message || err.message || 'Failed to upload image. Please try again.'
   } finally {
     isUploading.value = false
@@ -659,7 +658,6 @@ const handleSubmit = async () => {
       router.push(`/playground/${response.slug}`)
     }, 1500)
   } catch (err: any) {
-    console.error('Error creating playground item:', err)
     error.value = err.data?.message || err.message || 'Failed to create playground item. Please try again.'
   } finally {
     isSubmitting.value = false

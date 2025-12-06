@@ -3,6 +3,9 @@
     "hero": {
       "background": "bg-primary/8 dark:bg-primary/12"
     },
+    "marquee": {
+      "background": "bg-muted/50 dark:bg-muted/20"
+    },
     "whatIDo": {
       "background": "bg-card dark:bg-card/90"
     },

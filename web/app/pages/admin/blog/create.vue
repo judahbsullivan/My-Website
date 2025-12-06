@@ -480,7 +480,6 @@ const uploadImage = async (file: File) => {
       }
       img.onerror = () => {
         // If server image fails to load, keep local preview
-        console.warn('Server image failed to load, keeping local preview')
         resolve()
       }
       img.src = uploadedImageUrl
@@ -493,8 +492,6 @@ const uploadImage = async (file: File) => {
       success.value = ''
     }, 3000)
   } catch (err: any) {
-    console.error('Error uploading image:', err)
-    
     // More detailed error handling
     let errorMessage = 'Failed to upload image. Please try again.'
     if (err.data?.message) {
@@ -600,7 +597,6 @@ const handleSubmit = async () => {
       router.push(`/blog/${response.slug}`)
     }, 1500)
   } catch (err: any) {
-    console.error('Error creating blog post:', err)
     error.value = err.data?.message || err.message || 'Failed to create blog post. Please try again.'
   } finally {
     isSubmitting.value = false

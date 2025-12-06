@@ -147,30 +147,9 @@ useHead({
 const { data: projects, pending, error } = await useFetch<Project[]>(
   `${apiBase}/api/projects`,
   {
-    default: () => [],
-    onResponse({ response }) {
-      console.log('Projects API Response:', {
-        status: response.status,
-        data: response._data,
-        count: Array.isArray(response._data) ? response._data.length : 0
-      })
-    },
-    onResponseError({ response }) {
-      console.error('Projects API Error:', {
-        status: response.status,
-        error: response._data
-      })
-    }
+    default: () => []
   }
 )
-
-// Log projects data
-watch(projects, (newProjects) => {
-  console.log('Projects data:', {
-    count: newProjects?.length || 0,
-    projects: newProjects
-  })
-}, { immediate: true })
 
 // Separate featured and regular projects
 const featuredProjects = computed(() => {

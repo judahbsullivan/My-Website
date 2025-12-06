@@ -248,7 +248,6 @@ const handleSubmit = async () => {
     form.password = ''
     form.displayName = ''
   } catch (error: any) {
-    console.error('Auth error:', error)
     // Handle different error response formats
     const errorData = error?.data
     if (errorData?.message) {

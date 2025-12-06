@@ -8,22 +8,13 @@ export const usePageTransition = () => {
   const navigateFromProvider = inject<((href: string) => void) | null>('pageTransition.navigate', null)
   
   const navigate = (href: string) => {
-    console.log('🎯 usePageTransition.navigate called:', href, {
-      hasProvider: !!navigateFromProvider,
-      currentPath: route.path,
-      isTransitioning: isTransitioning.value
-    })
-    
     if (!href || href === route.path || isTransitioning.value) {
-      console.log('⚠️ Navigation blocked in composable')
       return
     }
     
     if (navigateFromProvider) {
-      console.log('✅ Using provider navigate function')
       navigateFromProvider(href)
     } else {
-      console.warn('⚠️ Provider not available, using router.push')
       router.push(href)
     }
   }

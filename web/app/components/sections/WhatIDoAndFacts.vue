@@ -5,19 +5,20 @@
         <!-- About Me - Spans 7 columns, positioned top left -->
         <div class="lg:col-span-7">
           <UiBentoBox
+            ref="aboutBoxRef"
             container
             backdrop
             border
             shadow
             padding="lg"
             rounded="2xl"
-            :className="homepageData.sections.aboutMe.background"
+            :className="`${homepageData.sections.aboutMe.background} opacity-0 scale-95 translate-y-6 -rotate-2`"
           >
-            <UiTitle as="h2" size="md" weight="semibold" class="mb-4">
+            <UiTitle ref="aboutTitleRef" as="h2" size="md" weight="semibold" class="mb-4">
               About Me
             </UiTitle>
             <div class="space-y-4">
-                <div>
+                <div ref="aboutContentRef" class="opacity-0 translate-y-4">
                 <p class="text-sm font-semibold text-secondary! mb-2">
                   {{ aboutData.bio.tagline }}
                 </p>
@@ -25,7 +26,7 @@
                   {{ aboutData.bio.description }}
                 </p>
               </div>
-              <div class="flex flex-wrap items-center gap-4 pt-4 border-t border-border/50">
+              <div ref="aboutMetaRef" class="flex flex-wrap items-center gap-4 pt-4 border-t border-border/50 opacity-0 translate-y-4">
                 <div class="flex items-center gap-2 text-xs text-secondary-foreground">
                   <Icon name="heroicons:map-pin" class="w-4 h-4" />
                   <span>{{ aboutData.bio.location }}</span>
@@ -34,7 +35,7 @@
                   {{ aboutData.bio.status }}
                 </div>
               </div>
-              <div class="flex items-center gap-4 pt-2">
+              <div ref="aboutLinksRef" class="flex items-center gap-4 pt-2 opacity-0 translate-y-4">
                 <a 
                   :href="aboutData.bio.github" 
                   target="_blank" 
@@ -69,29 +70,30 @@
         <!-- Quick facts - Spans 5 columns, positioned top right -->
         <div class="lg:col-span-5">
           <UiBentoBox
+            ref="factsBoxRef"
             container
             backdrop
             border
             shadow
             padding="lg"
             rounded="2xl"
-            :className="homepageData.sections.quickFacts.background"
+            :className="`${homepageData.sections.quickFacts.background} opacity-0 scale-95 translate-y-6 rotate-2`"
           >
-            <UiTitle as="h3" size="sm" weight="semibold" class="mb-5">
+            <UiTitle ref="factsTitleRef" as="h3" size="sm" weight="semibold" class="mb-5">
               Quick facts
             </UiTitle>
-            <div class="space-y-4">
-              <div class="flex justify-between items-center py-2 border-b border-border/30">
+            <div ref="factsContentRef" class="space-y-4">
+              <div class="fact-row flex justify-between items-center py-2 border-b border-border/30 opacity-0 translate-y-3">
                 <span class="text-sm text-muted-foreground">Experience</span>
                 <span class="text-sm font-medium">X+ years</span>
               </div>
-              <div class="flex justify-between items-center py-2 border-b border-border/30">
+              <div class="fact-row flex justify-between items-center py-2 border-b border-border/30 opacity-0 translate-y-3">
                 <span class="text-sm text-muted-foreground">Focus</span>
                 <span class="text-sm font-medium">
                   Web apps, APIs, architecture
                 </span>
               </div>
-              <div class="flex justify-between items-center py-2">
+              <div class="fact-row flex justify-between items-center py-2 opacity-0 translate-y-3">
                 <span class="text-sm text-muted-foreground">Stack</span>
                 <span class="text-sm font-medium">
                   Vue/Nuxt · .NET · PostgreSQL
@@ -104,19 +106,20 @@
         <!-- What I do - Carousel below, spans full width -->
         <div class="lg:col-span-12 lg:row-start-2">
           <UiBentoBox
+            ref="whatIDoBoxRef"
             container
             backdrop
             border
             shadow
             padding="lg"
             rounded="2xl"
-            :className="homepageData.sections.whatIDo.background"
+            :className="`${homepageData.sections.whatIDo.background} opacity-0 scale-95 translate-y-6`"
           >
             <div class="flex items-center justify-between mb-6">
-              <UiTitle as="h2" size="md" weight="semibold">
+              <UiTitle ref="whatIDoTitleRef" as="h2" size="md" weight="semibold">
                 What I do
               </UiTitle>
-              <div class="flex items-center gap-2">
+              <div ref="whatIDoControlsRef" class="flex items-center gap-2 opacity-0 translate-y-3">
                 <UiButton
                   @click="previousSlide"
                   variant="ghost"
@@ -138,7 +141,7 @@
               </div>
             </div>
             
-            <div class="relative overflow-hidden">
+            <div ref="whatIDoCarouselRef" class="relative overflow-hidden opacity-0 translate-y-4">
               <div
                 ref="carouselWrapper"
                 class="overflow-hidden"
@@ -183,7 +186,7 @@
                     v-for="(item, index) in whatIDoItems"
                     :key="index"
                     ref="carouselItems"
-                    class="shrink-0"
+                    class="carousel-item shrink-0 opacity-0 scale-95 translate-y-4"
                     :style="{ width: itemWidth }"
                   >
                     <UiBentoBox
@@ -245,7 +248,7 @@
             </div>
             
             <!-- Dots indicator -->
-            <div class="flex items-center justify-center gap-2 mt-6">
+            <div ref="whatIDoDotsRef" class="flex items-center justify-center gap-2 mt-6 opacity-0 translate-y-3">
               <UiButton
                 v-for="(item, index) in whatIDoItems"
                 :key="index"
@@ -264,8 +267,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { gsap } from 'gsap'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { useNuxtApp } from '#app'
 import homepageData from '../../data/homepage.json'
 import aboutData from '../../data/about.json'
 
@@ -348,12 +351,32 @@ const whatIDoItems = [
 const carouselWrapper = ref<HTMLElement | null>(null)
 const carouselContainer = ref<HTMLElement | null>(null)
 const carouselItems = ref<(HTMLElement | null)[]>([])
+
+// About Me refs
+const aboutBoxRef = ref<any>(null)
+const aboutTitleRef = ref<any>(null)
+const aboutContentRef = ref<HTMLElement | null>(null)
+const aboutMetaRef = ref<HTMLElement | null>(null)
+const aboutLinksRef = ref<HTMLElement | null>(null)
+
+// Quick Facts refs
+const factsBoxRef = ref<any>(null)
+const factsTitleRef = ref<any>(null)
+const factsContentRef = ref<HTMLElement | null>(null)
+
+// What I Do refs
+const whatIDoBoxRef = ref<any>(null)
+const whatIDoTitleRef = ref<any>(null)
+const whatIDoControlsRef = ref<HTMLElement | null>(null)
+const whatIDoCarouselRef = ref<HTMLElement | null>(null)
+const whatIDoDotsRef = ref<HTMLElement | null>(null)
 const currentIndex = ref(0) // Real index (0 to whatIDoItems.length - 1)
 const displayIndex = ref(0) // Display index including clones
 const itemsPerView = ref(4)
 const autoplayInterval = ref<NodeJS.Timeout | null>(null)
 const itemWidth = ref('calc(25% - 12px)') // 4 items with gap
 const isAnimating = ref(false)
+
 
 // Calculate max index - can slide until last item
 const maxIndex = computed(() => {
@@ -395,6 +418,10 @@ const getSlideDistance = () => {
 // GSAP animation for slide transition with infinite loop
 const animateSlide = (direction: 'next' | 'prev' | 'goto', targetIndex?: number) => {
   if (!carouselContainer.value || !carouselWrapper.value || isAnimating.value) return
+  
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  if (!gsap) return
   
   isAnimating.value = true
   let newIndex = currentIndex.value
@@ -474,24 +501,388 @@ onMounted(() => {
     if (carouselContainer.value && carouselWrapper.value) {
       const slideDistance = getSlideDistance()
       displayIndex.value = itemsPerView.value + currentIndex.value
+      const nuxtApp = useNuxtApp()
+      const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+      if (gsap) {
       gsap.set(carouselContainer.value, { x: -(displayIndex.value * slideDistance) })
+      }
     }
   })
   
   startAutoplay()
   
   // Initialize GSAP animation - start at the first real item (after clones)
-  if (carouselContainer.value) {
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  if (carouselContainer.value && gsap) {
     const slideDistance = getSlideDistance()
     gsap.set(carouselContainer.value, {
       x: -(itemsPerView.value * slideDistance)
     })
   }
+  
+  // Setup ScrollTrigger animations (matching Hero style)
+  setupScrollAnimations()
 })
+
+// ScrollTrigger animations matching Hero style
+let scrollTriggers: any[] = []
+
+const resolveEl = (maybeEl: any): HTMLElement | null => {
+  if (!maybeEl) return null
+  if (maybeEl instanceof HTMLElement) return maybeEl
+  if ((maybeEl as any)?.$el instanceof HTMLElement) return (maybeEl as any).$el
+  if ((maybeEl as any)?.el instanceof HTMLElement) return (maybeEl as any).el
+  return null
+}
+
+function setupScrollAnimations() {
+  if (import.meta.server) return
+  
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  
+  if (!gsap) return
+  
+  // Import ScrollTrigger
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) {
+      gsap.registerPlugin(ScrollTrigger)
+    }
+    
+    nextTick(() => {
+      // Animate About Me box with inner content
+      createAboutMeReveal()
+      // Animate Quick Facts box with inner content (slightly later)
+      createQuickFactsReveal()
+      // Animate What I Do box with inner content
+      createWhatIDoReveal()
+    })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
+  })
+}
+
+function createAboutMeReveal() {
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
+  
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
+    
+    const box = resolveEl(aboutBoxRef.value)
+    const titleComponent = aboutTitleRef.value as any
+    const title = titleComponent?.el || titleComponent?.$el || (box?.querySelector('h2') as HTMLElement)
+    const content = aboutContentRef.value
+    const meta = aboutMetaRef.value
+    const links = aboutLinksRef.value
+    
+    if (!box || !title) return
+    
+    // Split title with mask
+    let titleSplit: any = null
+    try {
+      if (SplitText) {
+        gsap.set(title, { lineHeight: '0.9' })
+        titleSplit = new SplitText(title, {
+          type: 'chars',
+          mask: 'chars',
+          smartWrap: true,
+          charsClass: 'char++',
+        })
+        if (titleSplit.chars?.length > 0) {
+          titleSplit.chars.forEach((char: HTMLElement) => {
+            gsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
+          })
+        }
+      }
+    } catch (e) {
+      titleSplit = null
+    }
+    
+    // Create timeline with ScrollTrigger
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: box,
+        start: 'top 80%',
+        once: true
+      }
+    })
+    
+    // 1. Box comes in with scale, rotation, opacity (like IntroLoader)
+    tl.fromTo(box, 
+      { opacity: 0, scale: 0.95, y: 24, rotation: -2 },
+      { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.6, ease: 'power3.out' }
+    )
+    
+    // 2. Title chars animate
+    if (titleSplit?.chars) {
+      tl.to(titleSplit.chars, {
+        opacity: 1, yPercent: 0, rotationX: 0,
+        duration: 0.5, stagger: { amount: 0.3, from: 'start' }, ease: 'power3.out'
+      }, '-=0.3')
+    }
+    
+    // 3. Content (tagline + description) fades in
+    if (content) {
+      tl.fromTo(content,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+        '-=0.2'
+      )
+    }
+    
+    // 4. Meta (location, status) fades in
+    if (meta) {
+      tl.fromTo(meta,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.2'
+      )
+    }
+    
+    // 5. Links fade in
+    if (links) {
+      tl.fromTo(links,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.2'
+      )
+    }
+    
+    scrollTriggers.push(tl)
+  })
+}
+
+function createQuickFactsReveal() {
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
+  
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
+    
+    const box = resolveEl(factsBoxRef.value)
+    const titleComponent = factsTitleRef.value as any
+    const title = titleComponent?.el || titleComponent?.$el || (box?.querySelector('h3') as HTMLElement)
+    const factsContainer = factsContentRef.value
+    
+    if (!box || !title) return
+    
+    // Split title with mask
+    let titleSplit: any = null
+    try {
+      if (SplitText) {
+        gsap.set(title, { lineHeight: '0.9' })
+        titleSplit = new SplitText(title, {
+          type: 'chars',
+          mask: 'chars',
+          smartWrap: true,
+          charsClass: 'char++',
+        })
+        if (titleSplit.chars?.length > 0) {
+          titleSplit.chars.forEach((char: HTMLElement) => {
+            gsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
+          })
+        }
+      }
+    } catch (e) {
+      titleSplit = null
+    }
+    
+    // Create timeline with ScrollTrigger (slightly later start for stagger effect)
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: box,
+        start: 'top 78%',
+        once: true
+      }
+    })
+    
+    // 1. Box comes in with scale, rotation (opposite direction), opacity
+    tl.fromTo(box, 
+      { opacity: 0, scale: 0.95, y: 24, rotation: 2 },
+      { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.6, ease: 'power3.out' }
+    )
+    
+    // 2. Title chars animate
+    if (titleSplit?.chars) {
+      tl.to(titleSplit.chars, {
+        opacity: 1, yPercent: 0, rotationX: 0,
+        duration: 0.5, stagger: { amount: 0.3, from: 'start' }, ease: 'power3.out'
+      }, '-=0.3')
+    }
+    
+    // 3. Fact rows stagger in
+    if (factsContainer) {
+      const factRows = factsContainer.querySelectorAll('.fact-row')
+      if (factRows.length > 0) {
+        tl.fromTo(factRows,
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: 0.1, ease: 'power2.out' },
+          '-=0.2'
+        )
+      }
+    }
+    
+    scrollTriggers.push(tl)
+  })
+}
+
+function createWhatIDoReveal() {
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
+  
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
+    
+    const box = resolveEl(whatIDoBoxRef.value)
+    const titleComponent = whatIDoTitleRef.value as any
+    const title = titleComponent?.el || titleComponent?.$el || (box?.querySelector('h2') as HTMLElement)
+    const controls = whatIDoControlsRef.value
+    const carousel = whatIDoCarouselRef.value
+    const dots = whatIDoDotsRef.value
+    
+    if (!box || !title) return
+    
+    // Get carousel items for stagger animation
+    const items = carousel?.querySelectorAll('.carousel-item')
+    
+    // Split title with mask
+    let titleSplit: any = null
+    try {
+      if (SplitText) {
+        gsap.set(title, { lineHeight: '0.9' })
+        titleSplit = new SplitText(title, {
+          type: 'chars',
+          mask: 'chars',
+          smartWrap: true,
+          charsClass: 'char++',
+        })
+        if (titleSplit.chars?.length > 0) {
+          titleSplit.chars.forEach((char: HTMLElement) => {
+            gsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
+          })
+        }
+      }
+    } catch (e) {
+      titleSplit = null
+    }
+    
+    // Create timeline with ScrollTrigger
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: box,
+        start: 'top 80%',
+        once: true
+      }
+    })
+    
+    // 1. Box comes in with scale, opacity
+    tl.fromTo(box, 
+      { opacity: 0, scale: 0.95, y: 24 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+    )
+    
+    // 2. Title chars animate
+    if (titleSplit?.chars) {
+      tl.to(titleSplit.chars, {
+        opacity: 1, yPercent: 0, rotationX: 0,
+        duration: 0.5, stagger: { amount: 0.3, from: 'start' }, ease: 'power3.out'
+      }, '-=0.3')
+    }
+    
+    // 3. Controls fade in
+    if (controls) {
+      tl.fromTo(controls,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.3'
+      )
+    }
+    
+    // 4. Carousel container fades in
+    if (carousel) {
+      tl.fromTo(carousel,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+        '-=0.2'
+      )
+    }
+    
+    // 5. Carousel items stagger in with scale and rotation
+    if (items && items.length > 0) {
+      tl.fromTo(items,
+        { opacity: 0, scale: 0.95, y: 16 },
+        { 
+          opacity: 1, 
+          scale: 1, 
+          y: 0, 
+          duration: 0.5, 
+          stagger: { amount: 0.4, from: 'start' }, 
+          ease: 'power3.out' 
+        },
+        '-=0.3'
+      )
+    }
+    
+    // 6. Dots fade in
+    if (dots) {
+      tl.fromTo(dots,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.2'
+      )
+    }
+    
+    scrollTriggers.push(tl)
+  })
+}
 
 onUnmounted(() => {
   window.removeEventListener('resize', updateItemsPerView)
   stopAutoplay()
+  // Cleanup ScrollTriggers
+  scrollTriggers.forEach((st) => {
+    if (st?.scrollTrigger) st.scrollTrigger.kill()
+    if (st?.kill) st.kill()
+  })
+  scrollTriggers = []
 })
 </script>
+
+<style scoped>
+/* SplitText mask styles - prevent line-height changes */
+:deep(.char) {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: baseline;
+  transform-style: preserve-3d;
+  line-height: 0.9;
+  white-space: pre-wrap;
+}
+
+:deep(.line) {
+  overflow: hidden;
+}
+
+/* Ensure titles maintain line-height */
+:deep(h2),
+:deep(h3) {
+  line-height: 0.9 !important;
+  display: block;
+}
+</style>
 

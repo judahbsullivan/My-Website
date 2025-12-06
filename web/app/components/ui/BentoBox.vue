@@ -1,6 +1,7 @@
 <template>
   <component
     :is="to ? 'NuxtLink' : 'div'"
+    ref="elementRef"
     :to="to"
     :class="bentoClasses"
     :style="bentoStyles"
@@ -10,6 +11,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
+// Expose element ref for external animation access
+const elementRef = ref<HTMLElement | null>(null)
+defineExpose({ el: elementRef })
+
 interface Props {
   to?: string
   href?: string

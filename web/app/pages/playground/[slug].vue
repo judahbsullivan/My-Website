@@ -197,7 +197,6 @@ const dynamicComponent = computed(() => {
     // In production, consider using a sandboxed environment or pre-compiled components
     return null // Placeholder - will need proper Vue component compilation
   } catch (err) {
-    console.error('Error compiling component:', err)
     return null
   }
 })

@@ -3,20 +3,21 @@
   <section class="w-full">
     <div class="px-4 sm:px-6">
       <UiBentoBox
+        ref="sectionBoxRef"
         container
         backdrop
         border
         shadow
         padding="lg"
         rounded="2xl"
-        :className="homepageData.sections.featuredWork.background"
+        :className="`${homepageData.sections.featuredWork.background} opacity-0 scale-95 translate-y-6`"
       >
         <!-- Header -->
         <div class="mb-6">
-          <UiTitle as="h2" size="md" weight="semibold" class="mb-3">
+          <UiTitle ref="sectionTitleRef" as="h2" size="md" weight="semibold" class="mb-3">
             Featured Work
           </UiTitle>
-          <p class="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+          <p ref="sectionDescRef" class="text-sm text-muted-foreground max-w-2xl leading-relaxed">
             Explore my latest projects and creative solutions
           </p>
         </div>
@@ -228,11 +229,16 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useNuxtApp } from '#app'
 import type { Project } from '~/../../shared/types'
 import homepageData from '../../data/homepage.json'
 
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBase
+const sectionBoxRef = ref<any>(null)
+const sectionTitleRef = ref<any>(null)
+const sectionDescRef = ref<HTMLElement | null>(null)
 
 // Fetch featured projects
 const { data: projects, pending, error } = await useFetch<Project[]>(
@@ -240,10 +246,7 @@ const { data: projects, pending, error } = await useFetch<Project[]>(
   {
     default: () => [],
     server: false, // Fetch on client-side only to avoid blocking SSR
-    lazy: true, // Don't block page rendering
-    onResponseError({ response }) {
-      console.error('Featured projects API error:', response.status, response._data)
-    }
+    lazy: true // Don't block page rendering
   }
 )
 
@@ -272,4 +275,196 @@ const getVariant = (index: number): 'primary' | 'secondary' | 'success' | 'warni
   ]
   return variants[index % variants.length] || 'default'
 }
+
+// ScrollTrigger animations matching Hero style
+let scrollTriggers: any[] = []
+
+const resolveEl = (maybeEl: any): HTMLElement | null => {
+  if (!maybeEl) return null
+  if (maybeEl instanceof HTMLElement) return maybeEl
+  if ((maybeEl as any)?.$el instanceof HTMLElement) return (maybeEl as any).$el
+  if ((maybeEl as any)?.el instanceof HTMLElement) return (maybeEl as any).el
+  return null
+}
+
+function setupScrollAnimation() {
+  if (import.meta.server) return
+  
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
+  
+  if (!gsap) return
+  
+  // Import ScrollTrigger
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) {
+      gsap.registerPlugin(ScrollTrigger)
+    }
+    
+    nextTick(() => {
+      const box = resolveEl(sectionBoxRef.value)
+      const titleComponent = sectionTitleRef.value as any
+      const title = titleComponent?.el || titleComponent?.$el || (box?.querySelector('h2') as HTMLElement)
+      const desc = sectionDescRef.value
+      
+      if (!box || !title) return
+      
+      // Split title with mask (matching Hero)
+      let titleSplit: any = null
+      try {
+        if (SplitText) {
+          gsap.set(title, { lineHeight: '0.9' })
+          titleSplit = new SplitText(title, {
+            type: 'chars',
+            mask: 'chars',
+            smartWrap: true,
+            charsClass: 'char++',
+          })
+          if (titleSplit.chars && titleSplit.chars.length > 0) {
+            titleSplit.chars.forEach((char: HTMLElement) => {
+              gsap.set(char, {
+                opacity: 0,
+                yPercent: 120,
+                rotationX: -90,
+                lineHeight: '0.9'
+              })
+            })
+          }
+        }
+      } catch (e) {
+        titleSplit = null
+      }
+      
+      // Split description with lines mask
+      let descSplit: any = null
+      try {
+        if (SplitText && desc) {
+          descSplit = new SplitText(desc, {
+            type: 'lines',
+            mask: 'lines',
+            smartWrap: true,
+            linesClass: 'line++',
+          })
+          if (descSplit.lines && descSplit.lines.length > 0) {
+            gsap.set(descSplit.lines, {
+              opacity: 0,
+              yPercent: 100
+            })
+          }
+        }
+      } catch (e) {
+        descSplit = null
+      }
+      
+      // Create timeline with ScrollTrigger
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: box,
+          start: 'top 80%',
+          once: true
+        }
+      })
+      
+      // 1. Fade in container with scale (matching Hero/IntroLoader exactly)
+      // Animate from Tailwind initial state (opacity-0 scale-95 translate-y-6)
+      tl.fromTo(box, 
+        {
+          opacity: 0,
+          scale: 0.95,
+          y: 24
+        },
+        {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out'
+        }
+      )
+      
+      // 2. Animate title chars with stagger and 3D rotation (matching Hero/IntroLoader exactly)
+      if (titleSplit && titleSplit.chars) {
+        tl.to(titleSplit.chars, {
+          opacity: 1,
+          yPercent: 0,
+          rotationX: 0,
+          duration: 0.5,
+          stagger: {
+            amount: 0.4,
+            from: 'start'
+          },
+          ease: 'power3.out'
+        }, '-=0.3')
+      }
+      
+      // 3. Animate description lines (matching Hero paragraph exactly)
+      if (descSplit && descSplit.lines) {
+        tl.to(descSplit.lines, {
+          opacity: 1,
+          yPercent: 0,
+          duration: 0.5,
+          stagger: {
+            amount: 0.3,
+            from: 'start'
+          },
+          ease: 'power2.out'
+        }, '-=0.3')
+      } else if (desc) {
+        tl.fromTo(desc,
+          {
+            opacity: 0,
+            y: 10
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            ease: 'power2.out'
+          }, '-=0.2')
+      }
+      
+      scrollTriggers.push(tl)
+    })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
+  })
+}
+
+onMounted(() => {
+  setupScrollAnimation()
+})
+
+onUnmounted(() => {
+  // Cleanup ScrollTriggers
+  scrollTriggers.forEach((st) => {
+    if (st?.scrollTrigger) st.scrollTrigger.kill()
+    if (st?.kill) st.kill()
+  })
+  scrollTriggers = []
+})
 </script>
+
+<style scoped>
+/* SplitText mask styles - prevent line-height changes */
+:deep(.char) {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: baseline;
+  transform-style: preserve-3d;
+  line-height: 0.9;
+  white-space: pre-wrap;
+}
+
+:deep(.line) {
+  overflow: hidden;
+}
+
+/* Ensure title maintains line-height */
+:deep(h2) {
+  line-height: 0.9 !important;
+  display: block;
+}
+</style>
+

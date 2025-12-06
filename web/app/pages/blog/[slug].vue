@@ -56,7 +56,7 @@
 
           <pre><code>// Example code block
 const example = () => {
-  console.log('Hello, World!')
+  // Your code here
 }
 </code></pre>
 

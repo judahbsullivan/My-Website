@@ -75,6 +75,9 @@ const buttonRef = ref<HTMLElement | null>(null)
 const overlayRef = ref<HTMLElement | null>(null)
 let cleanupFunctions: (() => void)[] = []
 
+// Expose element ref for external animation access
+defineExpose({ el: buttonRef })
+
 const sizeClasses = computed(() => {
   const sizes = {
     sm: 'px-4 py-1.5 text-xs',

@@ -1,5 +1,8 @@
 <template>
-  <footer class=" px-4 sm:px-6 w-full bg-muted border-t border-border/50 pt-12">
+  <footer 
+    ref="footerRef"
+    class="px-4 sm:px-6 w-full bg-muted border-t border-border/50 pt-12 invisible"
+  >
     <section class="flex flex-col">
       <div class="">
         <div class="">
@@ -99,5 +102,58 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useNuxtApp } from '#app'
+
 const currentYear = new Date().getFullYear()
+const footerRef = ref<HTMLElement | null>(null)
+let ctx: any = null
+
+// Animate footer when scrolled into view
+onMounted(() => {
+  nextTick(() => {
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+    const ScrollTrigger = nuxtApp.$ScrollTrigger as any
+    
+    if (!gsap || !ScrollTrigger || !footerRef.value) {
+      // Fallback: just show it
+      if (footerRef.value) {
+        footerRef.value.style.visibility = 'visible'
+        footerRef.value.style.opacity = '1'
+      }
+      return
+    }
+    
+    // Use GSAP context for proper cleanup
+    ctx = gsap.context(() => {
+      // Set initial state with GSAP (keeps it hidden but ready)
+      gsap.set(footerRef.value, {
+        opacity: 0,
+        y: 30,
+      })
+      
+      // GSAP v3 method: scrollTrigger as property in the animation
+      gsap.to(footerRef.value, {
+        visibility: 'visible',
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: footerRef.value,
+          start: 'top 85%',
+          toggleActions: 'play none none none',
+        }
+      })
+    }, footerRef.value)
+  })
+})
+
+onUnmounted(() => {
+  // GSAP v3 context cleanup - kills all animations and ScrollTriggers
+  if (ctx) {
+    ctx.revert()
+  }
+})
 </script>
