@@ -9,7 +9,7 @@
         shadow
         padding="none"
         rounded="2xl"
-        :className="`${homepageData.sections.marquee?.background || 'bg-primary/5'} opacity-0 scale-95 translate-y-6 overflow-hidden`"
+        :className="`${homeData.sections.marquee?.background || 'bg-primary/5'} opacity-0 scale-95 translate-y-6 overflow-hidden`"
       >
         <div class="relative py-6 overflow-hidden space-y-4">
           <!-- Gradient overlays for smooth fade -->
@@ -90,43 +90,17 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useNuxtApp } from '#app'
-import homepageData from '../../data/homepage.json'
+import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import homeData from '../../data/home.json'
 
 // Row 1: Frontend & Frameworks
-const row1Items = [
-  { text: 'Vue.js', icon: 'logos:vue' },
-  { text: 'Nuxt', icon: 'logos:nuxt-icon' },
-  { text: 'TypeScript', icon: 'logos:typescript-icon' },
-  { text: 'Tailwind CSS', icon: 'logos:tailwindcss-icon' },
-  { text: 'GSAP Animations', icon: 'heroicons:sparkles' },
-  { text: 'React', icon: 'logos:react' },
-  { text: 'Next.js', icon: 'logos:nextjs-icon' },
-  { text: 'JavaScript', icon: 'logos:javascript' },
-]
+const row1Items = homeData.sections.marquee.row1Items
 
 // Row 2: Backend & Infrastructure
-const row2Items = [
-  { text: '.NET Core', icon: 'logos:dotnet' },
-  { text: 'PostgreSQL', icon: 'logos:postgresql' },
-  { text: 'REST APIs', icon: 'heroicons:server' },
-  { text: 'Docker', icon: 'logos:docker-icon' },
-  { text: 'AWS', icon: 'logos:aws' },
-  { text: 'Azure', icon: 'logos:microsoft-azure' },
-  { text: 'Redis', icon: 'logos:redis' },
-  { text: 'GraphQL', icon: 'logos:graphql' },
-]
+const row2Items = homeData.sections.marquee.row2Items
 
 // Row 3: Skills & Practices
-const row3Items = [
-  { text: 'UI/UX Design', icon: 'heroicons:paint-brush' },
-  { text: 'Performance Optimization', icon: 'heroicons:bolt' },
-  { text: 'Cloud Infrastructure', icon: 'heroicons:cloud' },
-  { text: 'CI/CD Pipelines', icon: 'heroicons:rocket-launch' },
-  { text: 'Agile Development', icon: 'heroicons:squares-2x2' },
-  { text: 'Code Review', icon: 'heroicons:code-bracket' },
-  { text: 'Testing', icon: 'heroicons:check-badge' },
-  { text: 'Documentation', icon: 'heroicons:document-text' },
-]
+const row3Items = homeData.sections.marquee.row3Items
 
 const bannerBoxRef = ref<any>(null)
 const marqueeRow1Ref = ref<HTMLElement | null>(null)
@@ -141,6 +115,19 @@ const row3Track2Ref = ref<HTMLElement | null>(null)
 
 let scrollTriggers: any[] = []
 let marqueeTweens: any[] = []
+
+// Store actual DOM elements for exit animation
+let storedElements: {
+  box: HTMLElement | null
+  row1: HTMLElement | null
+  row2: HTMLElement | null
+  row3: HTMLElement | null
+} = {
+  box: null,
+  row1: null,
+  row2: null,
+  row3: null
+}
 
 const resolveEl = (maybeEl: any): HTMLElement | null => {
   if (!maybeEl) return null
@@ -202,6 +189,10 @@ function setupScrollAnimation() {
         startMarquees(gsap)
       })
       
+      // Store DOM elements for exit animation
+      storedElements = { box, row1, row2, row3 }
+      console.log('[Marquee] Stored DOM elements for exit')
+      
       scrollTriggers.push(tl)
     })
   }).catch(() => {
@@ -262,11 +253,108 @@ function startMarquees(gsap: any) {
   }
 }
 
+// Exit animation - mirrors the enter animation
+function animateExit(): Promise<void> {
+  console.log('[Marquee] animateExit called')
+  
+  return new Promise((resolve) => {
+    if (import.meta.server) {
+      console.log('[Marquee] SSR guard - resolving immediately')
+      resolve()
+      return
+    }
+
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+
+    if (!gsap) {
+      console.log('[Marquee] No GSAP - resolving immediately')
+      resolve()
+      return
+    }
+
+    // Use stored DOM elements (Vue refs are already cleaned up)
+    const box = storedElements.box
+    const row1 = storedElements.row1
+    const row2 = storedElements.row2
+    const row3 = storedElements.row3
+
+    console.log('[Marquee] Using stored elements:', { box: !!box, row1: !!row1, row2: !!row2, row3: !!row3 })
+
+    if (!box) {
+      console.log('[Marquee] No stored box - resolving immediately')
+      resolve()
+      return
+    }
+
+    // Stop marquee animations first
+    marqueeTweens.forEach((tween) => {
+      if (tween?.kill) tween.kill()
+    })
+    marqueeTweens = []
+
+    const tl = gsap.timeline({ 
+      onComplete: () => {
+        console.log('[Marquee] Exit animation timeline complete')
+        resolve()
+      }
+    })
+
+    const contentDuration = 0.5
+
+    // 1. Rows fade out first with stagger
+    const rows = [row1, row2, row3].filter(Boolean)
+    console.log('[Marquee] Found rows:', rows.length)
+    if (rows.length > 0) {
+      tl.to(rows, {
+        autoAlpha: 0,
+        y: -25,
+        duration: contentDuration,
+        stagger: 0.08,
+        ease: 'power2.in'
+      }, 0)
+    }
+
+    // 2. Box fades and scales - starts after content is mostly done
+    const containerDelay = contentDuration * 0.85
+    console.log('[Marquee] Container will animate at:', containerDelay)
+    
+    tl.to(box, {
+      autoAlpha: 0,
+      scale: 0.85,
+      y: -40,
+      duration: 0.5,
+      ease: 'power2.in'
+    }, containerDelay)
+  })
+}
+
+// Expose the exit animation method for page transitions
+defineExpose({ animateExit })
+
 onMounted(() => {
+  // Register exit animation
+  registerExitAnimation('marquee', animateExit)
+  
+  // Store elements immediately as fallback (in case ScrollTrigger hasn't fired)
+  nextTick(() => {
+    const box = resolveEl(bannerBoxRef.value)
+    const row1 = marqueeRow1Ref.value
+    const row2 = marqueeRow2Ref.value
+    const row3 = marqueeRow3Ref.value
+    
+    if (box && !storedElements.box) {
+      storedElements = { box, row1, row2, row3 }
+      console.log('[Marquee] Stored elements on mount (fallback)')
+    }
+  })
+  
   setupScrollAnimation()
 })
 
 onUnmounted(() => {
+  unregisterExitAnimation('marquee')
+
   // Cleanup ScrollTriggers
   scrollTriggers.forEach((st) => {
     if (st?.scrollTrigger) st.scrollTrigger.kill()
@@ -279,5 +367,14 @@ onUnmounted(() => {
     if (tween?.kill) tween.kill()
   })
   marqueeTweens = []
+  
+  // Reset state for clean re-mount
+  storedElements = {
+    box: null,
+    row1: null,
+    row2: null,
+    row3: null
+  }
 })
 </script>
+

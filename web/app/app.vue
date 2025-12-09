@@ -5,15 +5,15 @@
 </template>
 
 <style>
-/* Page Transition Styles */
+/* Disable global page fade/blur transitions to avoid flicker */
 .page-enter-active,
 .page-leave-active {
-  transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: none;
 }
 
 .page-enter-from,
 .page-leave-to {
-  opacity: 0;
-  filter: blur(1rem);
+  opacity: 1;
+  filter: none;
 }
 </style>

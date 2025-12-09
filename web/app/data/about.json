@@ -1,75 +1,61 @@
 {
-  "bio": {
+  "header": {
+    "title": "About Me",
+    "tagline": "Animation Enthusiast | Digital Architect"
+  },
+  "intro": {
+    "name": "Judah Sullivan",
     "title": "Software Engineer | Full Stack Developer | GSAP Enthusiast | Animations Specialist",
     "description": "I'm a passionate software engineer with a deep love for solving complex problems and crafting efficient, user-friendly solutions. Currently, I'm working with modern web technologies like Next.js, Astro.js, Directus, and Tailwind CSS, utilizing Docker for containerization and Barba.js for smooth page transitions.",
-    "tagline": "Animation Enthusiast | Digital Architect",
     "location": "Houston, TX",
     "website": "https://judahsullivan.dev",
     "github": "https://github.com/judahbsullivan",
-    "status": "Open to Work!"
+    "status": "Open to Work!",
+    "background": "bg-primary/8 dark:bg-primary/12"
   },
-  "stats": [
-    {
-      "label": "GitHub Repos",
-      "value": "15+",
-      "icon": "heroicons:code-bracket-square",
-      "color": "primary"
-    },
-    {
-      "label": "Years Experience",
-      "value": "5+",
-      "icon": "heroicons:calendar",
-      "color": "secondary"
-    },
-    {
-      "label": "Blog Posts",
-      "value": "12+",
-      "icon": "heroicons:document-text",
-      "color": "success"
-    },
-    {
-      "label": "Technologies",
-      "value": "20+",
-      "icon": "heroicons:sparkles",
-      "color": "warning"
-    }
-  ],
+  "stats": {
+    "title": "Quick Stats",
+    "background": "bg-sky-500/10 dark:bg-sky-500/15",
+    "stats": [
+      {
+        "label": "GitHub Repos",
+        "value": "15+",
+        "icon": "heroicons:code-bracket-square",
+        "color": "primary"
+      },
+      {
+        "label": "Years Experience",
+        "value": "5+",
+        "icon": "heroicons:calendar",
+        "color": "secondary"
+      },
+      {
+        "label": "Blog Posts",
+        "value": "12+",
+        "icon": "heroicons:document-text",
+        "color": "success"
+      },
+      {
+        "label": "Technologies",
+        "value": "20+",
+        "icon": "heroicons:sparkles",
+        "color": "warning"
+      }
+    ]
+  },
+  "skillsBackground": "bg-muted/60 dark:bg-muted/20",
   "skillCategories": [
     {
       "id": "frameworks",
       "name": "Frameworks",
       "icon": "heroicons:bolt",
       "skills": [
-        {
-          "name": "Vue.js",
-          "icon": "logos:vue",
-          "variant": "primary"
-        },
-        {
-          "name": "Nuxt",
-          "icon": "logos:nuxt-icon",
-          "variant": "secondary"
-        },
-        {
-          "name": "Next.js",
-          "icon": "logos:nextjs-icon",
-          "variant": "primary"
-        },
-        {
-          "name": "React",
-          "icon": "logos:react",
-          "variant": "info"
-        },
-        {
-          "name": "Astro",
-          "icon": "logos:astro-icon",
-          "variant": "warning"
-        },
-        {
-          "name": "Svelte",
-          "icon": "logos:svelte-icon",
-          "variant": "success"
-        }
+        { "name": "Vue.js", "icon": "logos:vue", "variant": "primary" },
+        { "name": "Nuxt", "icon": "logos:nuxt-icon", "variant": "secondary" },
+        { "name": "Next.js", "icon": "logos:nextjs-icon", "variant": "primary" },
+        { "name": "React", "icon": "logos:react", "variant": "info" },
+        { "name": "Astro", "icon": "logos:astro-icon", "variant": "warning" },
+        { "name": "Svelte", "icon": "logos:svelte-icon", "variant": "success" }
       ]
     },
     {
@@ -77,26 +63,10 @@
       "name": "CSS & Styling",
       "icon": "heroicons:paint-brush",
       "skills": [
-        {
-          "name": "Tailwind CSS",
-          "icon": "logos:tailwindcss-icon",
-          "variant": "success"
-        },
-        {
-          "name": "CSS3",
-          "icon": "logos:css-3",
-          "variant": "primary"
-        },
-        {
-          "name": "MUI",
-          "icon": "logos:material-ui",
-          "variant": "info"
-        },
-        {
-          "name": "Shadcn UI",
-          "icon": "simple-icons:shadcnui",
-          "variant": "secondary"
-        }
+        { "name": "Tailwind CSS", "icon": "logos:tailwindcss-icon", "variant": "success" },
+        { "name": "CSS3", "icon": "logos:css-3", "variant": "primary" },
+        { "name": "MUI", "icon": "logos:material-ui", "variant": "info" },
+        { "name": "Shadcn UI", "icon": "simple-icons:shadcnui", "variant": "secondary" }
       ]
     },
     {
@@ -104,36 +74,12 @@
       "name": "Backend",
       "icon": "heroicons:server",
       "skills": [
-        {
-          "name": "Node.js",
-          "icon": "logos:nodejs-icon",
-          "variant": "secondary"
-        },
-        {
-          "name": ".NET",
-          "icon": "logos:dotnet",
-          "variant": "primary"
-        },
-        {
-          "name": "Express.js",
-          "icon": "logos:express",
-          "variant": "info"
-        },
-        {
-          "name": "Directus",
-          "icon": "simple-icons:directus",
-          "variant": "success"
-        },
-        {
-          "name": "PostgreSQL",
-          "icon": "logos:postgresql",
-          "variant": "warning"
-        },
-        {
-          "name": "Prisma",
-          "icon": "logos:prisma",
-          "variant": "secondary"
-        }
+        { "name": "Node.js", "icon": "logos:nodejs-icon", "variant": "secondary" },
+        { "name": ".NET", "icon": "logos:dotnet", "variant": "primary" },
+        { "name": "Express.js", "icon": "logos:express", "variant": "info" },
+        { "name": "Directus", "icon": "simple-icons:directus", "variant": "success" },
+        { "name": "PostgreSQL", "icon": "logos:postgresql", "variant": "warning" },
+        { "name": "Prisma", "icon": "logos:prisma", "variant": "secondary" }
       ]
     },
     {
@@ -141,26 +87,10 @@
       "name": "Languages",
       "icon": "heroicons:document-duplicate",
       "skills": [
-        {
-          "name": "TypeScript",
-          "icon": "logos:typescript-icon",
-          "variant": "success"
-        },
-        {
-          "name": "JavaScript",
-          "icon": "logos:javascript",
-          "variant": "primary"
-        },
-        {
-          "name": "HTML5",
-          "icon": "logos:html-5",
-          "variant": "warning"
-        },
-        {
-          "name": "Lua",
-          "icon": "logos:lua",
-          "variant": "info"
-        }
+        { "name": "TypeScript", "icon": "logos:typescript-icon", "variant": "success" },
+        { "name": "JavaScript", "icon": "logos:javascript", "variant": "primary" },
+        { "name": "HTML5", "icon": "logos:html-5", "variant": "warning" },
+        { "name": "Lua", "icon": "logos:lua", "variant": "info" }
       ]
     },
     {
@@ -168,180 +98,123 @@
       "name": "Tools & DevOps",
       "icon": "heroicons:wrench-screwdriver",
       "skills": [
-        {
-          "name": "Docker",
-          "icon": "logos:docker-icon",
-          "variant": "info"
-        },
-        {
-          "name": "AWS",
-          "icon": "logos:aws",
-          "variant": "warning"
-        },
-        {
-          "name": "Git",
-          "icon": "logos:git-icon",
-          "variant": "primary"
-        },
-        {
-          "name": "GitHub",
-          "icon": "logos:github-icon",
-          "variant": "secondary"
-        },
-        {
-          "name": "Neovim",
-          "icon": "simple-icons:neovim",
-          "variant": "success"
-        },
-        {
-          "name": "Pulumi",
-          "icon": "logos:pulumi",
-          "variant": "info"
-        }
+        { "name": "Docker", "icon": "logos:docker-icon", "variant": "info" },
+        { "name": "AWS", "icon": "logos:aws", "variant": "warning" },
+        { "name": "Git", "icon": "logos:git-icon", "variant": "primary" },
+        { "name": "GitHub", "icon": "logos:github-icon", "variant": "secondary" },
+        { "name": "Neovim", "icon": "simple-icons:neovim", "variant": "success" },
+        { "name": "Pulumi", "icon": "logos:pulumi", "variant": "info" }
       ]
     }
   ],
-  "experience": [
-    {
-      "title": "Software Engineer",
-      "company": "Hope Media Group",
-      "period": "Jun 2024 - Jun 2025",
-      "location": "Houston, Texas, United States",
-      "type": "Full-time · Hybrid",
-      "description": "Architect and maintain full-stack solutions using React, Next.js, Node.js, Directus, Shadcn UI, and TypeScript, supporting modern content workflows and responsive design.",
-      "responsibilities": [
-        "Architect and maintain full-stack solutions using React, Next.js, Node.js, Directus, Shadcn UI, and TypeScript, supporting modern content workflows and responsive design",
-        "Leverage Docker for local development and containerized deployments, ensuring consistent environments across dev, staging, and production",
-        "Deploy and manage applications on AWS via Flightcontrol, optimizing infrastructure scalability, performance, and CI/CD reliability",
-        "Troubleshoot and resolve complex backend (Node.js) and frontend (React/Next.js) issues quickly and effectively, reducing downtime and improving developer velocity",
-        "Maintain and support multiple Directus CMS environments, delivering flexibility and stability for editorial and content operations",
-        "Continuously improve UI/UX through design-forward enhancements in React components and Next.js pages, contributing to better engagement and accessibility",
-        "Utilize agile development methodologies and ticket-based workflows to align with sprint goals and deliver value incrementally",
-        "Collaborate via GitHub for version control, code review, and CI/CD, promoting clean, modular code and team-wide best practices",
-        "Rapidly debug and test features in local environments, identifying issues early and iterating quickly",
-        "Implement infrastructure-as-code CI/CD pipelines using Pulumi and AWS, ensuring repeatable and reliable deployments"
-      ]
+  "experience": {
+    "title": "Experience",
+    "background": "bg-amber-500/10 dark:bg-amber-500/15",
+    "experiences": [
+      {
+        "title": "Software Engineer",
+        "company": "Hope Media Group",
+        "period": "Jun 2024 - Jun 2025",
+        "location": "Houston, Texas, United States",
+        "type": "Full-time · Hybrid",
+        "description": "Architect and maintain full-stack solutions using React, Next.js, Node.js, Directus, Shadcn UI, and TypeScript.",
+        "responsibilities": [
+          "Architect and maintain full-stack solutions using React, Next.js, Node.js, Directus, Shadcn UI, and TypeScript",
+          "Leverage Docker for local development and containerized deployments",
+          "Deploy and manage applications on AWS via Flightcontrol"
+        ]
+      },
+      {
+        "title": "Full Stack Engineer",
+        "company": "Narrowstack",
+        "period": "Jan 2024 - Jun 2024",
+        "location": "New Orleans, Louisiana, United States",
+        "type": "Contract · Remote",
+        "description": "Integral member of the CMS team, specializing in full-stack development with React, Next.js, and Node.js.",
+        "responsibilities": [
+          "Full-stack development with React, Next.js, and Node.js",
+          "Troubleshoot and resolve backend and frontend issues efficiently",
+          "Actively contribute to frontend enhancements that improve UI/UX"
+        ]
+      },
+      {
+        "title": "Full-stack Developer",
+        "company": "Freelance",
+        "period": "Jul 2021 - Jan 2024",
+        "location": "New Orleans, Louisiana, United States",
+        "type": "Freelance · Remote",
+        "description": "Independent Full Stack Developer specializing in building high-performance React, Next.js, and Node.js applications.",
+        "responsibilities": [
+          "Building high-performance React, Next.js, and Node.js applications",
+          "Implement cutting-edge animations and interactive features",
+          "Collaborate closely with clients to understand their vision"
+        ]
+      }
+    ]
+  },
+  "education": {
+    "title": "Education",
+    "background": "bg-blue-500/10 dark:bg-blue-500/15",
+    "educations": [
+      {
+        "degree": "Computer Science",
+        "institution": "University",
+        "year": "2018",
+        "description": "Focused on software engineering, web development, and database systems."
+      }
+    ]
+  },
+  "interests": {
+    "title": "Interests & Hobbies",
+    "background": "bg-emerald-500/10 dark:bg-emerald-500/15",
+    "interests": [
+      { "name": "Coding", "icon": "heroicons:code-bracket-square", "variant": "warning" },
+      { "name": "Guitar", "icon": "heroicons:musical-note", "variant": "secondary" },
+      { "name": "Basketball", "icon": "fa-solid:basketball-ball", "variant": "warning" },
+      { "name": "Family", "description": "Fiancé + 2 kids and 1 on the way", "icon": "heroicons:heart", "variant": "info" }
+    ]
+  },
+  "achievements": {
+    "title": "Achievements & Highlights",
+    "background": "bg-purple-500/10 dark:bg-purple-500/15",
+    "achievements": [
+      {
+        "title": "Open Source",
+        "description": "Active contributor to various open-source projects and maintainer of several npm packages.",
+        "icon": "heroicons:star",
+        "variant": "primary"
+      },
+      {
+        "title": "Blog Writer",
+        "description": "Sharing knowledge through technical blog posts and tutorials on web development.",
+        "icon": "heroicons:pencil-square",
+        "variant": "success"
+      },
+      {
+        "title": "Community",
+        "description": "Engaged in developer communities, helping others learn and grow in their coding journey.",
+        "icon": "heroicons:user-group",
+        "variant": "secondary"
+      }
+    ]
+  },
+  "callToAction": {
+    "icon": "heroicons:chat-bubble-left-right",
+    "title": "Let's Work Together",
+    "description": "Have a project in mind? I'm always open to discussing new opportunities and interesting challenges.",
+    "background": "bg-foreground dark:bg-foreground/90 text-secondary dark:text-secondary",
+    "primaryButton": {
+      "text": "Get in Touch",
+      "to": "/contact",
+      "icon": "heroicons:envelope"
     },
-    {
-      "title": "Full Stack Engineer",
-      "company": "Narrowstack",
-      "period": "Jan 2024 - Jun 2024",
-      "location": "New Orleans, Louisiana, United States",
-      "type": "Contract · Remote",
-      "description": "Integral member of the CMS team, specializing in full-stack development with React, Next.js, and Node.js to deliver optimal functionality and user experience.",
-      "responsibilities": [
-        "Integral member of the CMS team, specializing in full-stack development with React, Next.js, and Node.js to deliver optimal functionality and user experience",
-        "Troubleshoot and resolve backend (Node.js) and frontend (React/Next.js) issues efficiently to maintain application stability",
-        "Actively contribute to frontend enhancements that improve UI/UX, performance, and visual appeal",
-        "Utilize agile ticket management for streamlined, collaborative development",
-        "Debug and test features rapidly in local environments for efficient issue resolution",
-        "Proficient in React and Next.js for dynamic web applications, Node.js for backend logic, Directus for content management, and Shadcn UI for frontend component design"
-      ]
-    },
-    {
-      "title": "Full-stack Developer",
-      "company": "Freelance",
-      "period": "Jul 2021 - Jan 2024",
-      "location": "New Orleans, Louisiana, United States",
-      "type": "Freelance · Remote",
-      "description": "Independent Full Stack Developer specializing in building high-performance React, Next.js, and Node.js applications and modern Jamstack websites.",
-      "responsibilities": [
-        "Independent Full Stack Developer specializing in building high-performance React, Next.js, and Node.js applications and modern Jamstack websites",
-        "Design and develop applications and websites from scratch, ensuring technical excellence, scalability, and alignment with client goals",
-        "Implement cutting-edge animations and interactive features using modern JavaScript and React-based animation libraries to enhance user engagement",
-        "Collaborate closely with clients to understand their vision, delivering tailored full-stack solutions that balance design, performance, and maintainability",
-        "Stay current with emerging web technologies and frameworks to incorporate innovative features and future-proof architectures",
-        "Apply expertise across both frontend (React/Next.js) and backend (Node.js) technologies for complete, end-to-end solutions",
-        "Experienced in Jamstack architecture for fast, secure, and scalable sites, and in implementing various forms of interactivity to improve user satisfaction and retention"
-      ]
-    },
-    {
-      "title": "Autonomous Vehicle Operator",
-      "company": "RocketPower",
-      "period": "Dec 2019 - Jul 2020",
-      "location": "Houston, Texas, United States",
-      "type": "Full-time · On-site",
-      "description": "Autonomous Vehicle Operator at RocketPower, testing autonomous vehicles and ensuring their operational efficiency.",
-      "responsibilities": [
-        "Autonomous Vehicle Operator at RocketPower, testing autonomous vehicles and ensuring their operational efficiency",
-        "Responsible for creating tickets for engineers based on vehicle performance and public feedback",
-        "Developed new routes for testing autonomy and gathered data on vehicle performance",
-        "Actively contributed to the improvement of autonomy algorithms by testing and providing feedback",
-        "Accumulated autonomy mileage to enhance the system's reliability and performance",
-        "Played a key role in refining autonomous vehicle technology through hands-on testing and feedback collection"
-      ]
-    }
-  ],
-  "education": [
-    {
-      "degree": "Computer Science",
-      "institution": "University",
-      "year": "2018",
-      "description": "Focused on software engineering, web development, and database systems."
-    }
-  ],
-  "interests": [
-    {
-      "name": "Coding",
-      "icon": "heroicons:code-bracket-square",
-      "variant": "warning"
-    },
-    {
-      "name": "Guitar",
-      "icon": "heroicons:musical-note",
-      "variant": "secondary"
-    },
-    {
-      "name": "Basketball",
-      "icon": "fa-solid:basketball-ball",
-      "variant": "warning"
-    },
-    {
-      "name": "Family",
-      "description": "Fiancé + 2 kids and 1 on the way",
-      "icon": "heroicons:heart",
-      "variant": "info"
-    }
-  ],
-  "achievements": [
-    {
-      "title": "Open Source",
-      "description": "Active contributor to various open-source projects and maintainer of several npm packages.",
-      "icon": "heroicons:star",
-      "variant": "primary"
-    },
-    {
-      "title": "Blog Writer",
-      "description": "Sharing knowledge through technical blog posts and tutorials on web development.",
-      "icon": "heroicons:pencil-square",
-      "variant": "success"
-    },
-    {
-      "title": "Community",
-      "description": "Engaged in developer communities, helping others learn and grow in their coding journey.",
-      "icon": "heroicons:user-group",
-      "variant": "secondary"
-    }
-  ],
-  "sections": {
-    "intro": {
-      "background": "bg-card dark:bg-card/90"
-    },
-    "stats": {
-      "background": "bg-card dark:bg-card/90"
-    },
-    "experience": {
-      "background": "bg-card dark:bg-card/90"
-    },
-    "education": {
-      "background": "bg-card dark:bg-card/90"
-    },
-    "interests": {
-      "background": "bg-card dark:bg-card/90"
-    },
-    "callToAction": {
-      "background": "bg-card dark:bg-card/90"
+    "secondaryButton": {
+      "text": "View My Work",
+      "to": "/projects",
+      "icon": "heroicons:folder"
     }
   }
 }
+
+
 

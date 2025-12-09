@@ -10,15 +10,15 @@
         shadow
         padding="lg"
         rounded="2xl"
-        :className="`${homepageData.sections.featuredWork.background} opacity-0 scale-95 translate-y-6`"
+        :className="`${homeData.sections.featuredWork.background} opacity-0 scale-95 translate-y-6`"
       >
         <!-- Header -->
         <div class="mb-6">
           <UiTitle ref="sectionTitleRef" as="h2" size="md" weight="semibold" class="mb-3">
-            Featured Work
+            {{ homeData.sections.featuredWork.title }}
           </UiTitle>
           <p ref="sectionDescRef" class="text-sm text-muted-foreground max-w-2xl leading-relaxed">
-            Explore my latest projects and creative solutions
+            {{ homeData.sections.featuredWork.description }}
           </p>
         </div>
 
@@ -52,7 +52,7 @@
                 :alt="featuredProjects[0].title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
             </div>
             <div class="relative z-10 w-full">
               <div class="flex items-center gap-2 mb-2">
@@ -93,7 +93,7 @@
                 :alt="featuredProjects[1].title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
             </div>
             <div class="relative z-10 w-full">
               <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary/30 text-primary backdrop-blur-sm mb-2 inline-block">
@@ -129,7 +129,7 @@
                 :alt="featuredProjects[2].title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
             </div>
             <div class="relative z-10 w-full">
               <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary/30 text-primary backdrop-blur-sm mb-2 inline-block">
@@ -165,7 +165,7 @@
                 :alt="featuredProjects[3].title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div class="absolute inset-0 bg-linear-to-trom-black/80 via-black/40 to-transparent" />
             </div>
             <div class="relative z-10 w-full">
               <div class="flex items-center gap-2 mb-2">
@@ -203,7 +203,7 @@
                 :alt="featuredProjects[4].title"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
             </div>
             <div class="relative z-10 w-full">
               <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary/30 text-primary backdrop-blur-sm mb-2 inline-block">
@@ -231,14 +231,30 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useNuxtApp } from '#app'
+import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
 import type { Project } from '~/../../shared/types'
-import homepageData from '../../data/homepage.json'
+import homeData from '../../data/home.json'
 
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBase
 const sectionBoxRef = ref<any>(null)
 const sectionTitleRef = ref<any>(null)
 const sectionDescRef = ref<HTMLElement | null>(null)
+
+// Store SplitText instances for exit animation
+let storedTitleSplit: any = null
+let storedDescSplit: any = null
+
+// Store actual DOM elements for exit animation
+let storedElements: {
+  box: HTMLElement | null
+  title: HTMLElement | null
+  desc: HTMLElement | null
+} = {
+  box: null,
+  title: null,
+  desc: null
+}
 
 // Fetch featured projects
 const { data: projects, pending, error } = await useFetch<Project[]>(
@@ -425,6 +441,14 @@ function setupScrollAnimation() {
           }, '-=0.2')
       }
       
+      // Store split instances for exit animation
+      storedTitleSplit = titleSplit
+      storedDescSplit = descSplit
+      
+      // Store DOM elements for exit animation
+      storedElements = { box, title, desc }
+      console.log('[FeaturedWork] Stored DOM elements for exit')
+      
       scrollTriggers.push(tl)
     })
   }).catch(() => {
@@ -432,17 +456,217 @@ function setupScrollAnimation() {
   })
 }
 
+// Exit animation - mirrors the enter animation
+function animateExit(): Promise<void> {
+  console.log('[FeaturedWork] animateExit called')
+  
+  return new Promise((resolve) => {
+    if (import.meta.server) {
+      console.log('[FeaturedWork] SSR guard - resolving immediately')
+      resolve()
+      return
+    }
+
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+    const SplitText = nuxtApp.$SplitText as any
+
+    if (!gsap) {
+      console.log('[FeaturedWork] No GSAP - resolving immediately')
+      resolve()
+      return
+    }
+
+    // Use stored DOM elements (Vue refs are already cleaned up)
+    const box = storedElements.box
+    const title = storedElements.title
+    const desc = storedElements.desc
+
+    console.log('[FeaturedWork] Using stored elements:', { 
+      box: !!box, 
+      title: !!title, 
+      desc: !!desc,
+      storedTitleSplit: !!storedTitleSplit,
+      storedDescSplit: !!storedDescSplit
+    })
+
+    if (!box) {
+      console.log('[FeaturedWork] No stored box - resolving immediately')
+      resolve()
+      return
+    }
+
+    const tl = gsap.timeline({ 
+      onComplete: () => {
+        console.log('[FeaturedWork] Exit animation timeline complete')
+        resolve()
+      }
+    })
+
+    const contentDuration = 0.5
+    const contentStagger = 0.2
+
+    // Use stored splits or create new ones
+    let titleSplit = storedTitleSplit
+    let descSplit = storedDescSplit
+
+    if (!titleSplit && SplitText && title) {
+      try {
+        console.log('[FeaturedWork] Creating new title SplitText')
+        titleSplit = new SplitText(title, { 
+          type: 'chars',
+          mask: 'chars',
+          smartWrap: true,
+          charsClass: 'char++',
+        })
+      } catch (e) {
+        titleSplit = null
+      }
+    }
+
+    if (!descSplit && SplitText && desc) {
+      try {
+        console.log('[FeaturedWork] Creating new desc SplitText')
+        descSplit = new SplitText(desc, { 
+          type: 'lines',
+          mask: 'lines',
+          smartWrap: true,
+          linesClass: 'line++',
+        })
+      } catch (e) {
+        descSplit = null
+      }
+    }
+
+    // 1. Title chars mask away
+    if (titleSplit && titleSplit.chars && titleSplit.chars.length > 0) {
+      console.log('[FeaturedWork] Animating title with SplitText:', titleSplit.chars.length, 'chars')
+      tl.to(titleSplit.chars, {
+        yPercent: -120,
+        rotationX: 90,
+        autoAlpha: 0,
+        duration: contentDuration,
+        stagger: {
+          amount: contentStagger,
+          from: 'end'
+        },
+        ease: 'power2.in'
+      }, 0)
+    }
+    // Always fade title element
+    if (title) {
+      tl.to(title, {
+        autoAlpha: 0,
+        duration: contentDuration,
+        ease: 'power2.in'
+      }, 0)
+    }
+
+    // 2. Description lines mask away
+    if (descSplit && descSplit.lines && descSplit.lines.length > 0) {
+      console.log('[FeaturedWork] Animating desc with SplitText:', descSplit.lines.length, 'lines')
+      tl.to(descSplit.lines, {
+        yPercent: -100,
+        autoAlpha: 0,
+        duration: contentDuration,
+        stagger: {
+          amount: 0.15,
+          from: 'end'
+        },
+        ease: 'power2.in'
+      }, 0)
+    }
+    // Always fade desc element
+    if (desc) {
+      tl.to(desc, {
+        autoAlpha: 0,
+        duration: contentDuration,
+        ease: 'power2.in'
+      }, 0)
+    }
+
+    // 3. Project cards fade and scale out
+    const projectCards = box.querySelectorAll('a')
+    console.log('[FeaturedWork] Found project cards:', projectCards.length)
+    if (projectCards.length > 0) {
+      tl.to(projectCards, {
+        scale: 0.85,
+        autoAlpha: 0,
+        y: -25,
+        duration: contentDuration,
+        stagger: 0.05,
+        ease: 'power2.in'
+      }, 0)
+    }
+
+    // 4. Container fades and scales - starts after content is mostly done
+    const containerDelay = contentDuration * 0.85
+    console.log('[FeaturedWork] Container will animate at:', containerDelay)
+    
+    tl.to(box, {
+      autoAlpha: 0,
+      scale: 0.85,
+      y: -40,
+      rotation: 4,
+      duration: 0.5,
+      ease: 'power2.in'
+    }, containerDelay)
+
+    // Cleanup splits
+    tl.call(() => {
+      if (titleSplit && titleSplit.revert) {
+        try { titleSplit.revert() } catch (e) {}
+      }
+      if (descSplit && descSplit.revert) {
+        try { descSplit.revert() } catch (e) {}
+      }
+      storedTitleSplit = null
+      storedDescSplit = null
+    })
+  })
+}
+
+// Expose the exit animation method for page transitions
+defineExpose({ animateExit })
+
 onMounted(() => {
+  // Register exit animation
+  registerExitAnimation('featuredWork', animateExit)
+  
+  // Store elements immediately as fallback (in case ScrollTrigger hasn't fired)
+  nextTick(() => {
+    const box = resolveEl(sectionBoxRef.value)
+    const titleComponent = sectionTitleRef.value as any
+    const title = titleComponent?.el || titleComponent?.$el || (box?.querySelector('h2') as HTMLElement)
+    const desc = sectionDescRef.value
+    
+    if (box && !storedElements.box) {
+      storedElements = { box, title, desc }
+      console.log('[FeaturedWork] Stored elements on mount (fallback)')
+    }
+  })
+  
   setupScrollAnimation()
 })
 
 onUnmounted(() => {
+  unregisterExitAnimation('featuredWork')
+  
   // Cleanup ScrollTriggers
   scrollTriggers.forEach((st) => {
     if (st?.scrollTrigger) st.scrollTrigger.kill()
     if (st?.kill) st.kill()
   })
   scrollTriggers = []
+  
+  // Reset state for clean re-mount
+  storedTitleSplit = null
+  storedDescSplit = null
+  storedElements = {
+    box: null,
+    title: null,
+    desc: null
+  }
 })
 </script>
 

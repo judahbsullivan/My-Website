@@ -1,7 +1,8 @@
 <template>
   <footer 
     ref="footerRef"
-    class="px-4 sm:px-6 w-full bg-muted border-t border-border/50 pt-12 invisible"
+    class="px-4 sm:px-6 w-full bg-muted border-t border-border/50 pt-12 opacity-0"
+    style="opacity: 0; transform: translateY(24px); visibility: hidden;"
   >
     <section class="flex flex-col">
       <div class="">
@@ -121,6 +122,7 @@ onMounted(() => {
       if (footerRef.value) {
         footerRef.value.style.visibility = 'visible'
         footerRef.value.style.opacity = '1'
+        footerRef.value.style.transform = 'translateY(0px)'
       }
       return
     }
@@ -131,19 +133,25 @@ onMounted(() => {
       gsap.set(footerRef.value, {
         opacity: 0,
         y: 30,
+        visibility: 'hidden'
       })
       
       // GSAP v3 method: scrollTrigger as property in the animation
       gsap.to(footerRef.value, {
-        visibility: 'visible',
         opacity: 1,
         y: 0,
         duration: 0.8,
         ease: 'power3.out',
+        onStart: () => {
+          if (footerRef.value) {
+            footerRef.value.style.visibility = 'visible'
+          }
+        },
         scrollTrigger: {
           trigger: footerRef.value,
           start: 'top 85%',
           toggleActions: 'play none none none',
+          once: true
         }
       })
     }, footerRef.value)

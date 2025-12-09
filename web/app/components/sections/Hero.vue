@@ -9,7 +9,7 @@
             shadow
             padding="lg"
             rounded="2xl"
-            :className="homepageData.sections.hero.background"
+            :className="`${homeData.sections.hero.background} opacity-0 scale-90 -rotate-3`"
           >
             <!-- Badge -->
             <div
@@ -17,7 +17,7 @@
               class="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/40 px-3 py-1 text-xs font-medium text-muted-foreground mb-4 sm:mb-5 opacity-0 scale-80 translate-y-8 -rotate-5"
             >
               <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0" />
-              <span>Building thoughtful web experiences</span>
+              <span>{{ homeData.sections.hero.badge.text }}</span>
             </div>
 
             <!-- Title -->
@@ -28,10 +28,9 @@
                 size="4xl"
                 weight="bold"
                 align="left"
-                class="uppercase leading-[0.9] tracking-tight font-bold text-left"
+                class="uppercase leading-[0.9] tracking-tight font-bold text-left opacity-0"
               >
-                Crafting modern
-                high-quality digital products.
+                {{ homeData.sections.hero.title }}
               </UiTitle>
             </div>
 
@@ -39,11 +38,9 @@
             <div ref="paragraphWrapperRef" class="overflow-hidden mb-8">
               <p 
                 ref="paragraphRef"
-                class="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed"
+                class="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed opacity-0"
               >
-                I'm Judah, a full‑stack developer focused on clean design,
-                performant code, and experiences that feel polished from first
-                click to final deploy.
+                {{ homeData.sections.hero.paragraph }}
               </p>
             </div>
 
@@ -51,15 +48,15 @@
             <div ref="ctaRef" class="flex flex-col md:flex-row w-full md:justify-between md:items-center gap-6">
               <div class='flex flex-wrap items-center gap-3 sm:gap-4'>
                 <div ref="primaryBtnRef" class="opacity-0 scale-80 translate-y-8 -rotate-5">
-                  <UiButton to="/contact" variant="primary" size="lg" class="flex items-center gap-2 text-sm sm:text-base">
-                    Work with me
+                  <UiButton :to="homeData.sections.hero.primaryButton.to" variant="primary" size="lg" class="flex items-center gap-2 text-sm sm:text-base">
+                    {{ homeData.sections.hero.primaryButton.text }}
                     <span aria-hidden="true">→</span>
                   </UiButton>
                 </div>
 
                 <div ref="secondaryBtnRef" class="opacity-0 scale-80 translate-y-8 -rotate-5">
-                  <UiButton to="/projects" variant="outline" size="lg" class="border-border/60 bg-background/40 text-sm sm:text-base">
-                    View projects
+                  <UiButton :to="homeData.sections.hero.secondaryButton.to" variant="outline" size="lg" class="border-border/60 bg-background/40 text-sm sm:text-base">
+                    {{ homeData.sections.hero.secondaryButton.text }}
                   </UiButton>
                 </div>
               </div>
@@ -70,7 +67,7 @@
               >
                 <span class="w-2.5 h-2.5 rounded-full bg-success animate-pulse shrink-0" />
                 <span class="text-xs sm:text-sm text-muted-foreground">
-                  Currently open for Work & New Opportunities
+                  {{ homeData.sections.hero.status.text }}
                 </span>
               </div>
             </div>
@@ -81,10 +78,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useNuxtApp } from '#app'
 import { useIntroLoader } from '../../composables/useIntroLoader'
-import homepageData from '../../data/homepage.json'
+import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import homeData from '../../data/home.json'
 
 const { isIntroLoaderComplete } = useIntroLoader()
 
@@ -97,8 +95,31 @@ const paragraphRef = ref<HTMLElement | null>(null)
 const primaryBtnRef = ref<HTMLElement | null>(null)
 const secondaryBtnRef = ref<HTMLElement | null>(null)
 const statusRef = ref<HTMLElement | null>(null)
+const ctaRef = ref<HTMLElement | null>(null)
 
 let hasAnimated = false
+// Store SplitText instances for exit animation
+let storedTitleSplit: any = null
+let storedParagraphSplit: any = null
+
+// Store actual DOM elements (not Vue refs) for exit animation
+let storedElements: {
+  bentoBox: HTMLElement | null
+  badge: HTMLElement | null
+  title: HTMLElement | null
+  paragraph: HTMLElement | null
+  primaryBtn: HTMLElement | null
+  secondaryBtn: HTMLElement | null
+  status: HTMLElement | null
+} = {
+  bentoBox: null,
+  badge: null,
+  title: null,
+  paragraph: null,
+  primaryBtn: null,
+  secondaryBtn: null,
+  status: null
+}
 
 function animateHero() {
   if (import.meta.server || hasAnimated) return
@@ -190,23 +211,19 @@ function animateHero() {
     // Create master timeline (matching IntroLoader pattern)
     const tl = gsap.timeline()
     
-    // 1. Fade in container with scale (like IntroLoader container)
+    // 1. Container bounces in with scale and rotation (like IntroLoader bentos)
     gsap.set(bentoBox, {
       opacity: 0,
-      scale: 0.9
+      scale: 0.9,
+      rotation: -3
     })
-    tl.fromTo(bentoBox, 
-      {
-        opacity: 0,
-        scale: 0.9
-      },
-      {
+    tl.to(bentoBox, {
         opacity: 1,
         scale: 1,
-        duration: 0.6,
-        ease: 'power3.out'
-      }
-    )
+      rotation: 0,
+      duration: 0.7,
+      ease: 'back.out(1.4)'
+    })
     
     // 2. Animate badge first (like IntroLoader name box) with bounce
     tl.fromTo(badge,
@@ -227,6 +244,10 @@ function animateHero() {
     
     // 3. Animate title characters with mask reveal and 3D rotation (like IntroLoader name)
     if (titleSplit && titleSplit.chars) {
+      // Make sure the parent title element becomes visible too
+      if (title) {
+        tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.3')
+      }
       tl.to(titleSplit.chars, {
         opacity: 1,
         yPercent: 0,
@@ -255,6 +276,10 @@ function animateHero() {
     
     // 4. Animate paragraph lines with mask reveal and stagger (like IntroLoader tagline)
     if (paragraphSplit && paragraphSplit.lines) {
+      // Ensure paragraph parent is visible
+      if (paragraph) {
+        tl.to(paragraph, { opacity: 1, duration: 0.001 }, '-=0.25')
+      }
       tl.to(paragraphSplit.lines, {
         opacity: 1,
         yPercent: 0,
@@ -319,23 +344,224 @@ function animateHero() {
     
     hasAnimated = true
     
-    // Don't revert SplitText immediately - keep it for the hero section
-    // Revert only after a long delay to prevent text jumping
+    // Store split instances for exit animation (don't revert - we need them for exit)
+    storedTitleSplit = titleSplit
+    storedParagraphSplit = paragraphSplit
+    
+    // Store actual DOM elements for exit animation (Vue refs get cleaned up before onLeave)
+    storedElements = {
+      bentoBox,
+      badge,
+      title,
+      paragraph,
+      primaryBtn,
+      secondaryBtn,
+      status
+    }
+    console.log('[Hero] Stored DOM elements for exit')
+  })
+}
+
+// Exit animation - mirrors the enter animation
+function animateExit(): Promise<void> {
+  console.log('[Hero] animateExit called')
+  
+  return new Promise((resolve) => {
+    if (import.meta.server) {
+      console.log('[Hero] SSR guard - resolving immediately')
+      resolve()
+      return
+    }
+
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+    const SplitText = nuxtApp.$SplitText as any
+
+    if (!gsap) {
+      console.log('[Hero] No GSAP - resolving immediately')
+      resolve()
+      return
+    }
+
+    // Use stored DOM elements (Vue refs are already cleaned up by this point)
+    const bentoBox = storedElements.bentoBox
+    const badge = storedElements.badge
+    const title = storedElements.title
+    const paragraph = storedElements.paragraph
+    const primaryBtn = storedElements.primaryBtn
+    const secondaryBtn = storedElements.secondaryBtn
+    const status = storedElements.status
+
+    console.log('[Hero] Using stored elements:', { 
+      bentoBox: !!bentoBox, 
+      badge: !!badge, 
+      title: !!title, 
+      paragraph: !!paragraph,
+      primaryBtn: !!primaryBtn,
+      secondaryBtn: !!secondaryBtn,
+      storedTitleSplit: !!storedTitleSplit,
+      storedParagraphSplit: !!storedParagraphSplit
+    })
+
+    if (!bentoBox) {
+      console.log('[Hero] No stored bentoBox - resolving immediately')
+      resolve()
+      return
+    }
+
+    const tl = gsap.timeline({ 
+      onComplete: () => {
+        console.log('[Hero] Exit animation timeline complete')
+        resolve()
+      }
+    })
+
+    // Collect buttons and icons
+    const buttonBoxes = [primaryBtn, secondaryBtn].filter(Boolean) as HTMLElement[]
+
+    // 1. Exit text first - mask away (text goes up through mask)
+    // If we have stored splits, use them; otherwise create new ones
+    let titleSplit = storedTitleSplit
+    let paragraphSplit = storedParagraphSplit
+
+    // Try to create splits if not stored
+    if (!titleSplit && SplitText && title) {
+      try {
+        titleSplit = new SplitText(title, { 
+          type: 'chars',
+          mask: 'chars',
+          smartWrap: true,
+          charsClass: 'char++',
+        })
+      } catch (e) {
+        titleSplit = null
+      }
+    }
+
+    if (!paragraphSplit && SplitText && paragraph) {
+      try {
+        paragraphSplit = new SplitText(paragraph, { 
+          type: 'lines',
+          mask: 'lines',
+          smartWrap: true,
+          linesClass: 'line++',
+        })
+      } catch (e) {
+        paragraphSplit = null
+      }
+    }
+
+    const contentDuration = 0.5
+    const contentStagger = 0.3
+    
+    // Animate title chars out (mask away - goes up through mask)
+    if (titleSplit && titleSplit.chars && titleSplit.chars.length > 0) {
+      console.log('[Hero] Animating title with SplitText:', titleSplit.chars.length, 'chars')
+      tl.to(titleSplit.chars, {
+        yPercent: -120,
+        rotationX: 90,
+        autoAlpha: 0,
+        duration: contentDuration,
+        stagger: {
+          amount: contentStagger,
+          from: 'end'
+        },
+        ease: 'power2.in'
+      }, 0)
+    }
+    // Always fade the title element too
+    if (title) {
+      tl.to(title, {
+        autoAlpha: 0,
+        duration: contentDuration,
+        ease: 'power2.in'
+      }, 0)
+    }
+
+    // Animate paragraph lines out (mask away)
+    if (paragraphSplit && paragraphSplit.lines && paragraphSplit.lines.length > 0) {
+      console.log('[Hero] Animating paragraph with SplitText:', paragraphSplit.lines.length, 'lines')
+      tl.to(paragraphSplit.lines, {
+        yPercent: -100,
+        autoAlpha: 0,
+        duration: contentDuration,
+        stagger: {
+          amount: 0.2,
+          from: 'end'
+        },
+        ease: 'power2.in'
+      }, 0)
+    }
+    // Always fade the paragraph element too
+    if (paragraph) {
+      tl.to(paragraph, {
+        autoAlpha: 0,
+        duration: contentDuration,
+        ease: 'power2.in'
+      }, 0)
+    }
+
+    // 2. Buttons and badge scale to 0 (simultaneously with text)
+    if (buttonBoxes.length > 0) {
+      console.log('[Hero] Animating buttons:', buttonBoxes.length)
+      tl.to(buttonBoxes, {
+        scale: 0,
+        autoAlpha: 0,
+        duration: contentDuration,
+        stagger: 0.08,
+        ease: 'back.in(1.7)'
+      }, 0)
+    }
+
+    if (badge) {
+      console.log('[Hero] Animating badge')
+      tl.to(badge, {
+        scale: 0,
+        autoAlpha: 0,
+        duration: contentDuration - 0.1,
+        ease: 'back.in(1.7)'
+      }, 0)
+    }
+
+    if (status) {
+      console.log('[Hero] Animating status')
+      tl.to(status, {
+        y: -15,
+        autoAlpha: 0,
+        duration: contentDuration - 0.15,
+        ease: 'power2.in'
+      }, 0)
+    }
+
+    // 3. Container fades and scales - starts after content is mostly done
+    const containerDelay = contentDuration * 0.85
+    console.log('[Hero] Container will animate at:', containerDelay)
+    
+    tl.to(bentoBox, {
+      autoAlpha: 0,
+      scale: 0.85,
+      y: -40,
+      rotation: 5,
+      duration: 0.5,
+      ease: 'power2.in'
+    }, containerDelay)
+
+    // Cleanup splits after exit
     tl.call(() => {
-      // Wait much longer before reverting to ensure everything is settled
-      setTimeout(() => {
-        // Only revert if user wants to - for hero sections, keeping SplitText active is often better
-        // Uncomment below if you want to revert after animation:
-        // if (titleSplit && titleSplit.revert) {
-        //   titleSplit.revert()
-        // }
-        // if (paragraphSplit && paragraphSplit.revert) {
-        //   paragraphSplit.revert()
-        // }
-      }, 2000)
+      if (titleSplit && titleSplit.revert) {
+        try { titleSplit.revert() } catch (e) {}
+      }
+      if (paragraphSplit && paragraphSplit.revert) {
+        try { paragraphSplit.revert() } catch (e) {}
+      }
+      storedTitleSplit = null
+      storedParagraphSplit = null
     })
   })
 }
+
+// Expose the exit animation method for page transitions
+defineExpose({ animateExit })
 
 // Watch for intro loader completion
 watch(isIntroLoaderComplete, (complete) => {
@@ -348,11 +574,52 @@ watch(isIntroLoaderComplete, (complete) => {
 })
 
 onMounted(() => {
+  // Register exit animation
+  registerExitAnimation('hero', animateExit)
+  
+  // Store elements immediately as fallback
+  nextTick(() => {
+    if (!storedElements.bentoBox) {
+      const bentoBox = bentoBoxRef.value?.el || bentoBoxRef.value?.$el || bentoBoxRef.value
+      const badge = badgeRef.value
+      const titleWrapper = titleWrapperRef.value
+      const titleComponent = titleRef.value as any
+      const title = titleComponent?.el || titleComponent?.$el || (titleWrapper?.querySelector('h1, h2, h3, h4, h5, h6') as HTMLElement)
+      const paragraph = paragraphRef.value
+      const primaryBtn = primaryBtnRef.value
+      const secondaryBtn = secondaryBtnRef.value
+      const status = statusRef.value
+      
+      if (bentoBox) {
+        storedElements = { bentoBox, badge, title, paragraph, primaryBtn, secondaryBtn, status }
+        console.log('[Hero] Stored elements on mount (fallback)')
+      }
+    }
+  })
+  
   // If loader is already complete, animate immediately
   if (isIntroLoaderComplete.value && !hasAnimated) {
     setTimeout(() => {
       animateHero()
     }, 150)
+  }
+})
+
+onUnmounted(() => {
+  unregisterExitAnimation('hero')
+  
+  // Reset state for clean re-mount
+  hasAnimated = false
+  storedTitleSplit = null
+  storedParagraphSplit = null
+  storedElements = {
+    bentoBox: null,
+    badge: null,
+    title: null,
+    paragraph: null,
+    primaryBtn: null,
+    secondaryBtn: null,
+    status: null
   }
 })
 </script>

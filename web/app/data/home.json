@@ -1,0 +1,209 @@
+{
+  "sections": {
+    "hero": {
+      "background": "bg-primary/8 dark:bg-primary/12",
+      "badge": {
+        "text": "Building thoughtful web experiences"
+      },
+      "title": "Crafting modern\nhigh-quality digital products.",
+      "paragraph": "I'm Judah, a full‑stack developer focused on clean design,\nperformant code, and experiences that feel polished from first\nclick to final deploy.",
+      "primaryButton": {
+        "text": "Work with me",
+        "to": "/contact"
+      },
+      "secondaryButton": {
+        "text": "View projects",
+        "to": "/projects"
+      },
+      "status": {
+        "text": "Currently open for Work & New Opportunities"
+      }
+    },
+    "marquee": {
+      "background": "bg-muted/50 dark:bg-muted/20",
+      "row1Items": [
+        { "text": "Vue.js", "icon": "logos:vue" },
+        { "text": "Nuxt", "icon": "logos:nuxt-icon" },
+        { "text": "TypeScript", "icon": "logos:typescript-icon" },
+        { "text": "Tailwind CSS", "icon": "logos:tailwindcss-icon" },
+        { "text": "GSAP Animations", "icon": "heroicons:sparkles" },
+        { "text": "React", "icon": "logos:react" },
+        { "text": "Next.js", "icon": "logos:nextjs-icon" },
+        { "text": "JavaScript", "icon": "logos:javascript" }
+      ],
+      "row2Items": [
+        { "text": ".NET Core", "icon": "logos:dotnet" },
+        { "text": "PostgreSQL", "icon": "logos:postgresql" },
+        { "text": "REST APIs", "icon": "heroicons:server" },
+        { "text": "Docker", "icon": "logos:docker-icon" },
+        { "text": "AWS", "icon": "logos:aws" },
+        { "text": "Azure", "icon": "logos:microsoft-azure" },
+        { "text": "Redis", "icon": "logos:redis" },
+        { "text": "GraphQL", "icon": "logos:graphql" }
+      ],
+      "row3Items": [
+        { "text": "UI/UX Design", "icon": "heroicons:paint-brush" },
+        { "text": "Performance Optimization", "icon": "heroicons:bolt" },
+        { "text": "Cloud Infrastructure", "icon": "heroicons:cloud" },
+        { "text": "CI/CD Pipelines", "icon": "heroicons:rocket-launch" },
+        { "text": "Agile Development", "icon": "heroicons:squares-2x2" },
+        { "text": "Code Review", "icon": "heroicons:code-bracket" },
+        { "text": "Testing", "icon": "heroicons:check-badge" },
+        { "text": "Documentation", "icon": "heroicons:document-text" }
+      ]
+    },
+    "whatIDo": {
+      "background": "bg-card dark:bg-card/90",
+      "items": [
+        {
+          "title": "Front‑end",
+          "description": "Modern, responsive interfaces with Vue/Nuxt and a focus on accessibility and performance.",
+          "variant": "primary",
+          "iconBg": "bg-primary/20",
+          "iconColor": "text-primary",
+          "label": "FE"
+        },
+        {
+          "title": "Back‑end",
+          "description": "Robust APIs with .NET and PostgreSQL, designed for scalability and maintainability.",
+          "variant": "secondary",
+          "iconBg": "bg-blue-500/20",
+          "iconColor": "text-blue-500",
+          "label": "BE"
+        },
+        {
+          "title": "Product thinking",
+          "description": "Clear flows, thoughtful micro‑interactions, and an emphasis on communicating value to users.",
+          "variant": "info",
+          "iconBg": "bg-purple-500/20",
+          "iconColor": "text-purple-500",
+          "label": "UX"
+        },
+        {
+          "title": "Deployment",
+          "description": "CI/CD pipelines, automated deployments, and infrastructure as code for reliable releases.",
+          "variant": "success",
+          "iconBg": "bg-success/20",
+          "iconColor": "text-success",
+          "icon": "heroicons:rocket-launch"
+        },
+        {
+          "title": "Cloud",
+          "description": "Cloud infrastructure, serverless architectures, and scalable solutions on AWS and Azure.",
+          "variant": "warning",
+          "iconBg": "bg-amber-500/20",
+          "iconColor": "text-amber-500",
+          "icon": "heroicons:cloud"
+        },
+        {
+          "title": "Animations",
+          "description": "Smooth transitions, micro-interactions, and engaging animations that enhance user experience.",
+          "variant": "danger",
+          "iconBg": "bg-destructive/20",
+          "iconColor": "text-destructive",
+          "icon": "heroicons:sparkles"
+        },
+        {
+          "title": "Database",
+          "description": "Database design, optimization, and management with PostgreSQL, SQL Server, and NoSQL solutions.",
+          "variant": "default",
+          "iconBg": "bg-muted",
+          "iconColor": "text-foreground",
+          "icon": "heroicons:circle-stack"
+        },
+        {
+          "title": "DevOps",
+          "description": "Containerization, orchestration, monitoring, and automation for efficient development workflows.",
+          "variant": "primary",
+          "iconBg": "bg-primary/20",
+          "iconColor": "text-primary",
+          "icon": "heroicons:wrench-screwdriver"
+        },
+        {
+          "title": "Testing",
+          "description": "Unit, integration, and E2E testing to ensure code quality and reliability across the stack.",
+          "variant": "secondary",
+          "iconBg": "bg-blue-500/20",
+          "iconColor": "text-blue-500",
+          "icon": "heroicons:check-circle"
+        }
+      ]
+    },
+    "quickFacts": {
+      "background": "bg-secondary dark:bg-secondary/90",
+      "experience": "X+ years",
+      "focus": "Web apps, APIs, architecture",
+      "stack": "Vue/Nuxt · .NET · PostgreSQL"
+    },
+    "avatarBox": {
+      "background": "bg-grey-500/8 dark:bg-grey-500/12"
+    },
+    "featuredWork": {
+      "background": "bg-muted/90 dark:bg-muted/10",
+      "title": "Featured Work",
+      "description": "Explore my latest projects and creative solutions"
+    },
+    "aboutMe": {
+      "background": "bg-foreground dark:bg-foreground/90 text-secondary dark:text-secondary"
+    },
+    "socialBox": {
+      "background": "bg-muted/50 dark:bg-muted/20",
+      "icons": [
+        {
+          "name": "LinkedIn",
+          "href": "https://linkedin.com/in/judahsullivan",
+          "icon": "logos:linkedin-icon",
+          "variant": "secondary",
+          "overlayColor": "bg-blue-500/40",
+          "iconColor": "text-blue-500",
+          "bubbleBg": "bg-blue-500/20 dark:bg-blue-500/10",
+          "bubbleHover": "group-hover:bg-blue-500/30 dark:group-hover:bg-blue-500/20"
+        },
+        {
+          "name": "Indeed",
+          "href": "https://profile.indeed.com/?hl=en_US&co=US&from=gnav-homepage",
+          "icon": "simple-icons:indeed",
+          "variant": "ghost",
+          "overlayColor": "bg-blue-600/40",
+          "iconColor": "text-blue-600",
+          "bubbleBg": "bg-blue-600/20 dark:bg-blue-600/10",
+          "bubbleHover": "group-hover:bg-blue-600/30 dark:group-hover:bg-blue-600/20",
+          "background": "bg-blue-600/10 dark:bg-blue-600/5",
+          "backgroundHover": "hover:bg-blue-600/20 dark:hover:bg-blue-600/10"
+        },
+        {
+          "name": "YouTube",
+          "href": "https://youtube.com/judahsullivan",
+          "icon": "logos:youtube-icon",
+          "variant": "ghost",
+          "overlayColor": "bg-red-500/40",
+          "iconColor": "text-red-500",
+          "bubbleBg": "bg-red-500/20 dark:bg-red-500/10",
+          "bubbleHover": "group-hover:bg-red-500/30 dark:group-hover:bg-red-500/20",
+          "background": "bg-red-500/10 dark:bg-red-500/5",
+          "backgroundHover": "hover:bg-red-500/20 dark:hover:bg-red-500/10"
+        },
+        {
+          "name": "TikTok",
+          "href": "https://tiktok.com/@judahsullivan",
+          "icon": "logos:tiktok-icon",
+          "variant": "outline",
+          "overlayColor": "bg-foreground/40",
+          "iconColor": "text-foreground",
+          "bubbleBg": "bg-foreground/20 dark:bg-foreground/10",
+          "bubbleHover": "group-hover:bg-foreground/30 dark:group-hover:bg-foreground/20"
+        },
+        {
+          "name": "GitHub",
+          "href": null,
+          "icon": "logos:github-icon",
+          "variant": "ghost",
+          "overlayColor": "bg-gray-800/40",
+          "iconColor": "text-foreground",
+          "bubbleBg": "bg-gray-800/20 dark:bg-gray-800/10",
+          "bubbleHover": "group-hover:bg-gray-800/30 dark:group-hover:bg-gray-800/20"
+        }
+      ]
+    }
+  }
+}

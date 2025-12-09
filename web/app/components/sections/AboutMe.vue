@@ -8,7 +8,7 @@
         shadow
         padding="lg"
         rounded="2xl"
-        :className="homepageData.sections.aboutMe.background"
+        :className="homeData.sections.aboutMe.background"
       >
         <UiTitle as="h2" size="4xl" weight="bold" align="left" class="mb-6">
           About Me
@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import homepageData from '../../data/homepage.json'
+import homeData from '../../data/home.json'
 import aboutData from '../../data/about.json'
 // About Me component
 </script>

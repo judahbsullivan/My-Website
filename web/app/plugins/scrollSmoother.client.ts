@@ -52,7 +52,7 @@ export default defineNuxtPlugin({
         if (smoother) {
           console.log('ScrollSmoother initialized successfully')
           // Store smoother instance
-          nuxtApp.$scrollSmoother = smoother
+          nuxtApp.provide('scrollSmoother', smoother)
           // Add class to enable ScrollSmoother styles
           document.documentElement.classList.add('scroll-smoother-active')
         } else {

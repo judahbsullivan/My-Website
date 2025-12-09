@@ -10,7 +10,7 @@
         <!-- Only render page content after intro is complete -->
         <template v-else>
           <Navbar />
-          <main>
+          <main class=" min-h-screen">
             <NuxtPage />
           </main>
           <Footer />

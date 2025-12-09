@@ -81,6 +81,7 @@ const titleClasses = computed(() => [
 .magazine-title {
   letter-spacing: -0.02em;
   font-feature-settings: 'kern' 1, 'liga' 1;
+  margin: 0;
 }
 </style>
 

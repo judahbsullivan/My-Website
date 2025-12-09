@@ -3,7 +3,7 @@
     <div class="px-4 sm:px-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- About Me - Spans 7 columns, positioned top left -->
-        <div class="lg:col-span-7">
+        <div class="lg:col-span-7 flex flex-col gap-6">
           <UiBentoBox
             ref="aboutBoxRef"
             container
@@ -12,32 +12,32 @@
             shadow
             padding="lg"
             rounded="2xl"
-            :className="`${homepageData.sections.aboutMe.background} opacity-0 scale-95 translate-y-6 -rotate-2`"
+            :className="`${homeData.sections.aboutMe.background} opacity-0 scale-95 translate-y-6 -rotate-2`"
           >
             <UiTitle ref="aboutTitleRef" as="h2" size="md" weight="semibold" class="mb-4">
               About Me
             </UiTitle>
             <div class="space-y-4">
-                <div ref="aboutContentRef" class="opacity-0 translate-y-4">
+              <div ref="aboutContentRef" class="opacity-0 translate-y-4">
                 <p class="text-sm font-semibold text-secondary! mb-2">
-                  {{ aboutData.bio.tagline }}
+                  {{ aboutData.header.tagline }}
                 </p>
                 <p class="text-xs text-secondary! max-w-2xl leading-relaxed">
-                  {{ aboutData.bio.description }}
+                  {{ aboutData.intro.description }}
                 </p>
               </div>
               <div ref="aboutMetaRef" class="flex flex-wrap items-center gap-4 pt-4 border-t border-border/50 opacity-0 translate-y-4">
                 <div class="flex items-center gap-2 text-xs text-secondary-foreground">
                   <Icon name="heroicons:map-pin" class="w-4 h-4" />
-                  <span>{{ aboutData.bio.location }}</span>
+                  <span>{{ aboutData.intro.location }}</span>
                 </div>
-                <div v-if="aboutData.bio.status" class="px-3 py-1 text-xs font-medium rounded-full bg-success/20 text-success">
-                  {{ aboutData.bio.status }}
+                <div v-if="aboutData.intro.status" class="px-3 py-1 text-xs font-medium rounded-full bg-success/20 text-success">
+                  {{ aboutData.intro.status }}
                 </div>
               </div>
               <div ref="aboutLinksRef" class="flex items-center gap-4 pt-2 opacity-0 translate-y-4">
                 <a 
-                  :href="aboutData.bio.github" 
+                  :href="aboutData.intro.github" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   class="text-xs text-primary hover:underline flex items-center gap-2"
@@ -46,8 +46,8 @@
                   GitHub
                 </a>
                 <a 
-                  v-if="aboutData.bio.website"
-                  :href="aboutData.bio.website" 
+                  v-if="aboutData.intro.website"
+                  :href="aboutData.intro.website" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   class="text-xs text-primary hover:underline flex items-center gap-2"
@@ -65,10 +65,39 @@
               </div>
             </div>
           </UiBentoBox>
+
+          <!-- Social Links Bento Box below About Me -->
+          <UiBentoBox
+            ref="socialBoxRef"
+            container
+            backdrop
+            border
+            shadow
+            padding="sm"
+            rounded="2xl"
+            :className="`${homeData.sections.socialBox?.background || 'bg-card dark:bg-card/90'} opacity-0 scale-95 translate-y-6 rotate-2`"
+          >
+            <div class="w-full flex items-center justify-center sm:justify-evenly gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+              <UiButton
+                v-for="social in homeData.sections.socialBox.icons"
+                :key="social.name"
+                :href="social.href || aboutData.intro.github"
+                target="_blank"
+                rel="noopener noreferrer"
+                :variant="social.variant as 'primary' | 'secondary' | 'outline' | 'ghost'"
+                :overlay-color="social.overlayColor"
+                :class="`social-icon-link flex-1 sm:flex-1 min-w-0 items-center justify-center p-2 rounded-lg transition-colors group opacity-0 font-normal! normal-case! tracking-normal! ${social.background || ''} ${social.backgroundHover || ''}`"
+              >
+                <div :class="`w-10 h-10 rounded-full ${social.bubbleBg} flex items-center justify-center ${social.bubbleHover} transition-colors`">
+                  <Icon :name="social.icon" :class="`w-5 h-5 ${social.iconColor}`" />
+                </div>
+              </UiButton>
+            </div>
+          </UiBentoBox>
         </div>
 
         <!-- Quick facts - Spans 5 columns, positioned top right -->
-        <div class="lg:col-span-5">
+        <div class="lg:col-span-5 flex flex-col gap-6">
           <UiBentoBox
             ref="factsBoxRef"
             container
@@ -77,7 +106,7 @@
             shadow
             padding="lg"
             rounded="2xl"
-            :className="`${homepageData.sections.quickFacts.background} opacity-0 scale-95 translate-y-6 rotate-2`"
+            :className="`${homeData.sections.quickFacts.background} opacity-0 scale-95 translate-y-6 rotate-2`"
           >
             <UiTitle ref="factsTitleRef" as="h3" size="sm" weight="semibold" class="mb-5">
               Quick facts
@@ -85,19 +114,90 @@
             <div ref="factsContentRef" class="space-y-4">
               <div class="fact-row flex justify-between items-center py-2 border-b border-border/30 opacity-0 translate-y-3">
                 <span class="text-sm text-muted-foreground">Experience</span>
-                <span class="text-sm font-medium">X+ years</span>
+                <span class="text-sm font-medium">{{ homeData.sections.quickFacts.experience }}</span>
               </div>
               <div class="fact-row flex justify-between items-center py-2 border-b border-border/30 opacity-0 translate-y-3">
                 <span class="text-sm text-muted-foreground">Focus</span>
                 <span class="text-sm font-medium">
-                  Web apps, APIs, architecture
+                  {{ homeData.sections.quickFacts.focus }}
                 </span>
               </div>
               <div class="fact-row flex justify-between items-center py-2 opacity-0 translate-y-3">
                 <span class="text-sm text-muted-foreground">Stack</span>
                 <span class="text-sm font-medium">
-                  Vue/Nuxt · .NET · PostgreSQL
+                  {{ homeData.sections.quickFacts.stack }}
                 </span>
+              </div>
+            </div>
+          </UiBentoBox>
+
+          <!-- Avatar Bento Box - Same width as Quick Facts -->
+          <UiBentoBox
+            ref="avatarBoxRef"
+            container
+            backdrop
+            border
+            shadow
+            padding="sm"
+            rounded="2xl"
+            :className="`${homeData.sections.avatarBox?.background || 'bg-card dark:bg-card/90'} opacity-0 scale-95 translate-y-6 -rotate-2`"
+          >
+            <div class="grid grid-cols-3 gap-2 items-stretch">
+              <!-- Bento 1: Total Stars -->
+              <UiBentoBox
+                ref="innerBox1Ref"
+                container
+                backdrop
+                border
+                shadow
+                padding="sm"
+                rounded="xl"
+                className="opacity-0 scale-90 translate-y-2 bg-yellow-500/20 dark:bg-yellow-500/15 aspect-square"
+              >
+                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                  <div class="w-10 h-10 rounded-full bg-yellow-500/30 dark:bg-yellow-500/20 flex items-center justify-center">
+                    <Icon name="heroicons:star" class="w-5 h-5 text-orange-500 dark:text-yellow-400" />
+                  </div>
+                  <div class="text-center">
+                    <p class="text-xs hidden sm:block text-muted-foreground mb-0.5">Total Stars</p>
+                    <p class="text-base font-bold text-foreground">{{ totalStars || '...' }}</p>
+                  </div>
+                </div>
+              </UiBentoBox>
+              
+              <!-- Bento 2: Total Contributions -->
+              <UiBentoBox
+                ref="innerBox2Ref"
+                container
+                backdrop
+                border
+                shadow
+                padding="sm"
+                rounded="xl"
+                className="opacity-0 scale-90  translate-y-2 bg-success/10 dark:bg-success/5 aspect-square"
+              >
+                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                  <div class="w-10 h-10 rounded-full bg-success/20 dark:bg-success/10 flex items-center justify-center">
+                    <Icon name="heroicons:chart-bar" class="w-5 h-5 text-success" />
+                  </div>
+                  <div class="text-center">
+                    <p class="text-xs text-muted-foreground hidden sm:block mb-0.5">Contributions</p>
+                    <p class="text-base font-bold text-foreground">{{ totalContributions || '...' }}</p>
+                  </div>
+                </div>
+              </UiBentoBox>
+              
+              <!-- Right: Avatar - takes 1/3 width -->
+              <div ref="avatarImageRef" class="w-full opacity-0 scale-90 translate-y-3 flex items-center justify-center">
+                <div class="aspect-square w-full rounded-xl overflow-hidden border-2 border-border bg-primary/10 flex items-center justify-center">
+                  <img 
+                    v-if="githubAvatar" 
+                    :src="githubAvatar" 
+                    alt="Judah Sullivan"
+                    class="w-full h-full object-cover"
+                  />
+                  <Icon v-else name="heroicons:user" class="w-5 h-5 text-primary" />
+                </div>
               </div>
             </div>
           </UiBentoBox>
@@ -113,7 +213,7 @@
             shadow
             padding="lg"
             rounded="2xl"
-            :className="`${homepageData.sections.whatIDo.background} opacity-0 scale-95 translate-y-6`"
+            :className="`${homeData.sections.whatIDo.background} opacity-0 scale-95 translate-y-6`"
           >
             <div class="flex items-center justify-between mb-6">
               <UiTitle ref="whatIDoTitleRef" as="h2" size="md" weight="semibold">
@@ -122,7 +222,6 @@
               <div ref="whatIDoControlsRef" class="flex items-center gap-2 opacity-0 translate-y-3">
                 <UiButton
                   @click="previousSlide"
-                  variant="ghost"
                   size="sm"
                   className="p-2 rounded-lg"
                   aria-label="Previous slide"
@@ -131,7 +230,6 @@
                 </UiButton>
                 <UiButton
                   @click="nextSlide"
-                  variant="ghost"
                   size="sm"
                   className="p-2 rounded-lg"
                   aria-label="Next slide"
@@ -158,7 +256,7 @@
                     :style="{ width: itemWidth }"
                   >
                     <UiBentoBox
-                      :variant="item.variant"
+                      :variant="item.variant as any"
                       size="md"
                       padding="md"
                       rounded="xl"
@@ -190,7 +288,6 @@
                     :style="{ width: itemWidth }"
                   >
                     <UiBentoBox
-                      :variant="item.variant"
                       size="md"
                       padding="md"
                       rounded="xl"
@@ -221,7 +318,6 @@
                     :style="{ width: itemWidth }"
                   >
                     <UiBentoBox
-                      :variant="item.variant"
                       size="md"
                       padding="md"
                       rounded="xl"
@@ -269,84 +365,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useNuxtApp } from '#app'
-import homepageData from '../../data/homepage.json'
+import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import homeData from '../../data/home.json'
 import aboutData from '../../data/about.json'
 
 // What I do items data
-const whatIDoItems = [
-  {
-    title: 'Front‑end',
-    description: 'Modern, responsive interfaces with Vue/Nuxt and a focus on accessibility and performance.',
-    variant: 'primary' as const,
-    iconBg: 'bg-primary/20',
-    iconColor: 'text-primary',
-    label: 'FE'
-  },
-  {
-    title: 'Back‑end',
-    description: 'Robust APIs with .NET and PostgreSQL, designed for scalability and maintainability.',
-    variant: 'secondary' as const,
-    iconBg: 'bg-blue-500/20',
-    iconColor: 'text-blue-500',
-    label: 'BE'
-  },
-  {
-    title: 'Product thinking',
-    description: 'Clear flows, thoughtful micro‑interactions, and an emphasis on communicating value to users.',
-    variant: 'info' as const,
-    iconBg: 'bg-purple-500/20',
-    iconColor: 'text-purple-500',
-    label: 'UX'
-  },
-  {
-    title: 'Deployment',
-    description: 'CI/CD pipelines, automated deployments, and infrastructure as code for reliable releases.',
-    variant: 'success' as const,
-    iconBg: 'bg-success/20',
-    iconColor: 'text-success',
-    icon: 'heroicons:rocket-launch'
-  },
-  {
-    title: 'Cloud',
-    description: 'Cloud infrastructure, serverless architectures, and scalable solutions on AWS and Azure.',
-    variant: 'warning' as const,
-    iconBg: 'bg-amber-500/20',
-    iconColor: 'text-amber-500',
-    icon: 'heroicons:cloud'
-  },
-  {
-    title: 'Animations',
-    description: 'Smooth transitions, micro-interactions, and engaging animations that enhance user experience.',
-    variant: 'danger' as const,
-    iconBg: 'bg-destructive/20',
-    iconColor: 'text-destructive',
-    icon: 'heroicons:sparkles'
-  },
-  {
-    title: 'Database',
-    description: 'Database design, optimization, and management with PostgreSQL, SQL Server, and NoSQL solutions.',
-    variant: 'default' as const,
-    iconBg: 'bg-muted',
-    iconColor: 'text-foreground',
-    icon: 'heroicons:circle-stack'
-  },
-  {
-    title: 'DevOps',
-    description: 'Containerization, orchestration, monitoring, and automation for efficient development workflows.',
-    variant: 'primary' as const,
-    iconBg: 'bg-primary/20',
-    iconColor: 'text-primary',
-    icon: 'heroicons:wrench-screwdriver'
-  },
-  {
-    title: 'Testing',
-    description: 'Unit, integration, and E2E testing to ensure code quality and reliability across the stack.',
-    variant: 'secondary' as const,
-    iconBg: 'bg-blue-500/20',
-    iconColor: 'text-blue-500',
-    icon: 'heroicons:check-circle'
-  }
-]
+const whatIDoItems = homeData.sections.whatIDo.items
 
 const carouselWrapper = ref<HTMLElement | null>(null)
 const carouselContainer = ref<HTMLElement | null>(null)
@@ -359,10 +383,156 @@ const aboutContentRef = ref<HTMLElement | null>(null)
 const aboutMetaRef = ref<HTMLElement | null>(null)
 const aboutLinksRef = ref<HTMLElement | null>(null)
 
+// Social Box refs
+const socialBoxRef = ref<any>(null)
+
 // Quick Facts refs
 const factsBoxRef = ref<any>(null)
 const factsTitleRef = ref<any>(null)
 const factsContentRef = ref<HTMLElement | null>(null)
+
+// Avatar Box refs
+const avatarBoxRef = ref<any>(null)
+const avatarContentRef = ref<HTMLElement | null>(null)
+const avatarImageRef = ref<HTMLElement | null>(null)
+const innerBox1Ref = ref<any>(null)
+const innerBox2Ref = ref<any>(null)
+
+// Fetch GitHub stats
+const { data: githubStats } = await useFetch('https://api.github.com/users/judahbsullivan', {
+  default: () => null,
+  server: false, // Only fetch on client to avoid CORS issues
+  transform: (data: any) => {
+    if (!data) return null
+    return {
+      avatar_url: data.avatar_url,
+      public_repos: data.public_repos,
+      followers: data.followers,
+      following: data.following,
+      created_at: data.created_at,
+      bio: data.bio,
+      location: data.location,
+      company: data.company,
+      blog: data.blog
+    }
+  }
+})
+
+const githubAvatar = computed(() => githubStats.value?.avatar_url || null)
+
+// Fetch total stars from all repositories
+const { data: reposData } = await useFetch('https://api.github.com/users/judahbsullivan/repos?per_page=100&sort=updated', {
+  default: () => [],
+  server: false,
+  transform: (data: any[]) => {
+    if (!data || !Array.isArray(data)) return []
+    return data
+  }
+})
+
+const totalStars = computed(() => {
+  if (!reposData.value || !Array.isArray(reposData.value)) return null
+  const stars = reposData.value.reduce((sum: number, repo: any) => sum + (repo.stargazers_count || 0), 0)
+  return stars > 0 ? stars.toLocaleString() : '0'
+})
+
+// Fetch total contributions - try multiple APIs with fallback
+const { data: contributionCount, error: contributionError } = await useFetch('https://github-contributions-api.jogruber.de/v4/judahbsullivan', {
+  default: () => null,
+  server: false,
+  lazy: true,
+  transform: (data: any) => {
+    if (!data || !data.contributions) return null
+    
+    let total = 0
+    const startDate = new Date('2024-02-24')
+    
+    // Sum contributions from Feb 24, 2024 onwards
+    if (Array.isArray(data.contributions)) {
+      data.contributions.forEach((year: any) => {
+        if (year.weeks && Array.isArray(year.weeks)) {
+          year.weeks.forEach((week: any) => {
+            if (week.contributionDays && Array.isArray(week.contributionDays)) {
+              week.contributionDays.forEach((day: any) => {
+                if (day.date) {
+                  const dayDate = new Date(day.date)
+                  if (dayDate >= startDate) {
+                    total += day.contributionCount || 0
+                  }
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+    
+    return total > 0 ? total : null
+  }
+})
+
+// Fallback API
+const { data: altContributionData, error: altError } = await useFetch('https://github-contributions-api.deno.dev/judahbsullivan.json', {
+  default: () => null,
+  server: false,
+  lazy: true,
+  transform: (data: any) => {
+    if (!data) return null
+    
+    let total = 0
+    const startDate = new Date('2024-02-24')
+    
+    // Try to extract from different possible structures
+    if (data.total) {
+      return data.total
+    }
+    
+    if (data.contributions && Array.isArray(data.contributions)) {
+      data.contributions.forEach((year: any) => {
+        if (year.weeks) {
+          year.weeks.forEach((week: any) => {
+            if (week.contributionDays) {
+              week.contributionDays.forEach((day: any) => {
+                if (day.date) {
+                  const dayDate = new Date(day.date)
+                  if (dayDate >= startDate) {
+                    total += day.contributionCount || 0
+                  }
+                } else {
+                  total += day.contributionCount || 0
+                }
+              })
+            }
+          })
+        }
+      })
+    }
+    
+    return total > 0 ? total : null
+  }
+})
+
+const totalContributions = computed(() => {
+  // Try primary API first
+  if (contributionCount.value !== null && contributionCount.value !== undefined && contributionCount.value > 0) {
+    return contributionCount.value.toLocaleString()
+  }
+  
+  // Try fallback API
+  if (altContributionData.value !== null && altContributionData.value !== undefined && altContributionData.value > 0) {
+    return altContributionData.value.toLocaleString()
+  }
+  
+  // Fallback to known value if APIs fail
+  return '808'
+})
+
+// Format date helper
+const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+}
 
 // What I Do refs
 const whatIDoBoxRef = ref<any>(null)
@@ -489,7 +659,39 @@ const stopAutoplay = () => {
   }
 }
 
+// Store all elements on mount as fallback
+function storeElementsOnMount() {
+  nextTick(() => {
+    // Only store if not already stored
+    if (storedElements.aboutBox) return
+    
+    storedElements.aboutBox = resolveEl(aboutBoxRef.value)
+    storedElements.socialBox = resolveEl(socialBoxRef.value)
+    storedElements.factsBox = resolveEl(factsBoxRef.value)
+    storedElements.avatarBox = resolveEl(avatarBoxRef.value)
+    storedElements.whatIDoBox = resolveEl(whatIDoBoxRef.value)
+    storedElements.aboutContent = aboutContentRef.value
+    storedElements.aboutMeta = aboutMetaRef.value
+    storedElements.aboutLinks = aboutLinksRef.value
+    storedElements.factsContent = factsContentRef.value
+    storedElements.innerBox1 = resolveEl(innerBox1Ref.value)
+    storedElements.innerBox2 = resolveEl(innerBox2Ref.value)
+    storedElements.avatarImage = avatarImageRef.value
+    storedElements.whatIDoControls = whatIDoControlsRef.value
+    storedElements.whatIDoCarousel = whatIDoCarouselRef.value
+    storedElements.whatIDoDots = whatIDoDotsRef.value
+    
+    console.log('[WhatIDo] Stored all elements on mount (fallback)')
+  })
+}
+
 onMounted(() => {
+  // Register exit animation
+  registerExitAnimation('whatIDo', animateExit)
+  
+  // Store elements immediately as fallback
+  storeElementsOnMount()
+  
   updateItemsPerView()
   
   // Initialize display index to account for clones at the start
@@ -528,6 +730,46 @@ onMounted(() => {
 // ScrollTrigger animations matching Hero style
 let scrollTriggers: any[] = []
 
+// Store SplitText instances for exit animation
+let storedAboutTitleSplit: any = null
+let storedFactsTitleSplit: any = null
+let storedWhatIDoTitleSplit: any = null
+
+// Store actual DOM elements for exit animation
+let storedElements: {
+  aboutBox: HTMLElement | null
+  socialBox: HTMLElement | null
+  factsBox: HTMLElement | null
+  avatarBox: HTMLElement | null
+  whatIDoBox: HTMLElement | null
+  aboutContent: HTMLElement | null
+  aboutMeta: HTMLElement | null
+  aboutLinks: HTMLElement | null
+  factsContent: HTMLElement | null
+  innerBox1: HTMLElement | null
+  innerBox2: HTMLElement | null
+  avatarImage: HTMLElement | null
+  whatIDoControls: HTMLElement | null
+  whatIDoCarousel: HTMLElement | null
+  whatIDoDots: HTMLElement | null
+} = {
+  aboutBox: null,
+  socialBox: null,
+  factsBox: null,
+  avatarBox: null,
+  whatIDoBox: null,
+  aboutContent: null,
+  aboutMeta: null,
+  aboutLinks: null,
+  factsContent: null,
+  innerBox1: null,
+  innerBox2: null,
+  avatarImage: null,
+  whatIDoControls: null,
+  whatIDoCarousel: null,
+  whatIDoDots: null
+}
+
 const resolveEl = (maybeEl: any): HTMLElement | null => {
   if (!maybeEl) return null
   if (maybeEl instanceof HTMLElement) return maybeEl
@@ -554,8 +796,12 @@ function setupScrollAnimations() {
     nextTick(() => {
       // Animate About Me box with inner content
       createAboutMeReveal()
+      // Animate Social Box below About Me
+      createSocialBoxReveal()
       // Animate Quick Facts box with inner content (slightly later)
       createQuickFactsReveal()
+      // Animate Avatar Box with inner content
+      createAvatarBoxReveal()
       // Animate What I Do box with inner content
       createWhatIDoReveal()
     })
@@ -655,6 +901,72 @@ function createAboutMeReveal() {
       )
     }
     
+    // Store title split for exit
+    storedAboutTitleSplit = titleSplit
+    
+    // Store DOM elements
+    storedElements.aboutBox = box
+    storedElements.aboutContent = content
+    storedElements.aboutMeta = meta
+    storedElements.aboutLinks = links
+    console.log('[WhatIDo] Stored About Me elements for exit')
+    
+    scrollTriggers.push(tl)
+  })
+}
+
+function createSocialBoxReveal() {
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
+    
+    const box = resolveEl(socialBoxRef.value)
+    
+    if (!box) return
+    
+    // Get all social icon links
+    const socialLinks = box.querySelectorAll('.social-icon-link')
+    
+    // Create timeline with ScrollTrigger
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: box,
+        start: 'top 80%',
+        once: true
+      }
+    })
+    
+    // 1. Box comes in with scale, rotation, opacity
+    tl.fromTo(box, 
+      { opacity: 0, scale: 0.95, y: 24, rotation: 2 },
+      { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.6, ease: 'power3.out' }
+    )
+    
+    // 2. Social icons stagger in
+    if (socialLinks && socialLinks.length > 0) {
+      tl.fromTo(Array.from(socialLinks),
+        { opacity: 0, scale: 0.8, y: 12 },
+        { 
+          opacity: 1, 
+          scale: 1, 
+          y: 0, 
+          duration: 0.4, 
+          stagger: 0.08, 
+          ease: 'power2.out' 
+        },
+        '-=0.3'
+      )
+    }
+    
+    // Store DOM element
+    storedElements.socialBox = box
+    console.log('[WhatIDo] Stored Social Box element for exit')
+    
     scrollTriggers.push(tl)
   })
 }
@@ -732,6 +1044,75 @@ function createQuickFactsReveal() {
         )
       }
     }
+    
+    // Store title split for exit
+    storedFactsTitleSplit = titleSplit
+    
+    // Store DOM elements
+    storedElements.factsBox = box
+    storedElements.factsContent = factsContainer
+    console.log('[WhatIDo] Stored Quick Facts elements for exit')
+    
+    scrollTriggers.push(tl)
+  })
+}
+
+function createAvatarBoxReveal() {
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
+  
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
+    
+    const box = resolveEl(avatarBoxRef.value)
+    const innerBox1 = resolveEl(innerBox1Ref.value)
+    const innerBox2 = resolveEl(innerBox2Ref.value)
+    const image = avatarImageRef.value
+    
+    if (!box) return
+    
+    // Create timeline with ScrollTrigger (slightly later start for stagger effect)
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: box,
+        start: 'top 78%',
+        once: true
+      }
+    })
+    
+    // 1. Box comes in with scale, rotation (opposite direction from Quick Facts), opacity
+    tl.fromTo(box, 
+      { opacity: 0, scale: 0.95, y: 24, rotation: -2 },
+      { opacity: 1, scale: 1, y: 0, rotation: 0, duration: 0.6, ease: 'power3.out' }
+    )
+    
+    // 2. Stars bento, Contributions bento, and Avatar stagger in
+    const elementsToAnimate = [innerBox1, innerBox2, image].filter(Boolean)
+    if (elementsToAnimate.length > 0) {
+      tl.fromTo(elementsToAnimate,
+        { opacity: 0, y: 12, scale: 0.9 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          scale: 1, 
+          duration: 0.5, 
+          stagger: 0.15, 
+          ease: 'power2.out' 
+        },
+        '-=0.3'
+      )
+    }
+    
+    // Store DOM elements
+    storedElements.avatarBox = box
+    storedElements.innerBox1 = innerBox1
+    storedElements.innerBox2 = innerBox2
+    storedElements.avatarImage = image
+    console.log('[WhatIDo] Stored Avatar Box elements for exit')
     
     scrollTriggers.push(tl)
   })
@@ -847,11 +1228,214 @@ function createWhatIDoReveal() {
       )
     }
     
+    // Store title split for exit
+    storedWhatIDoTitleSplit = titleSplit
+    
+    // Store DOM elements
+    storedElements.whatIDoBox = box
+    storedElements.whatIDoControls = controls
+    storedElements.whatIDoCarousel = carousel
+    storedElements.whatIDoDots = dots
+    console.log('[WhatIDo] Stored What I Do elements for exit')
+    
     scrollTriggers.push(tl)
   })
 }
 
+// Exit animation - mirrors the enter animation for all boxes
+function animateExit(): Promise<void> {
+  console.log('[WhatIDo] animateExit called')
+  
+  return new Promise((resolve) => {
+    if (import.meta.server) {
+      console.log('[WhatIDo] SSR guard - resolving immediately')
+      resolve()
+      return
+    }
+
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+    const SplitText = nuxtApp.$SplitText as any
+
+    if (!gsap) {
+      console.log('[WhatIDo] No GSAP - resolving immediately')
+      resolve()
+      return
+    }
+
+    // Use stored DOM elements (Vue refs are already cleaned up)
+    const aboutBox = storedElements.aboutBox
+    const socialBox = storedElements.socialBox
+    const factsBox = storedElements.factsBox
+    const avatarBox = storedElements.avatarBox
+    const whatIDoBox = storedElements.whatIDoBox
+
+    console.log('[WhatIDo] Using stored elements:', {
+      aboutBox: !!aboutBox,
+      socialBox: !!socialBox,
+      factsBox: !!factsBox,
+      avatarBox: !!avatarBox,
+      whatIDoBox: !!whatIDoBox,
+      storedAboutTitleSplit: !!storedAboutTitleSplit,
+      storedFactsTitleSplit: !!storedFactsTitleSplit,
+      storedWhatIDoTitleSplit: !!storedWhatIDoTitleSplit
+    })
+
+    // Get stored content elements
+    const aboutContent = storedElements.aboutContent
+    const aboutMeta = storedElements.aboutMeta
+    const aboutLinks = storedElements.aboutLinks
+    const factsContent = storedElements.factsContent
+    const innerBox1 = storedElements.innerBox1
+    const innerBox2 = storedElements.innerBox2
+    const avatarImage = storedElements.avatarImage
+    const whatIDoControls = storedElements.whatIDoControls
+    const whatIDoCarousel = storedElements.whatIDoCarousel
+    const whatIDoDots = storedElements.whatIDoDots
+
+    const tl = gsap.timeline({ 
+      onComplete: () => {
+        console.log('[WhatIDo] Exit animation timeline complete')
+        resolve()
+      }
+    })
+
+    // Stop carousel autoplay
+    stopAutoplay()
+
+    const contentDuration = 0.5
+    const contentStagger = 0.2
+
+    console.log('[WhatIDo] Starting content exit animations')
+
+    // 1. All text content and inner elements animate out first
+    
+    // About Me content
+    if (aboutContent) {
+      console.log('[WhatIDo] Animating aboutContent')
+      tl.to(aboutContent, { y: -25, autoAlpha: 0, duration: contentDuration, ease: 'power2.in' }, 0)
+    }
+    if (aboutMeta) {
+      tl.to(aboutMeta, { y: -20, autoAlpha: 0, duration: contentDuration, ease: 'power2.in' }, 0)
+    }
+    if (aboutLinks) {
+      tl.to(aboutLinks, { y: -20, autoAlpha: 0, duration: contentDuration, ease: 'power2.in' }, 0)
+    }
+
+    // About title (SplitText)
+    if (storedAboutTitleSplit && storedAboutTitleSplit.chars) {
+      console.log('[WhatIDo] Animating about title with SplitText')
+      tl.to(storedAboutTitleSplit.chars, {
+        yPercent: -120, rotationX: 90, autoAlpha: 0,
+        duration: contentDuration, stagger: { amount: contentStagger, from: 'end' }, ease: 'power2.in'
+      }, 0)
+    }
+
+    // Social icons scale out
+    if (socialBox) {
+      const socialLinks = socialBox.querySelectorAll('.social-icon-link')
+      console.log('[WhatIDo] Found social links:', socialLinks.length)
+      if (socialLinks.length > 0) {
+        tl.to(Array.from(socialLinks), {
+          scale: 0, autoAlpha: 0, duration: contentDuration, stagger: 0.05, ease: 'back.in(1.7)'
+        }, 0)
+      }
+    }
+
+    // Facts content
+    if (factsContent) {
+      const factRows = factsContent.querySelectorAll('.fact-row')
+      console.log('[WhatIDo] Found fact rows:', factRows.length)
+      if (factRows.length > 0) {
+        tl.to(factRows, { y: -20, autoAlpha: 0, duration: contentDuration, stagger: 0.05, ease: 'power2.in' }, 0)
+      }
+    }
+
+    // Facts title (SplitText)
+    if (storedFactsTitleSplit && storedFactsTitleSplit.chars) {
+      console.log('[WhatIDo] Animating facts title with SplitText')
+      tl.to(storedFactsTitleSplit.chars, {
+        yPercent: -120, rotationX: 90, autoAlpha: 0,
+        duration: contentDuration, stagger: { amount: contentStagger, from: 'end' }, ease: 'power2.in'
+      }, 0)
+    }
+
+    // Avatar box inner elements scale out
+    const avatarInners = [innerBox1, innerBox2, avatarImage].filter(Boolean)
+    console.log('[WhatIDo] Avatar inners:', avatarInners.length)
+    if (avatarInners.length > 0) {
+      tl.to(avatarInners, {
+        scale: 0, autoAlpha: 0, duration: contentDuration, stagger: 0.08, ease: 'back.in(1.7)'
+      }, 0)
+    }
+
+    // What I Do content
+    if (whatIDoControls) {
+      tl.to(whatIDoControls, { y: -15, autoAlpha: 0, scale: 0.9, duration: contentDuration, ease: 'power2.in' }, 0)
+    }
+    if (whatIDoCarousel) {
+      const carouselItemEls = whatIDoCarousel.querySelectorAll('.carousel-item')
+      console.log('[WhatIDo] Found carousel items:', carouselItemEls.length)
+      if (carouselItemEls.length > 0) {
+        tl.to(carouselItemEls, {
+          scale: 0.85, autoAlpha: 0, y: -25, duration: contentDuration, stagger: 0.03, ease: 'power2.in'
+        }, 0)
+      }
+    }
+    if (whatIDoDots) {
+      tl.to(whatIDoDots, { y: -15, autoAlpha: 0, duration: contentDuration - 0.1, ease: 'power2.in' }, 0)
+    }
+
+    // What I Do title (SplitText)
+    if (storedWhatIDoTitleSplit && storedWhatIDoTitleSplit.chars) {
+      console.log('[WhatIDo] Animating whatIDo title with SplitText')
+      tl.to(storedWhatIDoTitleSplit.chars, {
+        yPercent: -120, rotationX: 90, autoAlpha: 0,
+        duration: contentDuration, stagger: { amount: contentStagger, from: 'end' }, ease: 'power2.in'
+      }, 0)
+    }
+
+    // 2. All containers fade and scale - starts after content is mostly done
+    const containerDelay = contentDuration * 0.85
+    const allBoxes = [aboutBox, socialBox, factsBox, avatarBox, whatIDoBox].filter(Boolean) as HTMLElement[]
+    console.log('[WhatIDo] Found boxes:', allBoxes.length, 'will animate at:', containerDelay)
+    
+    if (allBoxes.length > 0) {
+      tl.to(allBoxes, {
+        autoAlpha: 0,
+        scale: 0.85,
+        y: -40,
+        rotation: (i: number) => (i % 2 === 0 ? 5 : -5), // Alternate rotation
+        duration: 0.5,
+        stagger: 0.05,
+        ease: 'power2.in'
+      }, containerDelay)
+    }
+
+    // Cleanup splits
+    tl.call(() => {
+      if (storedAboutTitleSplit?.revert) {
+        try { storedAboutTitleSplit.revert() } catch (e) {}
+      }
+      if (storedFactsTitleSplit?.revert) {
+        try { storedFactsTitleSplit.revert() } catch (e) {}
+      }
+      if (storedWhatIDoTitleSplit?.revert) {
+        try { storedWhatIDoTitleSplit.revert() } catch (e) {}
+      }
+      storedAboutTitleSplit = null
+      storedFactsTitleSplit = null
+      storedWhatIDoTitleSplit = null
+    })
+  })
+}
+
+// Expose the exit animation method for page transitions
+defineExpose({ animateExit })
+
 onUnmounted(() => {
+  unregisterExitAnimation('whatIDo')
+  
   window.removeEventListener('resize', updateItemsPerView)
   stopAutoplay()
   // Cleanup ScrollTriggers
@@ -860,6 +1444,28 @@ onUnmounted(() => {
     if (st?.kill) st.kill()
   })
   scrollTriggers = []
+  
+  // Reset state for clean re-mount
+  storedAboutTitleSplit = null
+  storedFactsTitleSplit = null
+  storedWhatIDoTitleSplit = null
+  storedElements = {
+    aboutBox: null,
+    socialBox: null,
+    factsBox: null,
+    avatarBox: null,
+    whatIDoBox: null,
+    aboutContent: null,
+    aboutMeta: null,
+    aboutLinks: null,
+    factsContent: null,
+    innerBox1: null,
+    innerBox2: null,
+    avatarImage: null,
+    whatIDoControls: null,
+    whatIDoCarousel: null,
+    whatIDoDots: null
+  }
 })
 </script>
 
@@ -884,5 +1490,6 @@ onUnmounted(() => {
   line-height: 0.9 !important;
   display: block;
 }
+
 </style>
 
