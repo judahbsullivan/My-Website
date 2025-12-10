@@ -145,123 +145,118 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-function setupScrollAnimation() {
+async function setupScrollAnimation() {
   if (import.meta.server) return
   
-  const nuxtApp = useNuxtApp()
-  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const { gsap, ScrollTrigger, waitForReady } = useGSAP()
   
-  if (!gsap) return
+  // Wait for ScrollTrigger to be ready
+  const { gsap: readyGsap, ScrollTrigger: readyST } = await waitForReady()
   
-  // Import ScrollTrigger
-  import('gsap/ScrollTrigger').then((stModule) => {
-    const ScrollTrigger = stModule.default || stModule
-    if (ScrollTrigger && gsap.registerPlugin) {
-      gsap.registerPlugin(ScrollTrigger)
+  if (!readyGsap || !readyST) {
+    console.warn('GSAP or ScrollTrigger not available')
+    return
+  }
+  
+  await nextTick()
+  
+  const bentoBox = resolveEl(bentoBoxRef.value)
+  const title = titleRef.value
+  const tabs = tabsRef.value
+  
+  if (!bentoBox || !title) return
+  
+  // Create timeline with ScrollTrigger
+  const tl = readyGsap.timeline({
+    scrollTrigger: {
+      trigger: bentoBox,
+      start: 'top 80%',
+      once: true
     }
-    
-    nextTick(() => {
-      const bentoBox = resolveEl(bentoBoxRef.value)
-      const title = titleRef.value
-      const tabs = tabsRef.value
-      
-      if (!bentoBox || !title) return
-      
-      // Create timeline with ScrollTrigger
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: bentoBox,
-          start: 'top 80%',
-          once: true
-        }
-      })
-      
-      // 1. Animate bento box with bounce (like IntroLoader)
-      tl.fromTo(bentoBox,
-        {
-          opacity: 0,
-          scale: 0.8,
-          y: 30,
-          rotation: -5
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          rotation: 0,
-          duration: 0.6,
-          ease: 'back.out(1.4)'
-        }
-      )
-      
-      // 2. Animate title with subtle fade
-      tl.fromTo(title,
-        {
-          opacity: 0,
-          y: 10
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: 'power2.out'
-        }, '-=0.3')
-      
-      // 3. Animate tabs
-      if (tabs) {
-        tl.fromTo(tabs,
-          {
-            opacity: 0,
-            y: 10
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.35,
-            ease: 'power2.out'
-          }, '-=0.2')
-      }
-      
-      // 4. Animate skill items with stagger (like IntroLoader boxes)
-      // Query skill items directly from DOM since refs might not be ready
-      const skillsGrid = skillsGridRef.value
-      const skillItems = skillsGrid ? Array.from(skillsGrid.querySelectorAll('[class*="opacity-0"]')) as HTMLElement[] : []
-      
-      if (skillItems.length > 0) {
-        tl.fromTo(skillItems,
-          {
-            opacity: 0,
-            scale: 0.8,
-            y: 30,
-            rotation: -5
-          },
-          {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            rotation: 0,
-            duration: 0.5,
-            stagger: {
-              amount: 0.4,
-              from: 'start',
-              ease: 'power2.out'
-            },
-            ease: 'back.out(1.2)'
-          }, '-=0.3')
-      }
-      
-      storedElements = {
-        bentoBox,
-        title,
-        tabs,
-        skillItems
-      }
-      
-      scrollTriggers.push(tl)
-    })
-  }).catch(() => {
-    console.warn('ScrollTrigger not available')
   })
+  
+  // 1. Animate bento box with bounce (like IntroLoader)
+  tl.fromTo(bentoBox,
+    {
+      opacity: 0,
+      scale: 0.8,
+      y: 30,
+      rotation: -5
+    },
+    {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      rotation: 0,
+      duration: 0.6,
+      ease: 'back.out(1.4)'
+    }
+  )
+  
+  // 2. Animate title with subtle fade
+  tl.fromTo(title,
+    {
+      opacity: 0,
+      y: 10
+    },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.4,
+      ease: 'power2.out'
+    }, '-=0.3')
+  
+  // 3. Animate tabs
+  if (tabs) {
+    tl.fromTo(tabs,
+      {
+        opacity: 0,
+        y: 10
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.35,
+        ease: 'power2.out'
+      }, '-=0.2')
+  }
+  
+  // 4. Animate skill items with stagger (like IntroLoader boxes)
+  // Query skill items directly from DOM since refs might not be ready
+  const skillsGrid = skillsGridRef.value
+  const skillItems = skillsGrid ? Array.from(skillsGrid.querySelectorAll('[class*="opacity-0"]')) as HTMLElement[] : []
+  
+  if (skillItems.length > 0) {
+    tl.fromTo(skillItems,
+      {
+        opacity: 0,
+        scale: 0.8,
+        y: 30,
+        rotation: -5
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.5,
+        stagger: {
+          amount: 0.4,
+          from: 'start',
+          ease: 'power2.out'
+        },
+        ease: 'back.out(1.2)'
+      }, '-=0.3')
+  }
+  
+  storedElements = {
+    bentoBox,
+    title,
+    tabs,
+    skillItems
+  }
+  
+  scrollTriggers.push(tl)
 }
 
 // Watch for category changes to re-animate skill items

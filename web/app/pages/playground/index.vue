@@ -78,17 +78,15 @@ definePageMeta({
       }
       
       // Refresh ScrollTrigger when page enters
-      import('gsap/ScrollTrigger').then((stModule) => {
-        const ScrollTrigger = stModule.default || stModule
-        if (ScrollTrigger) {
-          setTimeout(() => {
-            ScrollTrigger.refresh()
-            setTimeout(() => ScrollTrigger.refresh(), 100)
-            setTimeout(() => ScrollTrigger.refresh(), 300)
-          }, 100)
-        }
-        done()
-      }).catch(() => done())
+      const { ScrollTrigger } = useGSAP()
+      if (ScrollTrigger) {
+        nextTick(() => {
+          ScrollTrigger.refresh()
+          setTimeout(() => ScrollTrigger.refresh(), 100)
+          setTimeout(() => ScrollTrigger.refresh(), 300)
+        })
+      }
+      done()
     }
   }
 })
