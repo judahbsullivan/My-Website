@@ -106,7 +106,6 @@ function setCardRef(el: any, index: number) {
   cardRefs.value[index] = el as any
 }
 
-let matchMedia: any = null
 let storedTitleSplit: any = null
 let storedElements: {
   box: HTMLElement | null
@@ -200,110 +199,93 @@ function setupScrollAnimation() {
       storedElements = { box, title, cards }
       storedTitleSplit = titleSplit
 
-      // Use gsap.matchMedia() for responsive and accessible animations
-      matchMedia = gsap.matchMedia()
+      // Check if element is already in viewport
+      if (isInViewport) {
+        const immediateTl = gsap.timeline()
+        immediateTl.to(box, {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out'
+        })
 
-      matchMedia.add(
-        {
-          isDesktop: '(min-width: 768px)',
-          isMobile: '(max-width: 767px)',
-          reduceMotion: '(prefers-reduced-motion: reduce)'
-        },
-        (context: any) => {
-          const { isDesktop, isMobile, reduceMotion } = context.conditions
-          const duration = reduceMotion ? 0 : (isMobile ? 0.5 : 0.6)
-          const startPosition = isMobile ? 'top 85%' : 'top 80%'
-
-          // If already in viewport, animate immediately
-          if (isInViewport) {
-            const immediateTl = gsap.timeline()
-            immediateTl.to(box, {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              duration: duration || 0.01,
-              ease: 'power3.out'
-            })
-
-            if (titleSplit && titleSplit.chars && !reduceMotion) {
-              immediateTl.to(titleSplit.chars, {
-                opacity: 1,
-                yPercent: 0,
-                rotationX: 0,
-                duration: 0.5,
-                stagger: { amount: 0.35, from: 'start' },
-                ease: 'power3.out'
-              }, '-=0.35')
-            } else {
-              immediateTl.fromTo(title,
-                { opacity: 0, y: 10 },
-                { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' },
-                '-=0.25'
-              )
-            }
-
-            if (cards.length > 0) {
-              immediateTl.to(cards, {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                rotation: 0,
-                duration: duration || 0.01,
-                stagger: reduceMotion ? 0 : 0.06,
-                ease: 'power2.out'
-              }, '-=0.35')
-            }
-            return
-          }
-
-          // Otherwise, use ScrollTrigger
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: box,
-              start: startPosition,
-              once: true,
-              invalidateOnRefresh: true
-            }
-          })
-
-          tl.to(box, {
+        if (titleSplit && titleSplit.chars) {
+          immediateTl.to(titleSplit.chars, {
             opacity: 1,
-            scale: 1,
-            y: 0,
-            duration,
+            yPercent: 0,
+            rotationX: 0,
+            duration: 0.5,
+            stagger: { amount: 0.35, from: 'start' },
             ease: 'power3.out'
-          })
-
-          if (titleSplit && titleSplit.chars && !reduceMotion) {
-            tl.to(titleSplit.chars, {
-              opacity: 1,
-              yPercent: 0,
-              rotationX: 0,
-              duration: 0.5,
-              stagger: { amount: 0.35, from: 'start' },
-              ease: 'power3.out'
-            }, '-=0.35')
-          } else {
-            tl.fromTo(title,
-              { opacity: 0, y: 10 },
-              { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' },
-              '-=0.25'
-            )
-          }
-
-          if (cards.length > 0) {
-            tl.to(cards, {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotation: 0,
-              duration: duration || 0.01,
-              stagger: reduceMotion ? 0 : 0.06,
-              ease: 'power2.out'
-            }, '-=0.35')
-          }
+          }, '-=0.35')
+        } else {
+          immediateTl.fromTo(title,
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+            '-=0.25'
+          )
         }
-      )
+
+        if (cards.length > 0) {
+          immediateTl.to(cards, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotation: 0,
+            duration: 0.6,
+            stagger: 0.06,
+            ease: 'power2.out'
+          }, '-=0.35')
+        }
+      } else {
+        // Use ScrollTrigger
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: box,
+            start: 'top 80%',
+            once: true,
+            invalidateOnRefresh: true
+          }
+        })
+
+        tl.to(box, {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.6,
+          ease: 'power3.out'
+        })
+
+        if (titleSplit && titleSplit.chars) {
+          tl.to(titleSplit.chars, {
+            opacity: 1,
+            yPercent: 0,
+            rotationX: 0,
+            duration: 0.5,
+            stagger: { amount: 0.35, from: 'start' },
+            ease: 'power3.out'
+          }, '-=0.35')
+        } else {
+          tl.fromTo(title,
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+            '-=0.25'
+          )
+        }
+
+        if (cards.length > 0) {
+          tl.to(cards, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotation: 0,
+            duration: 0.6,
+            stagger: 0.06,
+            ease: 'power2.out'
+          }, '-=0.35')
+        }
+      }
 
       // Refresh ScrollTrigger after a short delay
       if (ScrollTrigger) {
@@ -407,10 +389,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   unregisterExitAnimation('blogFeatured')
-  if (matchMedia) {
-    matchMedia.revert()
-    matchMedia = null
-  }
   storedTitleSplit = null
   storedElements = { box: null, title: null, cards: [] }
 })

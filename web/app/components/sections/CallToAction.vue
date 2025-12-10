@@ -134,7 +134,6 @@ const isSubmittingNewsletter = ref(false)
 const newsletterSuccess = ref('')
 const newsletterError = ref('')
 
-let matchMedia: any = null
 let storedElements: { bento: HTMLElement | null; title: HTMLElement | null; desc: HTMLElement | null; newsletter: HTMLElement | null; buttons: HTMLElement | null } = {
   bento: null,
   title: null,
@@ -235,109 +234,91 @@ function setupScrollAnimation() {
 
       storedElements = { bento: bentoBox, title, desc, newsletter, buttons }
 
-      // Use gsap.matchMedia() for responsive and accessible animations
-      matchMedia = gsap.matchMedia()
+      // Check if element is already in viewport
+      if (isInViewport) {
+        const immediateTl = gsap.timeline()
+        immediateTl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
 
-      matchMedia.add(
-        {
-          // Conditions
-          isDesktop: '(min-width: 768px)',
-          isMobile: '(max-width: 767px)',
-          reduceMotion: '(prefers-reduced-motion: reduce)'
-        },
-        (context: any) => {
-          const { isDesktop, isMobile, reduceMotion } = context.conditions
-          const duration = reduceMotion ? 0 : (isMobile ? 0.5 : 0.6)
-          const startPosition = isMobile ? 'top 85%' : 'top 80%'
-
-          // If already in viewport, animate immediately
-          if (isInViewport) {
-            const immediateTl = gsap.timeline()
-            immediateTl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: duration || 0.01, ease: 'power3.out' })
-
-            if (titleSplit && titleSplit.chars && !reduceMotion) {
-              immediateTl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-              immediateTl.to(titleSplit.chars, {
-                opacity: 1,
-                yPercent: 0,
-                rotationX: 0,
-                duration: 0.5,
-                stagger: { amount: 0.3, from: 'start' },
-                ease: 'power3.out'
-              }, '-=0.3')
-            } else {
-              immediateTl.to(title, { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' }, '-=0.3')
-            }
-
-            if (desc) {
-              immediateTl.to(desc, { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' }, '-=0.25')
-            }
-
-            if (newsletter) {
-              immediateTl.to(newsletter, { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' }, '-=0.2')
-            }
-
-            if (buttons && buttons.children.length > 0) {
-              immediateTl.to(Array.from(buttons.children) as HTMLElement[], {
-                opacity: 1,
-                scale: 1,
-                y: 0,
-                rotation: 0,
-                duration: duration || 0.01,
-                stagger: reduceMotion ? 0 : 0.08,
-                ease: 'back.out(1.4)'
-              }, '-=0.3')
-            }
-            return
-          }
-
-          // Otherwise, use ScrollTrigger
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: bentoBox,
-              start: startPosition,
-              once: true,
-              invalidateOnRefresh: true
-            }
-          })
-
-          tl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration, ease: 'power3.out' })
-
-          if (titleSplit && titleSplit.chars && !reduceMotion) {
-            tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-            tl.to(titleSplit.chars, {
-              opacity: 1,
-              yPercent: 0,
-              rotationX: 0,
-              duration: 0.5,
-              stagger: { amount: 0.3, from: 'start' },
-              ease: 'power3.out'
-            }, '-=0.3')
-          } else {
-            tl.to(title, { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' }, '-=0.3')
-          }
-
-          if (desc) {
-            tl.to(desc, { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' }, '-=0.25')
-          }
-
-          if (newsletter) {
-            tl.to(newsletter, { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' }, '-=0.2')
-          }
-
-          if (buttons && buttons.children.length > 0) {
-            tl.to(Array.from(buttons.children) as HTMLElement[], {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              rotation: 0,
-              duration: duration || 0.01,
-              stagger: reduceMotion ? 0 : 0.08,
-              ease: 'back.out(1.4)'
-            }, '-=0.3')
-          }
+        if (titleSplit && titleSplit.chars) {
+          immediateTl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+          immediateTl.to(titleSplit.chars, {
+            opacity: 1,
+            yPercent: 0,
+            rotationX: 0,
+            duration: 0.5,
+            stagger: { amount: 0.3, from: 'start' },
+            ease: 'power3.out'
+          }, '-=0.3')
+        } else {
+          immediateTl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
         }
-      )
+
+        if (desc) {
+          immediateTl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
+        }
+
+        if (newsletter) {
+          immediateTl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
+        }
+
+        if (buttons && buttons.children.length > 0) {
+          immediateTl.to(Array.from(buttons.children) as HTMLElement[], {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            rotation: 0,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: 'back.out(1.4)'
+          }, '-=0.3')
+        }
+      } else {
+        // Use ScrollTrigger
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: bentoBox,
+            start: 'top 80%',
+            once: true,
+            invalidateOnRefresh: true
+          }
+        })
+
+        tl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+
+        if (titleSplit && titleSplit.chars) {
+          tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+          tl.to(titleSplit.chars, {
+            opacity: 1,
+            yPercent: 0,
+            rotationX: 0,
+            duration: 0.5,
+            stagger: { amount: 0.3, from: 'start' },
+            ease: 'power3.out'
+          }, '-=0.3')
+        } else {
+          tl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+        }
+
+        if (desc) {
+          tl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
+        }
+
+        if (newsletter) {
+          tl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
+        }
+
+        if (buttons && buttons.children.length > 0) {
+          tl.to(Array.from(buttons.children) as HTMLElement[], {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            rotation: 0,
+            duration: 0.6,
+            stagger: 0.08,
+            ease: 'back.out(1.4)'
+          }, '-=0.3')
+        }
+      }
 
       // Refresh ScrollTrigger after a short delay to ensure proper initialization
       if (ScrollTrigger) {
@@ -403,10 +384,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (import.meta.server) return
   unregisterExitAnimation(props.exitAnimationKey)
-  if (matchMedia) {
-    matchMedia.revert()
-    matchMedia = null
-  }
   storedElements = { bento: null, title: null, desc: null, newsletter: null, buttons: null }
 })
 </script>
