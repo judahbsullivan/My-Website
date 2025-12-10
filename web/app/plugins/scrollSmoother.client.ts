@@ -16,6 +16,11 @@ export default defineNuxtPlugin({
         return
       }
 
+      // Prevent redefining provided smoother
+      if ((nuxtApp as any).$scrollSmoother) {
+        return
+      }
+
       // Check if wrapper and content exist
       const wrapper = document.getElementById('smooth-wrapper')
       const content = document.getElementById('smooth-content')

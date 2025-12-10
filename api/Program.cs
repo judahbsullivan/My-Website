@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using MyPortfolio.Api.Services;
 using MyPortfolio.Data;
 using MyPortfolio.Models;
+using Supabase;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,18 +17,124 @@ var builder = WebApplication.CreateBuilder(args);
 // -------------------------
 if (builder.Environment.IsDevelopment())
 {
-    Env.Load("../.env"); // adjust if your .env is in root outside api/
+    // Try api/.env first, then ../.env as fallback
+    var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+    if (!File.Exists(envPath))
+    {
+        envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
+    }
+    
+    if (File.Exists(envPath))
+    {
+        Env.Load(envPath);
+    }
 }
 
-var dbHost =
-    Environment.GetEnvironmentVariable("DB_HOST") ?? throw new Exception("DB_HOST missing");
-var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
-var dbName =
-    Environment.GetEnvironmentVariable("DB_NAME") ?? throw new Exception("DB_NAME missing");
-var dbUser =
-    Environment.GetEnvironmentVariable("DB_USER") ?? throw new Exception("DB_USER missing");
-var dbPassword =
-    Environment.GetEnvironmentVariable("DB_PASSWORD") ?? throw new Exception("DB_PASSWORD missing");
+
+// -------------------------
+// Database Connection Configuration
+// -------------------------
+// Support both DATABASE_URL (full connection string) and individual environment variables
+// Supabase requires direct connection (not pooler) for migrations and EF Core
+// See: https://supabase.com/docs/guides/database/connecting
+
+string connectionString;
+
+// Check for DATABASE_URL first (Supabase provides this in connection string format)
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    // DATABASE_URL format: postgresql://user:password@host:port/database?sslmode=require
+    // Convert to Npgsql format
+    if (databaseUrl.StartsWith("postgresql://") || databaseUrl.StartsWith("postgres://"))
+    {
+        try
+        {
+            var dbUri = new Uri(databaseUrl);
+            var userInfo = dbUri.UserInfo.Split(':');
+            var username = userInfo.Length > 0 ? Uri.UnescapeDataString(userInfo[0]) : "";
+            var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+            var host = dbUri.Host;
+            var port = dbUri.Port > 0 ? dbUri.Port.ToString() : "5432";
+            var database = dbUri.AbsolutePath.TrimStart('/');
+            
+            // Parse query string for SSL mode
+            var sslMode = "Require";
+            if (!string.IsNullOrEmpty(dbUri.Query))
+            {
+                var queryParams = dbUri.Query.TrimStart('?').Split('&')
+                    .Select(p => p.Split('='))
+                    .Where(p => p.Length == 2)
+                    .ToDictionary(p => Uri.UnescapeDataString(p[0]), p => Uri.UnescapeDataString(p[1]), StringComparer.OrdinalIgnoreCase);
+                
+                if (queryParams.TryGetValue("sslmode", out var sslModeValue))
+                {
+                    sslMode = sslModeValue;
+                }
+            }
+            
+            connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode={sslMode};Trust Server Certificate=true";
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to parse DATABASE_URL: {ex.Message}. Expected format: postgresql://user:password@host:port/database", ex);
+        }
+    }
+    else
+    {
+        // Assume it's already in Npgsql format
+        connectionString = databaseUrl;
+    }
+}
+else
+{
+    // Fall back to individual environment variables
+    var dbHost = Environment.GetEnvironmentVariable("DB_HOST") ?? throw new Exception(
+        "Database connection missing. Set either DATABASE_URL or DB_HOST, DB_NAME, DB_USER, DB_PASSWORD. " +
+        "For Supabase: Use the direct connection string from Settings → Database → Connection string (not pooler). " +
+        "Format: postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres");
+    
+    var dbPort = Environment.GetEnvironmentVariable("DB_PORT") ?? "5432";
+    var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? throw new Exception("DB_NAME missing");
+    var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? throw new Exception("DB_USER missing");
+    var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? throw new Exception("DB_PASSWORD missing");
+    var dbSslMode = Environment.GetEnvironmentVariable("DB_SSLMODE") ?? "Require";
+    var dbTrustCert = Environment.GetEnvironmentVariable("DB_TRUST_CERT") ?? "true";
+    
+    // Auto-convert pooler to direct connection for Supabase (migrations require direct connection)
+    if (dbHost.Contains("pooler.supabase.com"))
+    {
+        // Try to extract project ref from SUPABASE_URL and construct direct connection
+        var supabaseUrlEnv = Environment.GetEnvironmentVariable("SUPABASE_URL");
+        if (!string.IsNullOrEmpty(supabaseUrlEnv) && Uri.TryCreate(supabaseUrlEnv, UriKind.Absolute, out var supabaseUri))
+        {
+            // Extract project ref from SUPABASE_URL (e.g., https://csfuzhtznhkdzytfotet.supabase.co)
+            var hostParts = supabaseUri.Host.Split('.');
+            if (hostParts.Length >= 2 && hostParts[0] != "db")
+            {
+                var projectRef = hostParts[0];
+                dbHost = $"db.{projectRef}.supabase.co";
+            }
+            else
+            {
+                throw new Exception(
+                    "Cannot convert pooler to direct connection. " +
+                    "Please set DB_HOST to the direct connection host (db.[PROJECT-REF].supabase.co). " +
+                    "Find it in Supabase Dashboard → Settings → Database → Connection string → Direct connection");
+            }
+        }
+        else
+        {
+            throw new Exception(
+                "Pooler connection detected but cannot auto-convert. " +
+                "EF Core migrations require DIRECT connection. " +
+                "Set DB_HOST to: db.[PROJECT-REF].supabase.co " +
+                "(Find PROJECT-REF in your SUPABASE_URL or Supabase Dashboard)");
+        }
+    }
+    
+    connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode={dbSslMode};Trust Server Certificate={dbTrustCert}";
+}
 
 // -------------------------
 // Add Services
@@ -110,9 +217,18 @@ builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrateg
 builder.Services.AddInMemoryRateLimiting();
 
 // EF Core / Postgres
-var connectionString =
-    $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword};SSL Mode=Require;Trust Server Certificate=true";
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+// Configure with connection retry and better error handling
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        // Enable retry on failure for transient errors
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorCodesToAdd: null);
+    });
+});
 
 // Identity with secure password reset token configuration
 builder
@@ -174,6 +290,61 @@ builder.Services.AddAuthentication(options =>
 // Email Service
 builder.Services.AddSingleton<EmailService>();
 
+// Supabase Client
+// Following official Supabase C# docs: https://supabase.com/docs/reference/csharp/initializing
+// The docs use SUPABASE_URL and SUPABASE_KEY (anon key for client-side)
+// For server-side APIs, SUPABASE_SERVICE_ROLE_KEY is recommended for elevated privileges
+var supabaseUrl = Environment.GetEnvironmentVariable("SUPABASE_URL");
+if (string.IsNullOrEmpty(supabaseUrl))
+{
+    throw new Exception("SUPABASE_URL missing. Make sure SUPABASE_URL=https://... is set in your .env file (in api/ directory or project root).");
+}
+
+// Validate URL format
+if (!Uri.TryCreate(supabaseUrl, UriKind.Absolute, out var uri) || uri.Scheme != "https")
+{
+    throw new Exception($"SUPABASE_URL is invalid. Expected format: https://xxxxx.supabase.co. Got: {supabaseUrl}");
+}
+
+// Check for SUPABASE_KEY first (official docs pattern), then fall back to service role or anon key
+var supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_KEY");
+if (string.IsNullOrEmpty(supabaseKey))
+{
+    // Fallback: try service role key (recommended for server-side) or anon key
+    supabaseKey = Environment.GetEnvironmentVariable("SUPABASE_SERVICE_ROLE_KEY") 
+                  ?? Environment.GetEnvironmentVariable("SUPABASE_ANON_KEY");
+}
+
+if (string.IsNullOrEmpty(supabaseKey))
+{
+    throw new Exception(
+        "SUPABASE_KEY missing. " +
+        "Set SUPABASE_KEY (anon key) or SUPABASE_SERVICE_ROLE_KEY (recommended for server-side) in your .env file. " +
+        "See: https://supabase.com/docs/reference/csharp/initializing");
+}
+
+var sessionPath = Path.Combine(AppContext.BaseDirectory, ".supabase", "session.json");
+var supabaseOptions = new SupabaseOptions
+{
+    AutoConnectRealtime = false, // disable realtime auto-connect for API
+    AutoRefreshToken = true,     // enable token auto-refresh per docs
+    SessionHandler = new SupabaseSessionHandler(sessionPath)
+};
+
+// Register Supabase client as singleton (will be initialized after app build)
+// Following official Supabase C# pattern: https://supabase.com/docs/reference/csharp/installing
+builder.Services.AddSingleton<Supabase.Client>(provider =>
+{
+    var client = new Supabase.Client(supabaseUrl, supabaseKey, supabaseOptions);
+    // Don't initialize here - will be initialized asynchronously after app build
+    return client;
+});
+
+// Register SupabaseService wrapper for cleaner dependency injection
+builder.Services.AddSingleton<MyPortfolio.Api.Services.SupabaseService>();
+// Register SupabaseAuthService for auth flows
+builder.Services.AddSingleton<MyPortfolio.Api.Services.SupabaseAuthService>();
+
 // Add Controllers with JSON options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -183,6 +354,20 @@ builder.Services.AddControllers()
     });
 
 var app = builder.Build();
+
+// -------------------------
+// Initialize Supabase Client (after app build, before middleware)
+// Following official pattern: https://supabase.com/docs/reference/csharp/installing
+// -------------------------
+try
+{
+    var supabaseClient = app.Services.GetRequiredService<Supabase.Client>();
+    await supabaseClient.InitializeAsync();
+}
+catch (Exception ex)
+{
+    throw new Exception($"Failed to initialize Supabase client: {ex.Message}", ex);
+}
 
 // -------------------------
 // Middleware Pipeline

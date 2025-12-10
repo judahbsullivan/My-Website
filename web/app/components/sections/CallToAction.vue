@@ -5,24 +5,73 @@
     backdrop
     border
     shadow
-    padding="xl"
+    padding="lg"
     rounded="2xl"
-    :className="`text-center ${ctaData.background} text-background opacity-0 scale-90 -rotate-3`"
+    :className="`text-center ${ctaData.background} opacity-0 scale-95 translate-y-6`"
   >
-    <div class="max-w-2xl mx-auto">
-      <Icon :name="ctaData.icon" class="w-12 h-12 mx-auto mb-4 text-current opacity-0" />
-      <h3 ref="titleRef" class="text-2xl font-bold mb-4 leading-tight text-background opacity-0">
+    <div class="flex flex-col gap-12 max-w-2xl mx-auto">
+      <div class="flex flex-col items-center gap-6">
+  <Icon :name="ctaData.icon" class="w-12 h-12 mx-auto mb-6 text-current opacity-0" />
+      <UiTitle ref="titleRef" as="h2" size="md" weight="semibold" class="mb-3">
+
         {{ ctaData.title }}
-      </h3>
-      <p ref="descRef" class="text-base leading-relaxed text-background/80 mb-6 opacity-0">
+          </UiTitle>    
+      <p ref="descRef" class="text-base sm:text-lg leading-relaxed text-current/90 mb-8 opacity-0">
         {{ ctaData.description }}
       </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+
+      </div>
+      
+      <!-- Newsletter Form -->
+      <div ref="newsletterRef" class="w-full opacity-0 translate-y-4">
+        <form @submit.prevent="handleNewsletterSubmit" class="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto">
+          <input
+            v-model="newsletterEmail"
+            type="email"
+            required
+            placeholder="Enter your email"
+            class="flex-1 px-4 py-3 bg-background/50 dark:bg-background/50 backdrop-blur-sm border border-background/50 rounded-xl text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-background/20 focus:border-background/50 transition-all"
+          />
+          <UiButton
+            type="submit"
+            variant="secondary"
+            size="lg"
+            :disabled="isSubmittingNewsletter"
+            overlay-color="bg-gray-900 dark:bg-white"
+            class="cta-newsletter-button bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-transparent hover:bg-white/90 dark:hover:bg-gray-800 whitespace-nowrap"
+          >
+            <svg v-if="isSubmittingNewsletter" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span v-else>Subscribe</span>
+          </UiButton>
+        </form>
+        
+        <!-- Success Message -->
+        <div v-if="newsletterSuccess" class="mt-4 p-4 rounded-xl bg-success/10 dark:bg-success/10 border border-success/20 text-center">
+          <div class="flex items-center justify-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-success" />
+            <p class="text-success text-sm">{{ newsletterSuccess }}</p>
+          </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div v-if="newsletterError" class="mt-4 p-4 rounded-xl bg-destructive/10 dark:bg-destructive/10 border border-destructive/20 text-center">
+          <div class="flex items-center justify-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-destructive" />
+            <p class="text-destructive text-sm">{{ newsletterError }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div ref="buttonsRef" class="flex flex-col sm:flex-row gap-4 justify-center">
         <UiButton
           :to="ctaData.primaryButton.to"
           variant="secondary"
           size="lg"
-          class="bg-background text-foreground border-transparent hover:bg-background/90"
+          overlay-color="bg-gray-900 dark:bg-white"
+          class="cta-primary-button bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-transparent hover:bg-white/90 dark:hover:bg-gray-800"
         >
           <Icon :name="ctaData.primaryButton.icon" class="w-5 h-5" />
           {{ ctaData.primaryButton.text }}
@@ -31,7 +80,8 @@
           :to="ctaData.secondaryButton.to"
           variant="outline"
           size="lg"
-          class="border-background text-background hover:bg-background/10"
+          overlay-color="bg-gray-900 dark:bg-white"
+          class="cta-outline-button bg-white/10 dark:bg-gray-900/20 border-2 border-white dark:border-gray-900 text-white dark:text-gray-900 hover:bg-white/20 dark:hover:bg-gray-900/30"
         >
           <Icon :name="ctaData.secondaryButton.icon" class="w-5 h-5" />
           {{ ctaData.secondaryButton.text }}
@@ -63,20 +113,33 @@ interface Props {
       icon: string
     }
   }
+  exitAnimationKey?: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  exitAnimationKey: 'cta'
+})
+
+const config = useRuntimeConfig()
+const apiBase = config.public.apiBase
 
 const bentoBoxRef = ref<any>(null)
 const titleRef = ref<HTMLElement | null>(null)
 const descRef = ref<HTMLElement | null>(null)
+const newsletterRef = ref<HTMLElement | null>(null)
 const buttonsRef = ref<HTMLElement | null>(null)
 
+const newsletterEmail = ref('')
+const isSubmittingNewsletter = ref(false)
+const newsletterSuccess = ref('')
+const newsletterError = ref('')
+
 let scrollTriggers: any[] = []
-let storedElements: { bento: HTMLElement | null; title: HTMLElement | null; desc: HTMLElement | null; buttons: HTMLElement | null } = {
+let storedElements: { bento: HTMLElement | null; title: HTMLElement | null; desc: HTMLElement | null; newsletter: HTMLElement | null; buttons: HTMLElement | null } = {
   bento: null,
   title: null,
   desc: null,
+  newsletter: null,
   buttons: null
 }
 
@@ -86,6 +149,44 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   if ((maybeEl as any)?.$el instanceof HTMLElement) return (maybeEl as any).$el
   if ((maybeEl as any)?.el instanceof HTMLElement) return (maybeEl as any).el
   return null
+}
+
+// Newsletter form handler
+const handleNewsletterSubmit = async () => {
+  isSubmittingNewsletter.value = true
+  newsletterError.value = ''
+  newsletterSuccess.value = ''
+
+  try {
+    // TODO: Replace with actual newsletter API endpoint when available
+    // For now, using contact endpoint as placeholder
+    await $fetch(`${apiBase}/api/contact`, {
+      method: 'POST',
+      body: {
+        name: 'Newsletter Subscriber',
+        email: newsletterEmail.value,
+        subject: 'newsletter',
+        message: 'Newsletter subscription request'
+      },
+    })
+
+    newsletterSuccess.value = 'Thanks for subscribing! Check your email for confirmation.'
+    newsletterEmail.value = ''
+    
+    // Clear success message after 5 seconds
+    setTimeout(() => {
+      newsletterSuccess.value = ''
+    }, 5000)
+  } catch (error: any) {
+    newsletterError.value = error?.data?.message || 'Failed to subscribe. Please try again.'
+    
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      newsletterError.value = ''
+    }, 5000)
+  } finally {
+    isSubmittingNewsletter.value = false
+  }
 }
 
 function setupScrollAnimation() {
@@ -103,12 +204,14 @@ function setupScrollAnimation() {
       const bentoBox = resolveEl(bentoBoxRef.value)
       const title = titleRef.value
       const desc = descRef.value
+      const newsletter = newsletterRef.value
       const buttons = buttonsRef.value
       if (!bentoBox || !title) return
 
-      gsap.set(bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
+      gsap.set(bentoBox, { opacity: 0, scale: 0.95, y: 24 })
       gsap.set(title, { opacity: 0, y: 20 })
       if (desc) gsap.set(desc, { opacity: 0, y: 15 })
+      if (newsletter) gsap.set(newsletter, { opacity: 0, y: 16 })
       if (buttons) gsap.set(buttons.children, { opacity: 0, scale: 0.8, y: 20, rotation: -3 })
 
       let titleSplit: any = null
@@ -134,7 +237,7 @@ function setupScrollAnimation() {
         }
       })
 
-      tl.to(bentoBox, { opacity: 1, scale: 1, rotation: 0, duration: 0.7, ease: 'back.out(1.4)' })
+      tl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
 
       if (titleSplit && titleSplit.chars) {
         tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
@@ -154,6 +257,10 @@ function setupScrollAnimation() {
         tl.to(desc, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, '-=0.25')
       }
 
+      if (newsletter) {
+        tl.to(newsletter, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '-=0.2')
+      }
+
       if (buttons && buttons.children.length > 0) {
         tl.to(Array.from(buttons.children) as HTMLElement[], {
           opacity: 1,
@@ -167,7 +274,7 @@ function setupScrollAnimation() {
       }
 
       scrollTriggers.push(tl)
-      storedElements = { bento: bentoBox, title, desc, buttons }
+      storedElements = { bento: bentoBox, title, desc, newsletter, buttons }
     })
   }).catch(() => console.warn('ScrollTrigger not available'))
 }
@@ -182,6 +289,7 @@ function animateExit(): Promise<void> {
     const bento = storedElements.bento || resolveEl(bentoBoxRef.value)
     const title = storedElements.title || titleRef.value
     const desc = storedElements.desc || descRef.value
+    const newsletter = storedElements.newsletter || newsletterRef.value
     const buttons = storedElements.buttons || buttonsRef.value
 
     if (!bento) return resolve()
@@ -191,6 +299,7 @@ function animateExit(): Promise<void> {
 
     if (title) tl.to(title, { y: -10, autoAlpha: 0, duration: contentDuration, ease: 'power2.in' }, 0)
     if (desc) tl.to(desc, { y: -8, autoAlpha: 0, duration: contentDuration - 0.05, ease: 'power2.in' }, 0)
+    if (newsletter) tl.to(newsletter, { y: -8, autoAlpha: 0, duration: contentDuration - 0.05, ease: 'power2.in' }, 0)
 
     if (buttons && buttons.children.length > 0) {
       tl.to(Array.from(buttons.children) as HTMLElement[], {
@@ -217,18 +326,41 @@ function animateExit(): Promise<void> {
 
 onMounted(() => {
   if (import.meta.server) return
-  registerExitAnimation('aboutCTA', animateExit)
+  registerExitAnimation(props.exitAnimationKey, animateExit)
   setupScrollAnimation()
 })
 
 onUnmounted(() => {
   if (import.meta.server) return
-  unregisterExitAnimation('aboutCTA')
+  unregisterExitAnimation(props.exitAnimationKey)
   scrollTriggers.forEach((st) => {
     if (st?.scrollTrigger) st.scrollTrigger.kill()
     if (st?.kill) st.kill()
   })
   scrollTriggers = []
-  storedElements = { bento: null, title: null, desc: null, buttons: null }
+  storedElements = { bento: null, title: null, desc: null, newsletter: null, buttons: null }
 })
 </script>
+
+<style scoped>
+/* Override button hover text colors for CTA */
+/* Primary and Newsletter buttons - white text on dark overlay (light mode), dark text on white overlay (dark mode) */
+:deep(.cta-primary-button.group:hover span),
+:deep(.cta-newsletter-button.group:hover span) {
+  color: rgb(255 255 255) !important; /* white for light mode - white text on dark overlay */
+}
+
+:deep(.dark .cta-primary-button.group:hover span),
+:deep(.dark .cta-newsletter-button.group:hover span) {
+  color: rgb(17 24 39) !important; /* gray-900 for dark mode - dark text on white overlay */
+}
+
+/* Outline button - dark text on white overlay (light mode), white text on dark overlay (dark mode) */
+:deep(.cta-outline-button.group:hover span) {
+  color: rgb(17 24 39) !important; /* gray-900 for light mode - dark text on white overlay */
+}
+
+:deep(.dark .cta-outline-button.group:hover span) {
+  color: rgb(255 255 255) !important; /* white for dark mode - white text on dark overlay */
+}
+</style>

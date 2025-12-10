@@ -1,9 +1,10 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyPortfolio.Data;
-using MyPortfolio.Models;
+using MyPortfolio.Models.Supabase;
+using Supabase;
+using Supabase.Postgrest.Models;
+using Supabase.Postgrest;
 
 namespace MyPortfolio.Controllers
 {
@@ -11,11 +12,11 @@ namespace MyPortfolio.Controllers
     [Route("api/[controller]")]
     public class ProjectsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly Supabase.Client _supabase;
 
-        public ProjectsController(AppDbContext context)
+        public ProjectsController(Supabase.Client supabase)
         {
-            _context = context;
+            _supabase = supabase;
         }
 
         // GET: api/projects
@@ -24,34 +25,29 @@ namespace MyPortfolio.Controllers
         {
             try
             {
-                var projects = await _context.Projects
-                    .OrderByDescending(p => p.IsFeatured)
-                    .ThenBy(p => p.DisplayOrder)
-                    .ThenByDescending(p => p.CreatedAt)
-                    .Select(p => new ProjectDto
-                    {
-                        Id = p.Id,
-                        Slug = p.Slug,
-                        Title = p.Title,
-                        Category = p.Category,
-                        Year = p.Year,
-                        Description = p.Description,
-                        ImageUrl = p.ImageUrl,
-                        IsFeatured = p.IsFeatured
-                    })
-                    .ToListAsync();
+                var response = await _supabase
+                    .From<ProjectSupabase>()
+                    .Order(x => x.IsFeatured, Constants.Ordering.Descending)
+                    .Order(x => x.DisplayOrder, Constants.Ordering.Ascending)
+                    .Order(x => x.CreatedAt, Constants.Ordering.Descending)
+                    .Get();
+
+                var projects = response.Models.Select(p => new ProjectDto
+                {
+                    Id = p.Id,
+                    Slug = p.Slug,
+                    Title = p.Title,
+                    Category = p.Category,
+                    Year = p.Year,
+                    Description = p.Description,
+                    ImageUrl = p.ImageUrl,
+                    IsFeatured = p.IsFeatured
+                }).ToList();
 
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error fetching projects: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-                
                 return StatusCode(500, new { 
                     message = "Error fetching projects",
                     error = ex.Message,
@@ -66,36 +62,30 @@ namespace MyPortfolio.Controllers
         {
             try
             {
-                var projects = await _context.Projects
-                    .Where(p => p.IsFeatured)
-                    .OrderBy(p => p.DisplayOrder)
-                    .Take(4)
-                    .Select(p => new ProjectDto
-                    {
-                        Id = p.Id,
-                        Slug = p.Slug,
-                        Title = p.Title,
-                        Category = p.Category,
-                        Year = p.Year,
-                        Description = p.Description,
-                        ImageUrl = p.ImageUrl,
-                        IsFeatured = p.IsFeatured
-                    })
-                    .ToListAsync();
+                var response = await _supabase
+                    .From<ProjectSupabase>()
+                    // Supabase Where requires explicit comparisons; bare property throws parse error
+                    .Where(x => x.IsFeatured == true)
+                    .Order(x => x.DisplayOrder, Constants.Ordering.Ascending)
+                    .Limit(4)
+                    .Get();
+
+                var projects = response.Models.Select(p => new ProjectDto
+                {
+                    Id = p.Id,
+                    Slug = p.Slug,
+                    Title = p.Title,
+                    Category = p.Category,
+                    Year = p.Year,
+                    Description = p.Description,
+                    ImageUrl = p.ImageUrl,
+                    IsFeatured = p.IsFeatured
+                }).ToList();
 
                 return Ok(projects);
             }
             catch (Exception ex)
             {
-                // Log the error for debugging
-                Console.WriteLine($"Error fetching featured projects: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-                
-                // Return error details in development, generic message in production
                 return StatusCode(500, new { 
                     message = "Error fetching featured projects",
                     error = ex.Message,
@@ -108,66 +98,96 @@ namespace MyPortfolio.Controllers
         [HttpGet("{slug}")]
         public async Task<ActionResult<ProjectDetailDto>> GetProject(string slug)
         {
-            var project = await _context.Projects
-                .FirstOrDefaultAsync(p => p.Slug == slug);
-
-            if (project == null)
-                return NotFound(new { message = "Project not found" });
-
-            var dto = new ProjectDetailDto
+            try
             {
-                Id = project.Id,
-                Slug = project.Slug,
-                Title = project.Title,
-                Category = project.Category,
-                Year = project.Year,
-                Role = project.Role,
-                Description = project.Description,
-                Overview = project.Overview,
-                ImageUrl = project.ImageUrl,
-                LiveUrl = project.LiveUrl,
-                GithubUrl = project.GithubUrl,
-                TechStack = JsonSerializer.Deserialize<List<string>>(project.TechStack) ?? new List<string>(),
-                Features = JsonSerializer.Deserialize<List<FeatureDto>>(project.Features) ?? new List<FeatureDto>(),
-                GalleryImages = string.IsNullOrEmpty(project.GalleryImages) 
-                    ? new List<string>() 
-                    : JsonSerializer.Deserialize<List<string>>(project.GalleryImages) ?? new List<string>()
-            };
+                var project = await _supabase
+                    .From<ProjectSupabase>()
+                    .Where(x => x.Slug == slug)
+                    .Single();
 
-            return Ok(dto);
+                if (project == null)
+                    return NotFound(new { message = "Project not found" });
+
+                var dto = new ProjectDetailDto
+                {
+                    Id = project.Id,
+                    Slug = project.Slug,
+                    Title = project.Title,
+                    Category = project.Category,
+                    Year = project.Year,
+                    Role = project.Role,
+                    Description = project.Description,
+                    Overview = project.Overview,
+                    ImageUrl = project.ImageUrl,
+                    LiveUrl = project.LiveUrl,
+                    GithubUrl = project.GithubUrl,
+                    TechStack = JsonSerializer.Deserialize<List<string>>(project.TechStack) ?? new List<string>(),
+                    Features = JsonSerializer.Deserialize<List<FeatureDto>>(project.Features) ?? new List<FeatureDto>(),
+                    GalleryImages = string.IsNullOrEmpty(project.GalleryImages) 
+                        ? new List<string>() 
+                        : JsonSerializer.Deserialize<List<string>>(project.GalleryImages) ?? new List<string>()
+                };
+
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    message = "Error fetching project",
+                    error = ex.Message
+                });
+            }
         }
 
         // POST: api/projects (Admin only)
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<Project>> CreateProject([FromBody] CreateProjectRequest request)
+        public async Task<ActionResult<ProjectSupabase>> CreateProject([FromBody] CreateProjectRequest request)
         {
-            if (await _context.Projects.AnyAsync(p => p.Slug == request.Slug))
-                return BadRequest(new { message = "A project with this slug already exists" });
-
-            var project = new Project
+            try
             {
-                Slug = request.Slug,
-                Title = request.Title,
-                Category = request.Category,
-                Year = request.Year,
-                Role = request.Role,
-                Description = request.Description,
-                Overview = request.Overview,
-                ImageUrl = request.ImageUrl,
-                LiveUrl = request.LiveUrl,
-                GithubUrl = request.GithubUrl,
-                TechStack = JsonSerializer.Serialize(request.TechStack ?? new List<string>()),
-                Features = JsonSerializer.Serialize(request.Features ?? new List<FeatureDto>()),
-                GalleryImages = JsonSerializer.Serialize(request.GalleryImages ?? new List<string>()),
-                IsFeatured = request.IsFeatured,
-                DisplayOrder = request.DisplayOrder
-            };
+                // Check if slug exists
+                var existingResponse = await _supabase
+                    .From<ProjectSupabase>()
+                    .Where(x => x.Slug == request.Slug)
+                    .Get();
 
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
+                if (existingResponse.Models.Any())
+                    return BadRequest(new { message = "A project with this slug already exists" });
 
-            return CreatedAtAction(nameof(GetProject), new { slug = project.Slug }, project);
+                var project = new ProjectSupabase
+                {
+                    Slug = request.Slug,
+                    Title = request.Title,
+                    Category = request.Category,
+                    Year = request.Year,
+                    Role = request.Role,
+                    Description = request.Description,
+                    Overview = request.Overview,
+                    ImageUrl = request.ImageUrl,
+                    LiveUrl = request.LiveUrl,
+                    GithubUrl = request.GithubUrl,
+                    TechStack = JsonSerializer.Serialize(request.TechStack ?? new List<string>()),
+                    Features = JsonSerializer.Serialize(request.Features ?? new List<FeatureDto>()),
+                    GalleryImages = JsonSerializer.Serialize(request.GalleryImages ?? new List<string>()),
+                    IsFeatured = request.IsFeatured,
+                    DisplayOrder = request.DisplayOrder,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var response = await _supabase
+                    .From<ProjectSupabase>()
+                    .Insert(project);
+
+                return CreatedAtAction(nameof(GetProject), new { slug = project.Slug }, response.Models.FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    message = "Error creating project",
+                    error = ex.Message
+                });
+            }
         }
     }
 

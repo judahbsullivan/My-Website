@@ -250,3 +250,14 @@
 /Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/runtimes/win-x64/native/e_sqlite3.dll
 /Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/runtimes/win-x86/native/e_sqlite3.dll
 /Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/AspNetCoreRateLimit.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Microsoft.IO.RecyclableMemoryStream.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/MimeMapping.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Supabase.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Supabase.Core.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Supabase.Functions.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Supabase.Gotrue.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Supabase.Postgrest.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Supabase.Realtime.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Supabase.Storage.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/System.Reactive.dll
+/Users/judahsullivan/Projects/Personal/myPortfolio/api/bin/Debug/net10.0/Websocket.Client.dll

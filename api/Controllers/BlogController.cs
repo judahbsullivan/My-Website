@@ -1,9 +1,10 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyPortfolio.Data;
-using MyPortfolio.Models;
+using MyPortfolio.Models.Supabase;
+using Supabase;
+using Supabase.Postgrest.Models;
+using Supabase.Postgrest;
 
 namespace MyPortfolio.Controllers
 {
@@ -11,11 +12,11 @@ namespace MyPortfolio.Controllers
     [Route("api/[controller]")]
     public class BlogController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly Supabase.Client _supabase;
 
-        public BlogController(AppDbContext context)
+        public BlogController(Supabase.Client supabase)
         {
-            _context = context;
+            _supabase = supabase;
         }
 
         // GET: api/blog
@@ -24,35 +25,30 @@ namespace MyPortfolio.Controllers
         {
             try
             {
-                var posts = await _context.BlogPosts
-                    .Where(p => p.IsPublished)
-                    .OrderByDescending(p => p.IsFeatured)
-                    .ThenByDescending(p => p.PublishedAt)
-                    .Select(p => new BlogPostDto
-                    {
-                        Id = p.Id,
-                        Slug = p.Slug,
-                        Title = p.Title,
-                        Category = p.Category,
-                        Excerpt = p.Excerpt,
-                        Image = p.Image,
-                        ReadTimeMinutes = p.ReadTimeMinutes,
-                        IsFeatured = p.IsFeatured,
-                        PublishedAt = p.PublishedAt
-                    })
-                    .ToListAsync();
+                var response = await _supabase
+                    .From<BlogPostSupabase>()
+                    .Where(x => x.IsPublished == true)
+                    .Order(x => x.IsFeatured, Constants.Ordering.Descending)
+                    .Order(x => x.PublishedAt, Constants.Ordering.Descending)
+                    .Get();
+
+                var posts = response.Models.Select(p => new BlogPostDto
+                {
+                    Id = p.Id,
+                    Slug = p.Slug,
+                    Title = p.Title,
+                    Category = p.Category,
+                    Excerpt = p.Excerpt,
+                    Image = p.Image,
+                    ReadTimeMinutes = p.ReadTimeMinutes,
+                    IsFeatured = p.IsFeatured,
+                    PublishedAt = p.PublishedAt
+                }).ToList();
 
                 return Ok(posts);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error fetching blog posts: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-                
                 return StatusCode(500, new { 
                     message = "Error fetching blog posts",
                     error = ex.Message,
@@ -65,11 +61,16 @@ namespace MyPortfolio.Controllers
         [HttpGet("latest")]
         public async Task<ActionResult<IEnumerable<BlogPostDto>>> GetLatestPosts([FromQuery] int count = 3)
         {
-            var posts = await _context.BlogPosts
-                .Where(p => p.IsPublished)
-                .OrderByDescending(p => p.PublishedAt)
-                .Take(count)
-                .Select(p => new BlogPostDto
+            try
+            {
+                var response = await _supabase
+                    .From<BlogPostSupabase>()
+                    .Where(x => x.IsPublished == true)
+                    .Order(x => x.PublishedAt, Constants.Ordering.Descending)
+                    .Limit(count)
+                    .Get();
+
+                var posts = response.Models.Select(p => new BlogPostDto
                 {
                     Id = p.Id,
                     Slug = p.Slug,
@@ -80,59 +81,85 @@ namespace MyPortfolio.Controllers
                     ReadTimeMinutes = p.ReadTimeMinutes,
                     IsFeatured = p.IsFeatured,
                     PublishedAt = p.PublishedAt
-                })
-                .ToListAsync();
+                }).ToList();
 
-            return Ok(posts);
+                return Ok(posts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    message = "Error fetching latest blog posts",
+                    error = ex.Message
+                });
+            }
         }
 
         // GET: api/blog/{slug}
         [HttpGet("{slug}")]
         public async Task<ActionResult<BlogPostDetailDto>> GetPost(string slug)
         {
-            var post = await _context.BlogPosts
-                .Include(p => p.Author)
-                .FirstOrDefaultAsync(p => p.Slug == slug && p.IsPublished);
-
-            if (post == null)
-                return NotFound(new { message = "Blog post not found" });
-
-            var dto = new BlogPostDetailDto
+            try
             {
-                Id = post.Id,
-                Slug = post.Slug,
-                Title = post.Title,
-                Category = post.Category,
-                Excerpt = post.Excerpt,
-                Content = post.Content,
-                Image = post.Image,
-                Tags = JsonSerializer.Deserialize<List<string>>(post.Tags) ?? new List<string>(),
-                ReadTimeMinutes = post.ReadTimeMinutes,
-                PublishedAt = post.PublishedAt,
-                Author = post.Author != null ? new AuthorDto
-                {
-                    Id = post.Author.Id,
-                    DisplayName = post.Author.DisplayName,
-                    Email = post.Author.Email ?? string.Empty
-                } : null
-            };
+                var post = await _supabase
+                    .From<BlogPostSupabase>()
+                    .Where(x => x.Slug == slug && x.IsPublished == true)
+                    .Single();
 
-            return Ok(dto);
+                if (post == null)
+                    return NotFound(new { message = "Blog post not found" });
+
+                var dto = new BlogPostDetailDto
+                {
+                    Id = post.Id,
+                    Slug = post.Slug,
+                    Title = post.Title,
+                    Category = post.Category,
+                    Excerpt = post.Excerpt,
+                    Content = post.Content,
+                    Image = post.Image,
+                    Tags = JsonSerializer.Deserialize<List<string>>(post.Tags) ?? new List<string>(),
+                    ReadTimeMinutes = post.ReadTimeMinutes,
+                    PublishedAt = post.PublishedAt,
+                    IsFeatured = post.IsFeatured,
+                    // Author information would need to be fetched separately if needed
+                    // For now, returning null as it was optional in the original model
+                    Author = null
+                };
+
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    message = "Error fetching blog post",
+                    error = ex.Message
+                });
+            }
         }
 
         // GET: api/blog/{slug}/related
         [HttpGet("{slug}/related")]
         public async Task<ActionResult<IEnumerable<BlogPostDto>>> GetRelatedPosts(string slug)
         {
-            var currentPost = await _context.BlogPosts.FirstOrDefaultAsync(p => p.Slug == slug);
-            if (currentPost == null)
-                return NotFound();
+            try
+            {
+                var currentPostResponse = await _supabase
+                    .From<BlogPostSupabase>()
+                    .Where(x => x.Slug == slug)
+                    .Get();
 
-            var related = await _context.BlogPosts
-                .Where(p => p.IsPublished && p.Slug != slug && p.Category == currentPost.Category)
-                .OrderByDescending(p => p.PublishedAt)
-                .Take(3)
-                .Select(p => new BlogPostDto
+                var currentPost = currentPostResponse.Models.FirstOrDefault();
+                if (currentPost == null)
+                    return NotFound(new { message = "Blog post not found" });
+
+                var relatedResponse = await _supabase
+                    .From<BlogPostSupabase>()
+                    .Where(x => x.IsPublished == true && x.Slug != slug && x.Category == currentPost.Category)
+                    .Order(x => x.PublishedAt, Constants.Ordering.Descending)
+                    .Limit(3)
+                    .Get();
+
+                var related = relatedResponse.Models.Select(p => new BlogPostDto
                 {
                     Id = p.Id,
                     Slug = p.Slug,
@@ -141,41 +168,67 @@ namespace MyPortfolio.Controllers
                     Excerpt = p.Excerpt,
                     Image = p.Image,
                     ReadTimeMinutes = p.ReadTimeMinutes,
+                    IsFeatured = p.IsFeatured,
                     PublishedAt = p.PublishedAt
-                })
-                .ToListAsync();
+                }).ToList();
 
-            return Ok(related);
+                return Ok(related);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    message = "Error fetching related blog posts",
+                    error = ex.Message
+                });
+            }
         }
 
         // POST: api/blog (Admin only)
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<BlogPost>> CreatePost([FromBody] CreateBlogPostRequest request)
+        public async Task<ActionResult<BlogPostSupabase>> CreatePost([FromBody] CreateBlogPostRequest request)
         {
-            if (await _context.BlogPosts.AnyAsync(p => p.Slug == request.Slug))
-                return BadRequest(new { message = "A post with this slug already exists" });
-
-            var post = new BlogPost
+            try
             {
-                Slug = request.Slug,
-                Title = request.Title,
-                Category = request.Category,
-                Excerpt = request.Excerpt,
-                Content = request.Content,
-                Image = request.Image,
-                Tags = JsonSerializer.Serialize(request.Tags ?? new List<string>()),
-                ReadTimeMinutes = request.ReadTimeMinutes,
-                IsFeatured = request.IsFeatured,
-                IsPublished = request.IsPublished,
-                PublishedAt = request.IsPublished ? DateTime.UtcNow : null,
-                AuthorId = request.AuthorId
-            };
+                // Check if slug exists
+                var existingResponse = await _supabase
+                    .From<BlogPostSupabase>()
+                    .Where(x => x.Slug == request.Slug)
+                    .Get();
 
-            _context.BlogPosts.Add(post);
-            await _context.SaveChangesAsync();
+                if (existingResponse.Models.Any())
+                    return BadRequest(new { message = "A post with this slug already exists" });
 
-            return CreatedAtAction(nameof(GetPost), new { slug = post.Slug }, post);
+                var post = new BlogPostSupabase
+                {
+                    Slug = request.Slug,
+                    Title = request.Title,
+                    Category = request.Category,
+                    Excerpt = request.Excerpt,
+                    Content = request.Content,
+                    Image = request.Image,
+                    Tags = JsonSerializer.Serialize(request.Tags ?? new List<string>()),
+                    ReadTimeMinutes = request.ReadTimeMinutes,
+                    IsFeatured = request.IsFeatured,
+                    IsPublished = request.IsPublished,
+                    PublishedAt = request.IsPublished ? DateTime.UtcNow : null,
+                    AuthorId = request.AuthorId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var response = await _supabase
+                    .From<BlogPostSupabase>()
+                    .Insert(post);
+
+                return CreatedAtAction(nameof(GetPost), new { slug = post.Slug }, response.Models.FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    message = "Error creating blog post",
+                    error = ex.Message
+                });
+            }
         }
     }
 

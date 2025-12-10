@@ -45,23 +45,7 @@ namespace MyPortfolio.Api.Services
             {
                 await SendEmailViaResendAsync(email, resetLink);
             }
-            else
-            {
-                // Development mode: Log to console
-                Console.WriteLine("=".PadRight(80, '='));
-                Console.WriteLine("PASSWORD RESET EMAIL (Development Mode)");
-                Console.WriteLine("=".PadRight(80, '='));
-                Console.WriteLine($"To: {email}");
-                Console.WriteLine($"Reset Link: {resetLink}");
-                Console.WriteLine("=".PadRight(80, '='));
-                Console.WriteLine();
-                Console.WriteLine("To enable email sending, configure Resend in .env:");
-                Console.WriteLine("  RESEND_API_KEY=your-api-key");
-                Console.WriteLine("  RESEND_FROM_EMAIL=noreply@yourdomain.com");
-                Console.WriteLine("  RESEND_FROM_NAME=Your Name");
-                Console.WriteLine("  FRONTEND_URL=http://localhost:3000");
-                Console.WriteLine();
-            }
+            // In development mode without Resend, email is silently skipped
         }
 
         private async Task SendEmailViaResendAsync(string toEmail, string resetLink)
@@ -78,21 +62,13 @@ namespace MyPortfolio.Api.Services
 
                 var response = await _httpClient.PostAsJsonAsync("emails", emailRequest);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Password reset email sent successfully to {toEmail}");
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error sending email via Resend: {response.StatusCode} - {errorContent}");
                     // Don't throw - we don't want to reveal email sending failures to users
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error sending email via Resend: {ex.Message}");
                 // Don't throw - we don't want to reveal email sending failures to users
             }
         }
@@ -107,19 +83,7 @@ namespace MyPortfolio.Api.Services
             {
                 await SendContactEmailViaResendAsync(recipientEmail, fromName, fromEmail, subject, message);
             }
-            else
-            {
-                // Development mode: Log to console
-                Console.WriteLine("=".PadRight(80, '='));
-                Console.WriteLine("CONTACT FORM EMAIL (Development Mode)");
-                Console.WriteLine("=".PadRight(80, '='));
-                Console.WriteLine($"To: {recipientEmail}");
-                Console.WriteLine($"From: {fromName} <{fromEmail}>");
-                Console.WriteLine($"Subject: {subject}");
-                Console.WriteLine($"Message: {message}");
-                Console.WriteLine("=".PadRight(80, '='));
-                Console.WriteLine();
-            }
+            // In development mode without Resend, email is silently skipped
         }
 
         private async Task SendContactEmailViaResendAsync(string recipientEmail, string fromName, string fromEmail, string subject, string message)
@@ -137,20 +101,13 @@ namespace MyPortfolio.Api.Services
 
                 var response = await _httpClient.PostAsJsonAsync("emails", emailRequest);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"Contact form email sent successfully to {recipientEmail}");
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error sending contact form email via Resend: {response.StatusCode} - {errorContent}");
                     // Don't throw - we don't want to reveal email sending failures to users
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error sending contact form email via Resend: {ex.Message}");
                 // Don't throw - we don't want to reveal email sending failures to users
             }
         }

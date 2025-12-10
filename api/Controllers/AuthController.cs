@@ -83,24 +83,14 @@ namespace MyPortfolio.Controllers
             var user = await _userManager.FindByEmailAsync(normalizedEmail ?? string.Empty);
             if (user == null)
             {
-#if DEBUG
-                Console.WriteLine($"Login failed: User not found for email {request.Email}");
-#endif
                 return Unauthorized(new { message = "Invalid credentials" });
             }
 
             var validPassword = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!validPassword)
             {
-#if DEBUG
-                Console.WriteLine($"Login failed: Invalid password for user {user.Email} (ID: {user.Id})");
-#endif
                 return Unauthorized(new { message = "Invalid credentials" });
             }
-
-#if DEBUG
-            Console.WriteLine($"Login successful for user {user.Email} (ID: {user.Id})");
-#endif
 
             var token = _tokenService.CreateToken(user.Id, user.Email ?? string.Empty);
             return Ok(
@@ -179,7 +169,6 @@ namespace MyPortfolio.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error validating reset token: {ex.Message}");
                 return Ok(new { message = "Invalid or expired reset token.", isValid = false });
             }
         }
@@ -235,10 +224,6 @@ namespace MyPortfolio.Controllers
                         ? "The reset token is invalid or has expired. Please request a new password reset link."
                         : string.Join(" ", errorMessages);
                     
-#if DEBUG
-                    Console.WriteLine($"Password reset failed for user {user.Email}: {string.Join(", ", errorMessages)}");
-#endif
-                    
                     return BadRequest(new
                     {
                         message = mainMessage,
@@ -254,9 +239,6 @@ namespace MyPortfolio.Controllers
                 var refreshedUser = await _userManager.FindByIdAsync(user.Id);
                 if (refreshedUser == null)
                 {
-#if DEBUG
-                    Console.WriteLine($"ERROR: Could not reload user {user.Id} after password reset");
-#endif
                     return StatusCode(500, new { 
                         message = "Password was reset but user could not be verified. Please try logging in." 
                     });
@@ -266,34 +248,17 @@ namespace MyPortfolio.Controllers
                 var passwordCheck = await _userManager.CheckPasswordAsync(refreshedUser, request.NewPassword);
                 if (!passwordCheck)
                 {
-#if DEBUG
-                    Console.WriteLine($"WARNING: Password reset succeeded but password verification failed for user {refreshedUser.Email}");
-                    Console.WriteLine($"Password hash exists: {!string.IsNullOrEmpty(refreshedUser.PasswordHash)}");
-#endif
                     return StatusCode(500, new { 
                         message = "Password was reset but verification failed. Please try logging in, or request a new reset link if login fails." 
                     });
                 }
 
-#if DEBUG
-                Console.WriteLine($"Password successfully reset for user {refreshedUser.Email} (ID: {refreshedUser.Id})");
-                Console.WriteLine($"Password hash updated: {!string.IsNullOrEmpty(refreshedUser.PasswordHash)}");
-#endif
-                
                 // Password has been successfully reset and saved to the database
                 // The token is now invalidated (one-time use)
                 return Ok(new { message = "Password has been reset successfully. You can now login with your new password." });
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging
-#if DEBUG
-                Console.WriteLine($"Error resetting password: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-#else
-                _ = ex; // Suppress unused variable warning in release
-#endif
-                
                 return StatusCode(500, new { 
                     message = "An error occurred while resetting your password. Please try again or request a new reset link." 
                 });

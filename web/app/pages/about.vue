@@ -32,7 +32,7 @@
       <SectionsAboutAchievements :achievements-data="aboutData.achievements" />
 
       <!-- Call to Action -->
-      <SectionsCallToAction :cta-data="aboutData.callToAction" />
+      <SectionsCallToAction :cta-data="aboutData.callToAction" exit-animation-key="aboutCTA" />
     </div>
   </div>
 </template>

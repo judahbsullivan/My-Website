@@ -66,8 +66,7 @@ namespace MyPortfolio.Controllers
             }
             catch (Exception ex)
             {
-                // Log error but don't fail the request - message is already saved
-                Console.WriteLine($"Error sending contact form email: {ex.Message}");
+                // Error sending email - message is already saved, so don't fail the request
             }
 
             return Ok(new { message = "Message sent successfully" });
