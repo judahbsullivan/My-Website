@@ -39,8 +39,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useNuxtApp } from '#app'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
-import { useGSAP } from '../../composables/useGSAP'
 
 interface Props {
   educationData: {
@@ -76,32 +76,34 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-async function setupScrollAnimation() {
+function setupScrollAnimation() {
   if (import.meta.server) return
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
+  if (!gsap) return
 
-  const { waitForReady } = useGSAP()
-  const { gsap: readyGsap, ScrollTrigger: readyST, SplitText } = await waitForReady()
-  if (!readyGsap || !readyST) {
-    console.warn('GSAP or ScrollTrigger not available')
-    return
-  }
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) gsap.registerPlugin(ScrollTrigger)
 
-  await nextTick()
-
+    nextTick(() => {
       const bentoBox = resolveEl(bentoBoxRef.value)
       const title = titleRef.value
       const items = eduItemRefs.value.filter(Boolean) as HTMLElement[]
 
       if (!bentoBox || !title) return
 
-  readyGsap.set(bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
-  readyGsap.set(title, { opacity: 0, y: 20 })
-  if (items.length > 0) readyGsap.set(items, { opacity: 0, y: 20 })
+      // initial
+      gsap.set(bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
+      gsap.set(title, { opacity: 0, y: 20 })
+      if (items.length > 0) gsap.set(items, { opacity: 0, y: 20 })
 
+      // SplitText for title
       let titleSplit: any = null
       try {
         if (SplitText) {
-      readyGsap.set(title, { lineHeight: '0.9' })
+          gsap.set(title, { lineHeight: '0.9' })
           titleSplit = new SplitText(title, {
             type: 'chars',
             mask: 'chars',
@@ -110,7 +112,7 @@ async function setupScrollAnimation() {
           })
           if (titleSplit.chars && titleSplit.chars.length > 0) {
             titleSplit.chars.forEach((char: HTMLElement) => {
-          readyGsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
+              gsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
             })
           }
         }
@@ -118,7 +120,7 @@ async function setupScrollAnimation() {
         titleSplit = null
       }
 
-  const tl = readyGsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: bentoBox,
           start: 'top 80%',
@@ -160,14 +162,18 @@ async function setupScrollAnimation() {
 
       scrollTriggers.push(tl)
       storedElements = { bentoBox, title, items }
-  setTimeout(() => readyST.refresh(), 100)
+    })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
+  })
 }
 
 function animateExit(): Promise<void> {
   return new Promise((resolve) => {
     if (import.meta.server) return resolve()
-    const { gsap: readyGsap } = useGSAP()
-    if (!readyGsap) return resolve()
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+    if (!gsap) return resolve()
 
     const bentoBox = storedElements.bentoBox || resolveEl(bentoBoxRef.value)
     const title = storedElements.title || titleRef.value
@@ -177,7 +183,7 @@ function animateExit(): Promise<void> {
 
     if (!bentoBox) return resolve()
 
-    const tl = readyGsap.timeline({
+    const tl = gsap.timeline({
       onComplete: () => resolve()
     })
 

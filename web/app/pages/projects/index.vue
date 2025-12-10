@@ -1,48 +1,140 @@
 <template>
   <div class="min-h-screen pt-24 pb-12">
-    <div class="px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
-      <SectionsContentHeader :header-data="headerData" exit-animation-key="projectsHeader" />
+    <div class="px-4 sm:px-6 lg:px-8 ">
+      <!-- Header -->
+      <div class="mb-12">
+        <UiTitle as="h1" size="4xl" weight="bold" align="left" class="text-3xl sm:text-4xl mb-4">
+          Projects
+        </UiTitle>
+        <p class="text-base sm:text-lg text-muted-foreground max-w-2xl leading-relaxed">
+          A collection of my work, from web applications to design systems and everything in between.
+        </p>
+      </div>
 
-      <SectionsContentLoadingState 
-        v-if="pending" 
-        loading-text="Loading projects..."
-        exit-animation-key="projectsLoadingState"
-      />
-      <SectionsContentErrorState 
-        v-else-if="error"
-        title="Something went wrong"
-        message="Unable to load projects right now. Please try again shortly."
-        exit-animation-key="projectsErrorState"
-      />
-      <template v-else>
-        <SectionsProjectsFeatured
-          v-if="hasFeaturedProjects"
-          :projects="featuredProjects"
-        />
+      <!-- Loading State -->
+      <div v-if="pending" class="text-center py-12">
+        <Icon name="heroicons:arrow-path" class="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-4" />
+        <p class="text-muted-foreground">Loading projects...</p>
+      </div>
 
-        <SectionsProjectsGrid
-          v-if="hasRegularProjects"
-          :projects="regularProjects"
-        />
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <Icon name="heroicons:exclamation-triangle" class="w-16 h-16 text-danger mx-auto mb-4" />
+        <p class="text-muted-foreground">No Projects yet. Check back soon!</p>
+      </div>
 
-        <SectionsContentEmptyState
-          v-else-if="!hasFeaturedProjects && !hasRegularProjects"
-          icon="heroicons:folder"
-          title="No projects yet"
-          message="Check back soon for new projects!"
-          exit-animation-key="projectsEmptyState"
-        />
-      </template>
+      <!-- Projects Grid -->
+      <div v-else-if="projects && projects.length > 0" class="space-y-6">
+        <!-- Featured Projects -->
+        <div v-if="featuredProjects && featuredProjects.length > 0" class="mb-8">
+          <h2 class="text-2xl font-bold text-foreground mb-6">Featured</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <NuxtLink
+              v-for="(project, index) in featuredProjects"
+              :key="project.id"
+              :to="`/projects/${project.slug}`"
+              class="group"
+            >
+              <UiBentoBox
+                :size="'lg'"
+                :variant="getVariant(index)"
+                :hover="true"
+                :className="'flex-col items-start justify-between h-full'"
+              >
+                <div class="w-full">
+                  <div v-if="project.imageUrl" class="mb-4 rounded-lg overflow-hidden aspect-video bg-muted">
+                    <img
+                      :src="getImageUrl(project.imageUrl)"
+                      :alt="project.title"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div v-else class="mb-4 rounded-lg aspect-video bg-muted flex items-center justify-center">
+                    <Icon name="heroicons:folder" class="w-12 h-12 text-muted-foreground" />
+                  </div>
+                  <div class="flex items-center gap-2 mb-3">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary/20 text-primary">
+                      {{ project.category }}
+                    </span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-secondary/20 text-blue-500">
+                      {{ project.year }}
+                    </span>
+                    <span v-if="project.isFeatured" class="px-2 py-1 text-xs font-medium rounded-full bg-amber-500/20 text-amber-500">
+                      Featured
+                    </span>
+                  </div>
+                  <h3 class="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                    {{ project.title }}
+                  </h3>
+                  <p class="text-sm text-muted-foreground line-clamp-3">
+                    {{ project.description }}
+                  </p>
+                </div>
+              </UiBentoBox>
+            </NuxtLink>
+          </div>
+        </div>
 
-      <!-- Call to Action -->
-      <SectionsCallToAction :cta-data="ctaData" exit-animation-key="projectsCTA" />
+        <!-- All Projects -->
+        <div>
+          <h2 class="text-2xl font-bold text-foreground mb-6">All Projects</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <NuxtLink
+              v-for="(project, index) in regularProjects"
+              :key="project.id"
+              :to="`/projects/${project.slug}`"
+              class="group"
+            >
+              <UiBentoBox
+                :size="'md'"
+                :variant="getVariant(index)"
+                :hover="true"
+                :className="'flex-col items-start justify-between h-full'"
+              >
+                <div class="w-full">
+                  <div v-if="project.imageUrl" class="mb-3 rounded-lg overflow-hidden aspect-video bg-muted">
+                    <img
+                      :src="getImageUrl(project.imageUrl)"
+                      :alt="project.title"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div v-else class="mb-3 rounded-lg aspect-video bg-muted flex items-center justify-center">
+                    <Icon name="heroicons:folder" class="w-10 h-10 text-muted-foreground" />
+                  </div>
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-secondary/20 text-blue-500">
+                      {{ project.category }}
+                    </span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-muted text-foreground">
+                      {{ project.year }}
+                    </span>
+                  </div>
+                  <h3 class="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                    {{ project.title }}
+                  </h3>
+                  <p class="text-sm text-muted-foreground line-clamp-2">
+                    {{ project.description }}
+                  </p>
+                </div>
+              </UiBentoBox>
+            </NuxtLink>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="text-center py-12">
+        <Icon name="heroicons:folder" class="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+        <h2 class="text-2xl font-bold mb-2">No projects yet</h2>
+        <p class="text-muted-foreground">Check back soon for new projects!</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Project } from '~/../../shared/types'
-import { runAllExitAnimations } from '~/composables/usePageExitAnimations'
 
 const config = useRuntimeConfig()
 const apiBase = config.public.apiBase
@@ -51,51 +143,7 @@ useHead({
   title: 'Projects | Judah Sullivan',
 })
 
-definePageMeta({
-  pageTransition: {
-    name: 'projects-page',
-    mode: 'out-in',
-    onLeave: async (_el: Element, done: () => void) => {
-      if (import.meta.server) return done()
-      try {
-        await runAllExitAnimations()
-      } catch (e) {
-        console.warn('[Projects] Exit animation error:', e)
-      }
-      done()
-    },
-    onEnter: async (_el: Element, done: () => void) => {
-      if (import.meta.server) return done()
-      
-      // Scroll to top immediately before enter animation begins
-      const nuxtApp = useNuxtApp()
-      const smoother = (nuxtApp.$scrollSmoother as any) || (typeof window !== 'undefined' && (window as any).ScrollSmoother?.get())
-      
-      if (smoother && typeof smoother.scrollTop === 'function') {
-        smoother.scrollTop(0) // Scroll to top
-      } else {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      }
-      
-      // Refresh ScrollTrigger when page enters
-      const { ScrollTrigger } = useGSAP()
-        if (ScrollTrigger) {
-        nextTick(() => {
-            ScrollTrigger.refresh()
-            setTimeout(() => ScrollTrigger.refresh(), 100)
-            setTimeout(() => ScrollTrigger.refresh(), 300)
-        })
-        }
-        done()
-    }
-  }
-})
-
-const headerData = {
-  title: 'Projects',
-  description: 'A collection of my work, from web applications to design systems and everything in between.'
-}
-
+// Fetch projects
 const { data: projects, pending, error } = await useFetch<Project[]>(
   `${apiBase}/api/projects`,
   {
@@ -103,6 +151,7 @@ const { data: projects, pending, error } = await useFetch<Project[]>(
   }
 )
 
+// Separate featured and regular projects
 const featuredProjects = computed(() => {
   return projects.value?.filter(project => project.isFeatured) || []
 })
@@ -111,23 +160,25 @@ const regularProjects = computed(() => {
   return projects.value?.filter(project => !project.isFeatured) || []
 })
 
-const hasFeaturedProjects = computed(() => featuredProjects.value.length > 0)
-const hasRegularProjects = computed(() => regularProjects.value.length > 0)
-
-const ctaData = {
-  icon: 'heroicons:document-text',
-  title: 'Want to Read More?',
-  description: 'Check out my latest articles on web development, design, and technology.',
-  background: 'bg-foreground dark:bg-foreground/90 text-secondary dark:text-secondary',
-  primaryButton: {
-    text: 'Read My Blog',
-    to: '/blog',
-    icon: 'heroicons:document-text'
-  },
-  secondaryButton: {
-    text: 'Get in Touch',
-    to: '/contact',
-    icon: 'heroicons:envelope'
+// Get full image URL
+const getImageUrl = (url?: string | null): string => {
+  if (!url) return ''
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
   }
+  return `${apiBase}${url}`
+}
+
+// Get variant based on index to cycle through different colors
+const getVariant = (index: number): 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'default' => {
+  const variants: Array<'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'default'> = [
+    'primary',
+    'secondary',
+    'success',
+    'info',
+    'warning',
+    'default'
+  ]
+  return variants[index % variants.length] || 'default'
 }
 </script>

@@ -778,23 +778,22 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-async function setupScrollAnimations() {
+function setupScrollAnimations() {
   if (import.meta.server) return
   
-  const { gsap, ScrollTrigger, waitForReady } = useGSAP()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
   
   if (!gsap) return
   
-  // Wait for ScrollTrigger to be ready
-  const { gsap: readyGsap, ScrollTrigger: readyST } = await waitForReady()
-  
-  if (!readyGsap || !readyST) {
-    console.warn('ScrollTrigger not available')
-    return
+  // Import ScrollTrigger
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) {
+      gsap.registerPlugin(ScrollTrigger)
     }
     
-  await nextTick()
-  
+    nextTick(() => {
       // Animate About Me box with inner content
       createAboutMeReveal()
       // Animate Social Box below About Me
@@ -805,12 +804,22 @@ async function setupScrollAnimations() {
       createAvatarBoxReveal()
       // Animate What I Do box with inner content
       createWhatIDoReveal()
+    })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
+  })
 }
 
 function createAboutMeReveal() {
-  const { gsap, ScrollTrigger, SplitText } = useGSAP()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
   
-  if (!gsap || !ScrollTrigger) return
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
     
     const box = resolveEl(aboutBoxRef.value)
     const titleComponent = aboutTitleRef.value as any
@@ -903,12 +912,18 @@ function createAboutMeReveal() {
     console.log('[WhatIDo] Stored About Me elements for exit')
     
     scrollTriggers.push(tl)
+  })
 }
 
 function createSocialBoxReveal() {
-  const { gsap, ScrollTrigger } = useGSAP()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
   
-  if (!gsap || !ScrollTrigger) return
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
     
     const box = resolveEl(socialBoxRef.value)
     
@@ -953,12 +968,19 @@ function createSocialBoxReveal() {
     console.log('[WhatIDo] Stored Social Box element for exit')
     
     scrollTriggers.push(tl)
+  })
 }
 
 function createQuickFactsReveal() {
-  const { gsap, ScrollTrigger, SplitText } = useGSAP()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
   
-  if (!gsap || !ScrollTrigger) return
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
     
     const box = resolveEl(factsBoxRef.value)
     const titleComponent = factsTitleRef.value as any
@@ -1032,12 +1054,19 @@ function createQuickFactsReveal() {
     console.log('[WhatIDo] Stored Quick Facts elements for exit')
     
     scrollTriggers.push(tl)
+  })
 }
 
 function createAvatarBoxReveal() {
-  const { gsap, ScrollTrigger, SplitText } = useGSAP()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
   
-  if (!gsap || !ScrollTrigger) return
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
     
     const box = resolveEl(avatarBoxRef.value)
     const innerBox1 = resolveEl(innerBox1Ref.value)
@@ -1086,12 +1115,19 @@ function createAvatarBoxReveal() {
     console.log('[WhatIDo] Stored Avatar Box elements for exit')
     
     scrollTriggers.push(tl)
+  })
 }
 
 function createWhatIDoReveal() {
-  const { gsap, ScrollTrigger, SplitText } = useGSAP()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
   
-  if (!gsap || !ScrollTrigger) return
+  if (!gsap) return
+  
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (!ScrollTrigger) return
     
     const box = resolveEl(whatIDoBoxRef.value)
     const titleComponent = whatIDoTitleRef.value as any
@@ -1203,6 +1239,7 @@ function createWhatIDoReveal() {
     console.log('[WhatIDo] Stored What I Do elements for exit')
     
     scrollTriggers.push(tl)
+  })
 }
 
 // Exit animation - mirrors the enter animation for all boxes

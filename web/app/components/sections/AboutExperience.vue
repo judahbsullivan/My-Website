@@ -122,8 +122,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useNuxtApp } from '#app'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
-import { useGSAP } from '../../composables/useGSAP'
 
 interface Props {
   experienceData: {
@@ -197,19 +197,23 @@ function calculateLineHeight() {
   })
 }
 
-async function setupScrollAnimation() {
+function setupScrollAnimation() {
   if (import.meta.server) return
   
-  const { waitForReady } = useGSAP()
-  const { gsap: readyGsap, ScrollTrigger: readyST, SplitText } = await waitForReady()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  const SplitText = nuxtApp.$SplitText as any
   
-  if (!readyGsap || !readyST) {
-    console.warn('GSAP or ScrollTrigger not available for AboutExperience')
-    return
-  }
+  if (!gsap) return
   
-  await nextTick()
-
+  // Import ScrollTrigger
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) {
+      gsap.registerPlugin(ScrollTrigger)
+    }
+    
+    nextTick(() => {
       const section = resolveEl(sectionRef.value)
       const container = timelineContainerRef.value
       const fillEl = timelineFillRef.value
@@ -217,6 +221,7 @@ async function setupScrollAnimation() {
       
       if (!section || !container) return
       
+      // Store elements for exit
       const timelineItemsAll = Array.from(container.querySelectorAll('.timeline-item')) as HTMLElement[]
       storedElements = {
         bentoBox: section,
@@ -224,13 +229,14 @@ async function setupScrollAnimation() {
         items: timelineItemsAll
       }
       
+      // Container + headline + items entrance (bounce like home)
       const headlineEl = storedElements.headline
       if (storedElements.bentoBox) {
-    readyGsap.set(storedElements.bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
-    if (headlineEl) readyGsap.set(headlineEl, { opacity: 0, y: 20 })
-    if (timelineItemsAll.length > 0) readyGsap.set(timelineItemsAll, { opacity: 0, y: 30 })
+        gsap.set(storedElements.bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
+        if (headlineEl) gsap.set(headlineEl, { opacity: 0, y: 20 })
+        if (timelineItemsAll.length > 0) gsap.set(timelineItemsAll, { opacity: 0, y: 30 })
         
-    const enterTl = readyGsap.timeline({
+        const enterTl = gsap.timeline({
           scrollTrigger: {
             trigger: storedElements.bentoBox,
             start: 'top 80%',
@@ -263,12 +269,13 @@ async function setupScrollAnimation() {
         scrollTriggers.push(enterTl)
       }
       
+      // Animate headline
       const headlineElAnim = section.querySelector('.experience-headline') as HTMLElement
       if (headlineElAnim) {
         let headlineSplit: any = null
         try {
           if (SplitText) {
-        readyGsap.set(headlineElAnim, { lineHeight: '0.9' })
+            gsap.set(headlineElAnim, { lineHeight: '0.9' })
             headlineSplit = new SplitText(headlineElAnim, {
               type: 'chars',
               mask: 'chars',
@@ -277,7 +284,7 @@ async function setupScrollAnimation() {
             })
             if (headlineSplit.chars && headlineSplit.chars.length > 0) {
               headlineSplit.chars.forEach((char: HTMLElement) => {
-            readyGsap.set(char, {
+                gsap.set(char, {
                   opacity: 0,
                   yPercent: 120,
                   rotationX: -90,
@@ -290,7 +297,7 @@ async function setupScrollAnimation() {
           // SplitText failed
         }
         
-    const headlineTl = readyGsap.timeline({
+        const headlineTl = gsap.timeline({
           scrollTrigger: {
             trigger: section,
             start: 'top 85%',
@@ -325,6 +332,7 @@ async function setupScrollAnimation() {
         scrollTriggers.push(headlineTl)
       }
       
+      // Animate each timeline item individually
       const timelineItems = container.querySelectorAll('.timeline-item')
       const dots: Array<{ y: number; inner: HTMLElement; outer: HTMLElement; filled: boolean }> = []
       
@@ -338,15 +346,15 @@ async function setupScrollAnimation() {
         const dotOuter = item.querySelector('.timeline-dot') as HTMLElement
         
         // Set initial states
-    if (companyEl) readyGsap.set(companyEl, { y: 20, autoAlpha: 0 })
-    if (dateEl) readyGsap.set(dateEl, { y: 20, autoAlpha: 0 })
-    if (titleEl) readyGsap.set(titleEl, { y: 20, autoAlpha: 0 })
-    if (locationEl) readyGsap.set(locationEl, { y: 20, autoAlpha: 0 })
-    if (bulletsEl) readyGsap.set(bulletsEl.querySelectorAll('li'), { y: 20, autoAlpha: 0 })
-    if (dotInner) readyGsap.set(dotInner, { scale: 0.8, backgroundColor: 'var(--foreground)', backgroundImage: 'none' })
-    if (dotOuter) readyGsap.set(dotOuter, { backgroundImage: 'none' })
+        if (companyEl) gsap.set(companyEl, { y: 20, autoAlpha: 0 })
+        if (dateEl) gsap.set(dateEl, { y: 20, autoAlpha: 0 })
+        if (titleEl) gsap.set(titleEl, { y: 20, autoAlpha: 0 })
+        if (locationEl) gsap.set(locationEl, { y: 20, autoAlpha: 0 })
+        if (bulletsEl) gsap.set(bulletsEl.querySelectorAll('li'), { y: 20, autoAlpha: 0 })
+        if (dotInner) gsap.set(dotInner, { scale: 0.8, backgroundColor: 'var(--foreground)', backgroundImage: 'none' })
+        if (dotOuter) gsap.set(dotOuter, { backgroundImage: 'none' })
         
-    const itemTl = readyGsap.timeline({
+        const itemTl = gsap.timeline({
           scrollTrigger: {
             trigger: item as Element,
             start: 'top 85%',
@@ -396,8 +404,9 @@ async function setupScrollAnimation() {
         scrollTriggers.push(itemTl)
       })
       
+      // Animate fill line with scroll progress (desktop)
       if (fillEl) {
-    const setter = readyGsap.quickSetter(fillEl, 'height', 'px')
+        const setter = gsap.quickSetter(fillEl, 'height', 'px')
         const maxDotY = dots.length ? Math.max(...dots.map(d => d.y)) : 0
         const total = (maxDotY ? Math.max(0, maxDotY - 2) : 0) || (lineHeight.value > 0 ? Math.max(0, lineHeight.value - 2) : 400)
         
@@ -405,7 +414,7 @@ async function setupScrollAnimation() {
           try {
             const rect = container.getBoundingClientRect()
             if (rect.width > 0 || rect.height > 0) {
-          const st = readyST.create({
+              const st = ScrollTrigger.create({
                 trigger: container,
                 start: 'top 40%',
                 end: `+=${total}`,
@@ -413,30 +422,31 @@ async function setupScrollAnimation() {
                   const h = Math.min(total, total * self.progress)
                   setter(h)
                   
+                  // Fill dots as the line reaches them
                   const current = h
                   dots.forEach((d) => {
                     if (!d.filled && current >= d.y) {
                       d.filled = true
-                  readyGsap.to(d.inner, {
+                      gsap.to(d.inner, {
                         backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.95), rgba(168,85,247,0.95))',
                         backgroundColor: 'transparent',
                         duration: 0.2,
                         ease: 'power1.out'
                       })
-                  readyGsap.to(d.outer, {
+                      gsap.to(d.outer, {
                         backgroundImage: 'linear-gradient(to bottom, rgba(59,130,246,0.2), rgba(168,85,247,0.2))',
                         duration: 0.2,
                         ease: 'power1.out'
                       })
                     } else if (d.filled && current < d.y) {
                       d.filled = false
-                  readyGsap.to(d.inner, {
+                      gsap.to(d.inner, {
                         backgroundImage: 'none',
                         backgroundColor: 'var(--foreground)',
                         duration: 0.2,
                         ease: 'power1.out'
                       })
-                  readyGsap.to(d.outer, {
+                      gsap.to(d.outer, {
                         backgroundImage: 'none',
                         duration: 0.2,
                         ease: 'power1.out'
@@ -453,8 +463,9 @@ async function setupScrollAnimation() {
         }
       }
       
+      // Animate fill line with scroll progress (mobile)
       if (fillElMobile) {
-    const setterMobile = readyGsap.quickSetter(fillElMobile, 'height', 'px')
+        const setterMobile = gsap.quickSetter(fillElMobile, 'height', 'px')
         const maxDotY = dots.length ? Math.max(...dots.map(d => d.y)) : 0
         const scrollHeight = container?.scrollHeight || 0
         const totalMobile = (maxDotY ? Math.max(0, maxDotY - 2) : 0) || (scrollHeight > 0 ? scrollHeight : 400)
@@ -463,7 +474,7 @@ async function setupScrollAnimation() {
           try {
             const rect = container.getBoundingClientRect()
             if (rect.width > 0 || rect.height > 0) {
-          const st = readyST.create({
+              const st = ScrollTrigger.create({
                 trigger: container,
                 start: 'top 25%',
                 end: `+=${totalMobile}`,
@@ -474,26 +485,26 @@ async function setupScrollAnimation() {
                   dots.forEach((d) => {
                     if (!d.filled && h >= d.y) {
                       d.filled = true
-                  readyGsap.to(d.inner, {
+                      gsap.to(d.inner, {
                         backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.95), rgba(168,85,247,0.95))',
                         backgroundColor: 'transparent',
                         duration: 0.2,
                         ease: 'power1.out'
                       })
-                  readyGsap.to(d.outer, {
+                      gsap.to(d.outer, {
                         backgroundImage: 'linear-gradient(to bottom, rgba(59,130,246,0.2), rgba(168,85,247,0.2))',
                         duration: 0.2,
                         ease: 'power1.out'
                       })
                     } else if (d.filled && h < d.y) {
                       d.filled = false
-                  readyGsap.to(d.inner, {
+                      gsap.to(d.inner, {
                         backgroundImage: 'none',
                         backgroundColor: 'var(--foreground)',
                         duration: 0.2,
                         ease: 'power1.out'
                       })
-                  readyGsap.to(d.outer, {
+                      gsap.to(d.outer, {
                         backgroundImage: 'none',
                         duration: 0.2,
                         ease: 'power1.out'
@@ -509,22 +520,18 @@ async function setupScrollAnimation() {
           }
         }
       }
-  
-  setTimeout(() => {
-    try {
-      readyST.refresh()
-    } catch (error) {
-      console.warn('ScrollTrigger refresh failed in AboutExperience:', error)
-    }
-  }, 100)
+    })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
+  })
 }
 
 function animateExit(): Promise<void> {
   return new Promise((resolve) => {
     if (import.meta.server) return resolve()
-    
-    const { gsap: readyGsap } = useGSAP()
-    if (!readyGsap) return resolve()
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+    if (!gsap) return resolve()
     
     const bentoBox = storedElements.bentoBox || resolveEl(sectionRef.value)
     const headline = storedElements.headline || (bentoBox?.querySelector('.experience-headline') as HTMLElement | null)
@@ -534,7 +541,7 @@ function animateExit(): Promise<void> {
     
     if (!bentoBox) return resolve()
     
-    const tl = readyGsap.timeline({
+    const tl = gsap.timeline({
       onComplete: () => resolve()
     })
     

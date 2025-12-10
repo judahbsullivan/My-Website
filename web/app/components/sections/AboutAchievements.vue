@@ -20,8 +20,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { useNuxtApp } from '#app'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
-import { useGSAP } from '../../composables/useGSAP'
 
 interface Props {
   achievementsData: {
@@ -62,26 +62,25 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-async function setupScrollAnimation() {
+function setupScrollAnimation() {
   if (import.meta.server) return
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+  if (!gsap) return
 
-  const { waitForReady } = useGSAP()
-  const { gsap: readyGsap, ScrollTrigger: readyST } = await waitForReady()
-  if (!readyGsap || !readyST) {
-    console.warn('GSAP or ScrollTrigger not available')
-    return
-  }
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) gsap.registerPlugin(ScrollTrigger)
 
-  await nextTick()
-
+    nextTick(() => {
       const grid = gridRef.value
       const items = achievementRefs.value.map(resolveEl).filter(Boolean) as HTMLElement[]
       if (!grid) return
 
-  readyGsap.set(grid, { opacity: 0, scale: 0.9, rotation: -3 })
-  if (items.length > 0) readyGsap.set(items, { opacity: 0, y: 20, scale: 0.9, rotation: -3 })
+      gsap.set(grid, { opacity: 0, scale: 0.9, rotation: -3 })
+      if (items.length > 0) gsap.set(items, { opacity: 0, y: 20, scale: 0.9, rotation: -3 })
 
-  const tl = readyGsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: grid,
           start: 'top 80%',
@@ -111,14 +110,18 @@ async function setupScrollAnimation() {
 
       scrollTriggers.push(tl)
       storedElements = { grid, items }
-  setTimeout(() => readyST.refresh(), 100)
+    })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
+  })
 }
 
 function animateExit(): Promise<void> {
   return new Promise((resolve) => {
     if (import.meta.server) return resolve()
-    const { gsap: readyGsap } = useGSAP()
-    if (!readyGsap) return resolve()
+    const nuxtApp = useNuxtApp()
+    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+    if (!gsap) return resolve()
 
     const grid = storedElements.grid || gridRef.value
     const items = storedElements.items && storedElements.items.length > 0
@@ -127,7 +130,7 @@ function animateExit(): Promise<void> {
 
     if (!grid) return resolve()
 
-    const tl = readyGsap.timeline({ onComplete: () => resolve() })
+    const tl = gsap.timeline({ onComplete: () => resolve() })
     const contentDuration = 0.5
 
     if (items.length > 0) {

@@ -145,17 +145,10 @@ function setupScrollAnimation() {
   
   if (!gsap) return
   
-  const { ScrollTrigger: st, waitForReady } = useGSAP()
-  
-  if (!st) {
-    console.warn('ScrollTrigger not available')
-    return
-  }
-  
-  waitForReady().then(({ gsap: readyGsap, ScrollTrigger: readyST }) => {
-    if (!readyGsap || !readyST) {
-      console.warn('ScrollTrigger not ready')
-      return
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) {
+      gsap.registerPlugin(ScrollTrigger)
     }
     
     nextTick(() => {
@@ -167,7 +160,7 @@ function setupScrollAnimation() {
       if (!box) return
       
       // Create timeline with ScrollTrigger
-      const tl = readyGsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: box,
           start: 'top 85%',
@@ -193,7 +186,7 @@ function setupScrollAnimation() {
       
       // 3. Start marquee animations after entrance completes
       tl.call(() => {
-        startMarquees(readyGsap)
+        startMarquees(gsap)
       })
       
       // Store DOM elements for exit animation
@@ -202,6 +195,8 @@ function setupScrollAnimation() {
       
       scrollTriggers.push(tl)
     })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
   })
 }
 

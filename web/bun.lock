@@ -25,6 +25,9 @@
         "vue": "^3.5.25",
         "vue-router": "^4.6.3",
       },
+      "devDependencies": {
+        "@hypernym/nuxt-gsap": "^2.4.3",
+      },
     },
   },
   "packages": {
@@ -203,6 +206,8 @@
     "@humanwhocodes/module-importer": ["@humanwhocodes/module-importer@1.0.1", "", {}, "sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA=="],
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
+
+    "@hypernym/nuxt-gsap": ["@hypernym/nuxt-gsap@2.4.3", "", { "dependencies": { "gsap": "^3.12.5" } }, "sha512-l3m7Z6NHWqPtz5Q7o18WKW1vOu0XVHtNZurRdE+Es5zKWdIUoHd6L5mNz440drE0bzCN7jIDicRlE5fcj30rpQ=="],
 
     "@iconify/collections": ["@iconify/collections@1.0.621", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-md55k0SUK3ICEsqh9lEUVuu2upGCgzT0AqtLCq/74lE8Jp7G1wl8BtyDBls+YqpSFUeIyN082qmVFqFF6a0KYA=="],
 

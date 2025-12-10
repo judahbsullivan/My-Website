@@ -41,21 +41,6 @@ definePageMeta({
       }
       
       done()
-    },
-    onEnter: async (_el: Element, done: () => void) => {
-      if (import.meta.server) return done()
-      
-      // Scroll to top immediately before enter animation begins
-      const nuxtApp = useNuxtApp()
-      const smoother = (nuxtApp.$scrollSmoother as any) || (typeof window !== 'undefined' && (window as any).ScrollSmoother?.get())
-      
-      if (smoother && typeof smoother.scrollTop === 'function') {
-        smoother.scrollTop(0) // Scroll to top
-      } else {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-      }
-      
-      done()
     }
   }
 })

@@ -7,19 +7,12 @@ export default defineNuxtPlugin({
     const { isIntroLoaderComplete } = useIntroLoader()
     
     // Wait for DOM and intro loader to be ready
-    const initScrollSmoother = async () => {
-      // Get GSAP from nuxtApp (provided by gsap.client.ts plugin)
+    const initScrollSmoother = () => {
       const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
       const ScrollSmoother = (nuxtApp.$ScrollSmoother as any) || (typeof window !== 'undefined' && (window as any).ScrollSmoother)
-      const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
 
       if (!gsap || !ScrollSmoother) {
         console.warn('GSAP or ScrollSmoother not available')
-        return
-      }
-
-      // Prevent redefining provided smoother
-      if ((nuxtApp as any).$scrollSmoother) {
         return
       }
 
@@ -71,30 +64,11 @@ export default defineNuxtPlugin({
       }
     }
 
-    // Refresh ScrollTrigger after intro completes
-    const refreshScrollTrigger = () => {
-      const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
-      if (ScrollTrigger) {
-        // Wait for next tick to ensure DOM is ready
-        nextTick(() => {
-          ScrollTrigger.refresh()
-          // Additional refreshes to ensure everything is properly initialized
-          setTimeout(() => ScrollTrigger.refresh(), 100)
-          setTimeout(() => ScrollTrigger.refresh(), 300)
-        })
-      }
-    }
-
     // Wait for intro loader to complete before initializing
     const checkAndInit = () => {
       if (isIntroLoaderComplete.value) {
-        // Small delay to ensure layout is ready and ScrollTrigger is registered
-        nextTick(() => {
-        setTimeout(() => {
-          initScrollSmoother()
-          refreshScrollTrigger()
-        }, 300)
-        })
+        // Small delay to ensure layout is ready
+        setTimeout(initScrollSmoother, 300)
       } else {
         // Check again after a short delay
         setTimeout(checkAndInit, 100)
@@ -111,6 +85,11 @@ export default defineNuxtPlugin({
       provide: {
         scrollSmoother: () => nuxtApp.$scrollSmoother
       }
+    }
+  },
+  hooks: {
+    'app:beforeMount'() {
+      // Additional initialization if needed
     }
   }
 })

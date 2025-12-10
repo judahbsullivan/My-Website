@@ -145,21 +145,22 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-async function setupScrollAnimation() {
+function setupScrollAnimation() {
   if (import.meta.server) return
   
-  const { gsap, ScrollTrigger, waitForReady } = useGSAP()
+  const nuxtApp = useNuxtApp()
+  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
   
-  // Wait for ScrollTrigger to be ready
-  const { gsap: readyGsap, ScrollTrigger: readyST } = await waitForReady()
+  if (!gsap) return
   
-  if (!readyGsap || !readyST) {
-    console.warn('GSAP or ScrollTrigger not available')
-    return
-  }
-  
-  await nextTick()
-  
+  // Import ScrollTrigger
+  import('gsap/ScrollTrigger').then((stModule) => {
+    const ScrollTrigger = stModule.default || stModule
+    if (ScrollTrigger && gsap.registerPlugin) {
+      gsap.registerPlugin(ScrollTrigger)
+    }
+    
+    nextTick(() => {
       const bentoBox = resolveEl(bentoBoxRef.value)
       const title = titleRef.value
       const tabs = tabsRef.value
@@ -167,7 +168,7 @@ async function setupScrollAnimation() {
       if (!bentoBox || !title) return
       
       // Create timeline with ScrollTrigger
-  const tl = readyGsap.timeline({
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: bentoBox,
           start: 'top 80%',
@@ -257,6 +258,10 @@ async function setupScrollAnimation() {
       }
       
       scrollTriggers.push(tl)
+    })
+  }).catch(() => {
+    console.warn('ScrollTrigger not available')
+  })
 }
 
 // Watch for category changes to re-animate skill items
