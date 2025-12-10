@@ -87,7 +87,7 @@ function setCardRef(el: any, index: number) {
   cardRefs.value[index] = el as any
 }
 
-let scrollTriggers: any[] = []
+let matchMedia: any = null
 let storedTitleSplit: any = null
 let storedElements: {
   container: HTMLElement | null
@@ -165,57 +165,127 @@ function setupScrollAnimation() {
         titleSplit = null
       }
 
+      // Check if element is already in viewport
+      const rect = container.getBoundingClientRect()
+      const isInViewport = rect.top < window.innerHeight * 0.8 && rect.bottom > 0
+
       gsap.set(container, { opacity: 0, scale: 0.95, y: 24 })
       if (cards.length > 0) gsap.set(cards, { opacity: 0, y: 18, scale: 0.9, rotation: -3 })
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: container,
-          start: 'top 80%',
-          once: true
-        }
-      })
-
-      tl.to(container, {
-        opacity: 1,
-        scale: 1,
-        y: 0,
-        duration: 0.6,
-        ease: 'power3.out'
-      })
-
-      if (titleSplit && titleSplit.chars) {
-        tl.to(titleSplit.chars, {
-          opacity: 1,
-          yPercent: 0,
-          rotationX: 0,
-          duration: 0.5,
-          stagger: { amount: 0.35, from: 'start' },
-          ease: 'power3.out'
-        }, '-=0.35')
-      } else {
-        tl.fromTo(title,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' },
-          '-=0.25'
-        )
-      }
-
-      if (cards.length > 0) {
-        tl.to(cards, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          rotation: 0,
-          duration: 0.45,
-          stagger: 0.05,
-          ease: 'power2.out'
-        }, '-=0.35')
-      }
-
       storedElements = { container, title, cards }
       storedTitleSplit = titleSplit
-      scrollTriggers.push(tl)
+
+      // Use gsap.matchMedia() for responsive and accessible animations
+      matchMedia = gsap.matchMedia()
+
+      matchMedia.add(
+        {
+          isDesktop: '(min-width: 768px)',
+          isMobile: '(max-width: 767px)',
+          reduceMotion: '(prefers-reduced-motion: reduce)'
+        },
+        (context: any) => {
+          const { isDesktop, isMobile, reduceMotion } = context.conditions
+          const duration = reduceMotion ? 0 : (isMobile ? 0.5 : 0.6)
+          const startPosition = isMobile ? 'top 85%' : 'top 80%'
+
+          // If already in viewport, animate immediately
+          if (isInViewport) {
+            const immediateTl = gsap.timeline()
+            immediateTl.to(container, {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              duration: duration || 0.01,
+              ease: 'power3.out'
+            })
+
+            if (titleSplit && titleSplit.chars && !reduceMotion) {
+              immediateTl.to(titleSplit.chars, {
+                opacity: 1,
+                yPercent: 0,
+                rotationX: 0,
+                duration: 0.5,
+                stagger: { amount: 0.35, from: 'start' },
+                ease: 'power3.out'
+              }, '-=0.35')
+            } else {
+              immediateTl.fromTo(title,
+                { opacity: 0, y: 10 },
+                { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' },
+                '-=0.25'
+              )
+            }
+
+            if (cards.length > 0) {
+              immediateTl.to(cards, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotation: 0,
+                duration: duration || 0.01,
+                stagger: reduceMotion ? 0 : 0.05,
+                ease: 'power2.out'
+              }, '-=0.35')
+            }
+            return
+          }
+
+          // Otherwise, use ScrollTrigger
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: container,
+              start: startPosition,
+              once: true,
+              invalidateOnRefresh: true
+            }
+          })
+
+          tl.to(container, {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration,
+            ease: 'power3.out'
+          })
+
+          if (titleSplit && titleSplit.chars && !reduceMotion) {
+            tl.to(titleSplit.chars, {
+              opacity: 1,
+              yPercent: 0,
+              rotationX: 0,
+              duration: 0.5,
+              stagger: { amount: 0.35, from: 'start' },
+              ease: 'power3.out'
+            }, '-=0.35')
+          } else {
+            tl.fromTo(title,
+              { opacity: 0, y: 10 },
+              { opacity: 1, y: 0, duration: duration || 0.01, ease: 'power2.out' },
+              '-=0.25'
+            )
+          }
+
+          if (cards.length > 0) {
+            tl.to(cards, {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              rotation: 0,
+              duration: duration || 0.01,
+              stagger: reduceMotion ? 0 : 0.05,
+              ease: 'power2.out'
+            }, '-=0.35')
+          }
+        }
+      )
+
+      // Refresh ScrollTrigger after a short delay
+      if (ScrollTrigger) {
+        setTimeout(() => {
+          ScrollTrigger.refresh()
+        }, 100)
+      }
     })
   }).catch(() => {
     console.warn('ScrollTrigger not available')
@@ -312,11 +382,10 @@ onMounted(() => {
 
 onUnmounted(() => {
   unregisterExitAnimation('projectsGrid')
-  scrollTriggers.forEach((st) => {
-    if (st?.scrollTrigger) st.scrollTrigger.kill()
-    if (st?.kill) st.kill()
-  })
-  scrollTriggers = []
+  if (matchMedia) {
+    matchMedia.revert()
+    matchMedia = null
+  }
   storedTitleSplit = null
   storedElements = { container: null, title: null, cards: [] }
 })

@@ -492,6 +492,16 @@ function startAnimation() {
           if (!isIntroLoaderComplete.value) {
             setIntroLoaderComplete(true)
           }
+          // Refresh ScrollTrigger after intro completes to ensure proper initialization
+          import('gsap/ScrollTrigger').then((stModule) => {
+            const ScrollTrigger = stModule.default || stModule
+            if (ScrollTrigger) {
+              // Multiple refreshes to ensure everything is properly initialized
+              ScrollTrigger.refresh()
+              setTimeout(() => ScrollTrigger.refresh(), 100)
+              setTimeout(() => ScrollTrigger.refresh(), 300)
+            }
+          }).catch(() => {})
         }, 50)
       })
     })

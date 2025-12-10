@@ -13,16 +13,16 @@
               align="left" 
               class="mb-6 opacity-0"
             >
-              Get in Touch
-            </UiTitle>
+            Get in Touch
+          </UiTitle>
           </div>
           <div ref="descriptionWrapperRef" class="overflow-hidden">
             <p 
               ref="descriptionRef"
               class="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed opacity-0 translate-y-2.5"
             >
-              Have a project in mind? Let's work together to bring your ideas to life.
-            </p>
+            Have a project in mind? Let's work together to bring your ideas to life.
+          </p>
           </div>
         </div>
 
@@ -240,6 +240,32 @@ definePageMeta({
         console.warn('[Contact] Exit animation error:', e)
       }
       done()
+    },
+    onEnter: async (_el: Element, done: () => void) => {
+      if (import.meta.server) return done()
+      
+      // Scroll to top immediately before enter animation begins
+      const nuxtApp = useNuxtApp()
+      const smoother = (nuxtApp.$scrollSmoother as any) || (typeof window !== 'undefined' && (window as any).ScrollSmoother?.get())
+      
+      if (smoother) {
+        smoother.scrollTo(0, true) // true = immediate scroll
+      } else {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      }
+      
+      // Refresh ScrollTrigger when page enters
+      import('gsap/ScrollTrigger').then((stModule) => {
+        const ScrollTrigger = stModule.default || stModule
+        if (ScrollTrigger) {
+          setTimeout(() => {
+            ScrollTrigger.refresh()
+            setTimeout(() => ScrollTrigger.refresh(), 100)
+            setTimeout(() => ScrollTrigger.refresh(), 300)
+          }, 100)
+        }
+        done()
+      }).catch(() => done())
     }
   }
 })

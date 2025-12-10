@@ -26,6 +26,12 @@ export default defineNuxtConfig({
     plugins: [
       tailwindcss(),
     ],
+    build: {
+      cssCodeSplit: true,
+      // Disable sourcemaps in production to avoid Tailwind CSS plugin warnings
+      // Sourcemaps are still available in development mode
+      sourcemap: process.env.NODE_ENV === 'development',
+    },
   },
   gsap: {
     clubPlugins: {

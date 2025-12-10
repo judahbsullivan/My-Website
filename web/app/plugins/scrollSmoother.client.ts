@@ -69,11 +69,29 @@ export default defineNuxtPlugin({
       }
     }
 
+    // Refresh ScrollTrigger after intro completes
+    const refreshScrollTrigger = () => {
+      import('gsap/ScrollTrigger').then((stModule) => {
+        const ScrollTrigger = stModule.default || stModule
+        if (ScrollTrigger) {
+          // Multiple refreshes to ensure everything is properly initialized
+          ScrollTrigger.refresh()
+          setTimeout(() => ScrollTrigger.refresh(), 100)
+          setTimeout(() => ScrollTrigger.refresh(), 300)
+          setTimeout(() => ScrollTrigger.refresh(), 500)
+        }
+      }).catch(() => {})
+    }
+
+
     // Wait for intro loader to complete before initializing
     const checkAndInit = () => {
       if (isIntroLoaderComplete.value) {
         // Small delay to ensure layout is ready
-        setTimeout(initScrollSmoother, 300)
+        setTimeout(() => {
+          initScrollSmoother()
+          refreshScrollTrigger()
+        }, 300)
       } else {
         // Check again after a short delay
         setTimeout(checkAndInit, 100)

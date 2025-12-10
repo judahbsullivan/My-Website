@@ -45,7 +45,7 @@ const iconRef = ref<HTMLElement | null>(null)
 const titleRef = ref<HTMLElement | null>(null)
 const textRef = ref<HTMLElement | null>(null)
 
-let scrollTriggers: any[] = []
+let matchMedia: any = null
 let storedElements: {
   box: HTMLElement | null
   icon: HTMLElement | null
@@ -83,45 +83,106 @@ function setupScrollAnimation() {
 
     if (!box) return
 
+    // Check if element is already in viewport
+    const rect = box.getBoundingClientRect()
+    const isInViewport = rect.top < window.innerHeight * 0.85 && rect.bottom > 0
+
     gsap.set(box, { opacity: 0, scale: 0.9, rotation: -3 })
     if (icon) gsap.set(icon, { opacity: 0, scale: 0.9, y: 10 })
     if (title) gsap.set(title, { opacity: 0, y: 12 })
     if (text) gsap.set(text, { opacity: 0, y: 12 })
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: box,
-        start: 'top 85%',
-        once: true
-      }
-    })
-
-    tl.to(box, {
-      opacity: 1,
-      scale: 1,
-      rotation: 0,
-      duration: 0.6,
-      ease: 'back.out(1.4)'
-    })
-
-    tl.to(icon, {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      duration: 0.45,
-      ease: 'back.out(1.4)'
-    }, '-=0.3')
-
-    tl.to([title, text].filter(Boolean), {
-      opacity: 1,
-      y: 0,
-      duration: 0.4,
-      stagger: 0.08,
-      ease: 'power2.out'
-    }, '-=0.3')
-
     storedElements = { box, icon, title, text }
-    scrollTriggers.push(tl)
+
+    // Use gsap.matchMedia() for responsive and accessible animations
+    matchMedia = gsap.matchMedia()
+
+    matchMedia.add(
+      {
+        isDesktop: '(min-width: 768px)',
+        isMobile: '(max-width: 767px)',
+        reduceMotion: '(prefers-reduced-motion: reduce)'
+      },
+      (context: any) => {
+        const { isDesktop, isMobile, reduceMotion } = context.conditions
+        const duration = reduceMotion ? 0 : (isMobile ? 0.5 : 0.6)
+        const startPosition = isMobile ? 'top 90%' : 'top 85%'
+
+        // If already in viewport, animate immediately
+        if (isInViewport) {
+          const immediateTl = gsap.timeline()
+          immediateTl.to(box, {
+            opacity: 1,
+            scale: 1,
+            rotation: 0,
+            duration: duration || 0.01,
+            ease: 'back.out(1.4)'
+          })
+
+          if (icon) {
+            immediateTl.to(icon, {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              duration: duration || 0.01,
+              ease: 'back.out(1.4)'
+            }, '-=0.3')
+          }
+
+          immediateTl.to([title, text].filter(Boolean), {
+            opacity: 1,
+            y: 0,
+            duration: duration || 0.01,
+            stagger: reduceMotion ? 0 : 0.08,
+            ease: 'power2.out'
+          }, '-=0.3')
+          return
+        }
+
+        // Otherwise, use ScrollTrigger
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: box,
+            start: startPosition,
+            once: true,
+            invalidateOnRefresh: true
+          }
+        })
+
+        tl.to(box, {
+          opacity: 1,
+          scale: 1,
+          rotation: 0,
+          duration,
+          ease: 'back.out(1.4)'
+        })
+
+        if (icon) {
+          tl.to(icon, {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: duration || 0.01,
+            ease: 'back.out(1.4)'
+          }, '-=0.3')
+        }
+
+        tl.to([title, text].filter(Boolean), {
+          opacity: 1,
+          y: 0,
+          duration: duration || 0.01,
+          stagger: reduceMotion ? 0 : 0.08,
+          ease: 'power2.out'
+        }, '-=0.3')
+      }
+    )
+
+    // Refresh ScrollTrigger after a short delay
+    if (ScrollTrigger) {
+      setTimeout(() => {
+        ScrollTrigger.refresh()
+      }, 100)
+    }
   }).catch(() => {
     console.warn('ScrollTrigger not available')
   })
@@ -171,11 +232,10 @@ onMounted(() => {
 
 onUnmounted(() => {
   unregisterExitAnimation(props.exitAnimationKey)
-  scrollTriggers.forEach((st) => {
-    if (st?.scrollTrigger) st.scrollTrigger.kill()
-    if (st?.kill) st.kill()
-  })
-  scrollTriggers = []
+  if (matchMedia) {
+    matchMedia.revert()
+    matchMedia = null
+  }
   storedElements = { box: null, icon: null, title: null, text: null }
 })
 </script>
