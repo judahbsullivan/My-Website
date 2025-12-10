@@ -40,8 +40,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useNuxtApp } from '#app'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import { useGSAP } from '../../composables/useGSAP'
 
 interface Props {
   interestsData: {
@@ -87,103 +87,99 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-function setupScrollAnimation() {
+async function setupScrollAnimation() {
   if (import.meta.server) return
-  const nuxtApp = useNuxtApp()
-  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-  const SplitText = nuxtApp.$SplitText as any
-  if (!gsap) return
 
-  import('gsap/ScrollTrigger').then((stModule) => {
-    const ScrollTrigger = stModule.default || stModule
-    if (ScrollTrigger && gsap.registerPlugin) gsap.registerPlugin(ScrollTrigger)
+  const { waitForReady } = useGSAP()
+  const { gsap: readyGsap, ScrollTrigger: readyST, SplitText } = await waitForReady()
+  if (!readyGsap || !readyST) {
+    console.warn('GSAP or ScrollTrigger not available')
+    return
+  }
 
-    nextTick(() => {
-      const bentoBox = resolveEl(bentoBoxRef.value)
-      const title = titleRef.value
-      const items = interestItemRefs.value.map(resolveEl).filter(Boolean) as HTMLElement[]
-      if (!bentoBox || !title) return
+  await nextTick()
 
-      gsap.set(bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
-      gsap.set(title, { opacity: 0, y: 20 })
-      if (items.length > 0) gsap.set(items, { opacity: 0, y: 20, scale: 0.9, rotation: -3 })
+  const bentoBox = resolveEl(bentoBoxRef.value)
+  const title = titleRef.value
+  const items = interestItemRefs.value.map(resolveEl).filter(Boolean) as HTMLElement[]
+  if (!bentoBox || !title) return
 
-      let titleSplit: any = null
-      try {
-        if (SplitText) {
-          gsap.set(title, { lineHeight: '0.9' })
-          titleSplit = new SplitText(title, {
-            type: 'chars',
-            mask: 'chars',
-            smartWrap: true,
-            charsClass: 'char++'
-          })
-          if (titleSplit.chars && titleSplit.chars.length > 0) {
-            titleSplit.chars.forEach((char: HTMLElement) => {
-              gsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
-            })
-          }
-        }
-      } catch (e) {
-        titleSplit = null
-      }
+  readyGsap.set(bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
+  readyGsap.set(title, { opacity: 0, y: 20 })
+  if (items.length > 0) readyGsap.set(items, { opacity: 0, y: 20, scale: 0.9, rotation: -3 })
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: bentoBox,
-          start: 'top 80%',
-          once: true
-        }
+  let titleSplit: any = null
+  try {
+    if (SplitText) {
+      readyGsap.set(title, { lineHeight: '0.9' })
+      titleSplit = new SplitText(title, {
+        type: 'chars',
+        mask: 'chars',
+        smartWrap: true,
+        charsClass: 'char++'
       })
-
-      tl.to(bentoBox, {
-        opacity: 1,
-        scale: 1,
-        rotation: 0,
-        duration: 0.7,
-        ease: 'back.out(1.4)'
-      })
-
-      if (titleSplit && titleSplit.chars) {
-        tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-        tl.to(titleSplit.chars, {
-          opacity: 1,
-          yPercent: 0,
-          rotationX: 0,
-          duration: 0.5,
-          stagger: { amount: 0.35, from: 'start' },
-          ease: 'power3.out'
-        }, '-=0.3')
-      } else {
-        tl.to(title, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, '-=0.3')
+      if (titleSplit.chars && titleSplit.chars.length > 0) {
+        titleSplit.chars.forEach((char: HTMLElement) => {
+          readyGsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
+        })
       }
+    }
+  } catch (e) {
+    titleSplit = null
+  }
 
-      if (items.length > 0) {
-        tl.to(items, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          rotation: 0,
-          duration: 0.45,
-          stagger: 0.06,
-          ease: 'power2.out'
-        }, '-=0.35')
-      }
-
-      scrollTriggers.push(tl)
-      storedElements = { bentoBox, title, items }
-    })
-  }).catch(() => {
-    console.warn('ScrollTrigger not available')
+  const tl = readyGsap.timeline({
+    scrollTrigger: {
+      trigger: bentoBox,
+      start: 'top 80%',
+      once: true
+    }
   })
+
+  tl.to(bentoBox, {
+    opacity: 1,
+    scale: 1,
+    rotation: 0,
+    duration: 0.7,
+    ease: 'back.out(1.4)'
+  })
+
+  if (titleSplit && titleSplit.chars) {
+    tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+    tl.to(titleSplit.chars, {
+      opacity: 1,
+      yPercent: 0,
+      rotationX: 0,
+      duration: 0.5,
+      stagger: { amount: 0.35, from: 'start' },
+      ease: 'power3.out'
+    }, '-=0.3')
+  } else {
+    tl.to(title, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, '-=0.3')
+  }
+
+  if (items.length > 0) {
+    tl.to(items, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+      duration: 0.45,
+      stagger: 0.06,
+      ease: 'power2.out'
+    }, '-=0.35')
+  }
+
+  scrollTriggers.push(tl)
+  storedElements = { bentoBox, title, items }
+  setTimeout(() => readyST.refresh(), 100)
 }
 
 function animateExit(): Promise<void> {
   return new Promise((resolve) => {
     if (import.meta.server) return resolve()
-    const nuxtApp = useNuxtApp()
-    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-    if (!gsap) return resolve()
+    const { gsap: readyGsap } = useGSAP()
+    if (!readyGsap) return resolve()
 
     const bentoBox = storedElements.bentoBox || resolveEl(bentoBoxRef.value)
     const title = storedElements.title || titleRef.value
@@ -193,7 +189,7 @@ function animateExit(): Promise<void> {
 
     if (!bentoBox) return resolve()
 
-    const tl = gsap.timeline({ onComplete: () => resolve() })
+    const tl = readyGsap.timeline({ onComplete: () => resolve() })
     const contentDuration = 0.5
 
     if (title) tl.to(title, { y: -10, autoAlpha: 0, duration: contentDuration, ease: 'power2.in' }, 0)

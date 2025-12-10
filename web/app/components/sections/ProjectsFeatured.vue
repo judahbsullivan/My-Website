@@ -74,8 +74,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useNuxtApp } from '#app'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import { useGSAP } from '../../composables/useGSAP'
 import type { Project } from '~/../../shared/types'
 
 interface Props {
@@ -138,152 +138,145 @@ const getVariant = (index: number): 'primary' | 'secondary' | 'success' | 'warni
   return variants[index % variants.length] || 'default'
 }
 
-function setupScrollAnimation() {
+async function setupScrollAnimation() {
   if (import.meta.server) return
-  const nuxtApp = useNuxtApp()
-  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-  const SplitText = nuxtApp.$SplitText as any
-  if (!gsap) return
 
-  import('gsap/ScrollTrigger').then((stModule) => {
-    const ScrollTrigger = stModule.default || stModule
-    if (ScrollTrigger && gsap.registerPlugin) gsap.registerPlugin(ScrollTrigger)
+  const { waitForReady } = useGSAP()
+  const { gsap: readyGsap, ScrollTrigger: readyST, SplitText } = await waitForReady()
 
-    nextTick(() => {
-      const box = resolveEl(sectionBoxRef.value)
-      const titleComponent = titleRef.value as any
-      const title = titleComponent?.el || titleComponent?.$el || (titleWrapperRef.value?.querySelector('h2, h3, h4') as HTMLElement)
-      const cards = cardRefs.value.map(resolveEl).filter(Boolean) as HTMLElement[]
+  if (!readyGsap || !readyST) {
+    console.warn('GSAP or ScrollTrigger not available')
+    return
+  }
 
-      if (!box || !title) return
+  await nextTick()
 
-      let titleSplit: any = null
-      try {
-        if (SplitText) {
-          titleSplit = new SplitText(title, {
-            type: 'chars',
-            mask: 'chars',
-            smartWrap: true,
-            charsClass: 'char++',
-          })
-          if (titleSplit.chars && titleSplit.chars.length > 0) {
-            titleSplit.chars.forEach((char: HTMLElement) => {
-              gsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
-            })
-          }
-        }
-      } catch (e) {
-        titleSplit = null
+  const box = resolveEl(sectionBoxRef.value)
+  const titleComponent = titleRef.value as any
+  const title = titleComponent?.el || titleComponent?.$el || (titleWrapperRef.value?.querySelector('h2, h3, h4') as HTMLElement)
+  const cards = cardRefs.value.map(resolveEl).filter(Boolean) as HTMLElement[]
+
+  if (!box || !title) return
+
+  let titleSplit: any = null
+  try {
+    if (SplitText) {
+      titleSplit = new SplitText(title, {
+        type: 'chars',
+        mask: 'chars',
+        smartWrap: true,
+        charsClass: 'char++',
+      })
+      if (titleSplit.chars && titleSplit.chars.length > 0) {
+        titleSplit.chars.forEach((char: HTMLElement) => {
+          readyGsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
+        })
       }
+    }
+  } catch (e) {
+    titleSplit = null
+  }
 
-      // Check if element is already in viewport
-      const rect = box.getBoundingClientRect()
-      const isInViewport = rect.top < window.innerHeight * 0.8 && rect.bottom > 0
+  const rect = box.getBoundingClientRect()
+  const isInViewport = rect.top < window.innerHeight * 0.8 && rect.bottom > 0
 
-      gsap.set(box, { opacity: 0, scale: 0.95, y: 24 })
-      if (cards.length > 0) gsap.set(cards, { opacity: 0, y: 20, scale: 0.9, rotation: -3 })
+  readyGsap.set(box, { opacity: 0, scale: 0.95, y: 24 })
+  if (cards.length > 0) readyGsap.set(cards, { opacity: 0, y: 20, scale: 0.9, rotation: -3 })
 
-      storedElements = { box, title, cards }
-      storedTitleSplit = titleSplit
+  storedElements = { box, title, cards }
+  storedTitleSplit = titleSplit
 
-      // Check if element is already in viewport
-          if (isInViewport) {
-            const immediateTl = gsap.timeline()
-            immediateTl.to(box, {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-          duration: 0.6,
-              ease: 'power3.out'
-            })
+  if (isInViewport) {
+    const immediateTl = readyGsap.timeline()
+    immediateTl.to(box, {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power3.out'
+    })
 
-        if (titleSplit && titleSplit.chars) {
-              immediateTl.to(titleSplit.chars, {
-                opacity: 1,
-                yPercent: 0,
-                rotationX: 0,
-                duration: 0.5,
-                stagger: { amount: 0.35, from: 'start' },
-                ease: 'power3.out'
-              }, '-=0.35')
-            } else {
-              immediateTl.fromTo(title,
-                { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-                '-=0.25'
-              )
-            }
+    if (titleSplit && titleSplit.chars) {
+      immediateTl.to(titleSplit.chars, {
+        opacity: 1,
+        yPercent: 0,
+        rotationX: 0,
+        duration: 0.5,
+        stagger: { amount: 0.35, from: 'start' },
+        ease: 'power3.out'
+      }, '-=0.35')
+    } else {
+      immediateTl.fromTo(title,
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+        '-=0.25'
+      )
+    }
 
-            if (cards.length > 0) {
-              immediateTl.to(cards, {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                rotation: 0,
-            duration: 0.6,
-            stagger: 0.06,
-                ease: 'power2.out'
-              }, '-=0.35')
-            }
-      } else {
-        // Use ScrollTrigger
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: box,
-            start: 'top 80%',
-              once: true,
-              invalidateOnRefresh: true
-            }
-          })
-
-          tl.to(box, {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-          duration: 0.6,
-            ease: 'power3.out'
-          })
-
-        if (titleSplit && titleSplit.chars) {
-            tl.to(titleSplit.chars, {
-              opacity: 1,
-              yPercent: 0,
-              rotationX: 0,
-              duration: 0.5,
-              stagger: { amount: 0.35, from: 'start' },
-              ease: 'power3.out'
-            }, '-=0.35')
-          } else {
-            tl.fromTo(title,
-              { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-              '-=0.25'
-            )
-          }
-
-          if (cards.length > 0) {
-            tl.to(cards, {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              rotation: 0,
-            duration: 0.6,
-            stagger: 0.06,
-              ease: 'power2.out'
-            }, '-=0.35')
-          }
-        }
-
-      // Refresh ScrollTrigger after a short delay
-      if (ScrollTrigger) {
-        setTimeout(() => {
-          ScrollTrigger.refresh()
-        }, 100)
+    if (cards.length > 0) {
+      immediateTl.to(cards, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        rotation: 0,
+        duration: 0.6,
+        stagger: 0.06,
+        ease: 'power2.out'
+      }, '-=0.35')
+    }
+  } else {
+    const tl = readyGsap.timeline({
+      scrollTrigger: {
+        trigger: box,
+        start: 'top 80%',
+        once: true,
+        invalidateOnRefresh: true
       }
     })
-  }).catch(() => {
-    console.warn('ScrollTrigger not available')
-  })
+
+    tl.to(box, {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power3.out'
+    })
+
+    if (titleSplit && titleSplit.chars) {
+      tl.to(titleSplit.chars, {
+        opacity: 1,
+        yPercent: 0,
+        rotationX: 0,
+        duration: 0.5,
+        stagger: { amount: 0.35, from: 'start' },
+        ease: 'power3.out'
+      }, '-=0.35')
+    } else {
+      tl.fromTo(title,
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
+        '-=0.25'
+      )
+    }
+
+    if (cards.length > 0) {
+      tl.to(cards, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        rotation: 0,
+        duration: 0.6,
+        stagger: 0.06,
+        ease: 'power2.out'
+      }, '-=0.35')
+    }
+  }
+
+  if (readyST) {
+    setTimeout(() => {
+      readyST.refresh()
+    }, 100)
+  }
 }
 
 function animateExit(): Promise<void> {
