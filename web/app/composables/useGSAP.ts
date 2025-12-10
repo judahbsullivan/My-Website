@@ -1,6 +1,7 @@
 /**
  * Centralized GSAP composable for accessing GSAP, ScrollTrigger, and SplitText
  * This ensures proper client-side access and prevents SSR issues
+ * Uses direct GSAP imports instead of nuxt-gsap plugin
  */
 export const useGSAP = () => {
   if (import.meta.server) {
@@ -15,7 +16,8 @@ export const useGSAP = () => {
 
   const nuxtApp = useNuxtApp()
   
-  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap | undefined
+  // Try to get from nuxtApp first (provided by our plugin), fallback to direct import
+  const gsap = (nuxtApp.$gsap as typeof import('gsap').gsap) || null
   const ScrollTrigger = (nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger) || null
   const SplitText = (nuxtApp.$SplitText as any) || null
 
@@ -30,31 +32,52 @@ export const useGSAP = () => {
     SplitText: any
     isReady: boolean
   }> => {
-    if (isReady) {
-      return { gsap: gsap || null, ScrollTrigger, SplitText, isReady: true }
+    // If already ready, return immediately
+    if (isReady && gsap && ScrollTrigger) {
+      return { gsap, ScrollTrigger, SplitText, isReady: true }
     }
 
-    // Wait for ScrollTrigger to be available
+    // Wait for GSAP to be available via plugin or direct import
     return new Promise((resolve) => {
       const startTime = Date.now()
       const checkReady = () => {
-        const currentGsap = nuxtApp.$gsap as typeof import('gsap').gsap | undefined
+        const nuxtApp = useNuxtApp()
+        const currentGsap = (nuxtApp.$gsap as typeof import('gsap').gsap) || null
         const currentST = (nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger) || null
+        const currentSplitText = (nuxtApp.$SplitText as any) || null
         
         if (currentGsap && currentST) {
           resolve({
             gsap: currentGsap,
             ScrollTrigger: currentST,
-            SplitText: (nuxtApp.$SplitText as any) || null,
+            SplitText: currentSplitText || null,
             isReady: true
           })
         } else if (Date.now() - startTime > maxWait) {
-          // Timeout - return what we have
-          resolve({
-            gsap: currentGsap || null,
-            ScrollTrigger: currentST,
-            SplitText: (nuxtApp.$SplitText as any) || null,
-            isReady: false
+          // Timeout - try direct import as last resort
+          import('gsap').then((gsapModule) => {
+            import('gsap/ScrollTrigger').then((stModule) => {
+              resolve({
+                gsap: gsapModule.default,
+                ScrollTrigger: stModule.ScrollTrigger || stModule.default || null,
+                SplitText: currentSplitText || null,
+                isReady: !!(gsapModule.default && (stModule.ScrollTrigger || stModule.default))
+              })
+            }).catch(() => {
+              resolve({
+                gsap: currentGsap || null,
+                ScrollTrigger: currentST || null,
+                SplitText: currentSplitText || null,
+                isReady: false
+              })
+            })
+          }).catch(() => {
+            resolve({
+              gsap: currentGsap || null,
+              ScrollTrigger: currentST || null,
+              SplitText: currentSplitText || null,
+              isReady: false
+            })
           })
         } else {
           setTimeout(checkReady, 50)
@@ -66,8 +89,8 @@ export const useGSAP = () => {
 
   return {
     gsap: gsap || null,
-    ScrollTrigger,
-    SplitText,
+    ScrollTrigger: ScrollTrigger || null,
+    SplitText: SplitText || null,
     isReady,
     waitForReady
   }

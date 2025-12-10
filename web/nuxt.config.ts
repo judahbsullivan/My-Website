@@ -33,15 +33,6 @@ export default defineNuxtConfig({
       sourcemap: process.env.NODE_ENV === 'development',
     },
   },
-  gsap: {
-    clubPlugins: {
-      splitText: true,
-      scrollSmoother: true,
-    },
-    extraPlugins: {
-      scrollTrigger: true,
-    }
-  },
   typescript: {
     // only add custom compilerOptions if needed
     tsConfig: {
@@ -58,8 +49,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/test-utils',
-    '@nuxt/ui',
-    '@hypernym/nuxt-gsap'
+    '@nuxt/ui'
   ],
   app: {
     pageTransition: {

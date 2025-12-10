@@ -7,7 +7,8 @@ export default defineNuxtPlugin({
     const { isIntroLoaderComplete } = useIntroLoader()
     
     // Wait for DOM and intro loader to be ready
-    const initScrollSmoother = () => {
+    const initScrollSmoother = async () => {
+      // Get GSAP from nuxtApp (provided by gsap.client.ts plugin)
       const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
       const ScrollSmoother = (nuxtApp.$ScrollSmoother as any) || (typeof window !== 'undefined' && (window as any).ScrollSmoother)
       const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
