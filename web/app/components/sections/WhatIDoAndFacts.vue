@@ -791,20 +791,20 @@ async function setupScrollAnimations() {
   if (!readyGsap || !readyST) {
     console.warn('ScrollTrigger not available')
     return
-  }
-  
+    }
+    
   await nextTick()
   
-  // Animate About Me box with inner content
-  createAboutMeReveal()
-  // Animate Social Box below About Me
-  createSocialBoxReveal()
-  // Animate Quick Facts box with inner content (slightly later)
-  createQuickFactsReveal()
-  // Animate Avatar Box with inner content
-  createAvatarBoxReveal()
-  // Animate What I Do box with inner content
-  createWhatIDoReveal()
+      // Animate About Me box with inner content
+      createAboutMeReveal()
+      // Animate Social Box below About Me
+      createSocialBoxReveal()
+      // Animate Quick Facts box with inner content (slightly later)
+      createQuickFactsReveal()
+      // Animate Avatar Box with inner content
+      createAvatarBoxReveal()
+      // Animate What I Do box with inner content
+      createWhatIDoReveal()
 }
 
 function createAboutMeReveal() {

@@ -79,14 +79,14 @@ definePageMeta({
       
       // Refresh ScrollTrigger when page enters
       const { ScrollTrigger } = useGSAP()
-      if (ScrollTrigger) {
+        if (ScrollTrigger) {
         nextTick(() => {
-          ScrollTrigger.refresh()
-          setTimeout(() => ScrollTrigger.refresh(), 100)
-          setTimeout(() => ScrollTrigger.refresh(), 300)
+            ScrollTrigger.refresh()
+            setTimeout(() => ScrollTrigger.refresh(), 100)
+            setTimeout(() => ScrollTrigger.refresh(), 300)
         })
-      }
-      done()
+        }
+        done()
     }
   }
 })

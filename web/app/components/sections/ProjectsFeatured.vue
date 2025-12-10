@@ -187,92 +187,92 @@ function setupScrollAnimation() {
       storedTitleSplit = titleSplit
 
       // Check if element is already in viewport
-      if (isInViewport) {
-        const immediateTl = gsap.timeline()
-        immediateTl.to(box, {
-          opacity: 1,
-          scale: 1,
-          y: 0,
+          if (isInViewport) {
+            const immediateTl = gsap.timeline()
+            immediateTl.to(box, {
+              opacity: 1,
+              scale: 1,
+              y: 0,
           duration: 0.6,
-          ease: 'power3.out'
-        })
+              ease: 'power3.out'
+            })
 
         if (titleSplit && titleSplit.chars) {
-          immediateTl.to(titleSplit.chars, {
-            opacity: 1,
-            yPercent: 0,
-            rotationX: 0,
-            duration: 0.5,
-            stagger: { amount: 0.35, from: 'start' },
-            ease: 'power3.out'
-          }, '-=0.35')
-        } else {
-          immediateTl.fromTo(title,
-            { opacity: 0, y: 10 },
+              immediateTl.to(titleSplit.chars, {
+                opacity: 1,
+                yPercent: 0,
+                rotationX: 0,
+                duration: 0.5,
+                stagger: { amount: 0.35, from: 'start' },
+                ease: 'power3.out'
+              }, '-=0.35')
+            } else {
+              immediateTl.fromTo(title,
+                { opacity: 0, y: 10 },
             { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-            '-=0.25'
-          )
-        }
+                '-=0.25'
+              )
+            }
 
-        if (cards.length > 0) {
-          immediateTl.to(cards, {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotation: 0,
+            if (cards.length > 0) {
+              immediateTl.to(cards, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                rotation: 0,
             duration: 0.6,
             stagger: 0.06,
-            ease: 'power2.out'
-          }, '-=0.35')
-        }
+                ease: 'power2.out'
+              }, '-=0.35')
+            }
       } else {
         // Use ScrollTrigger
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: box,
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: box,
             start: 'top 80%',
-            once: true,
-            invalidateOnRefresh: true
-          }
-        })
+              once: true,
+              invalidateOnRefresh: true
+            }
+          })
 
-        tl.to(box, {
-          opacity: 1,
-          scale: 1,
-          y: 0,
+          tl.to(box, {
+            opacity: 1,
+            scale: 1,
+            y: 0,
           duration: 0.6,
-          ease: 'power3.out'
-        })
+            ease: 'power3.out'
+          })
 
         if (titleSplit && titleSplit.chars) {
-          tl.to(titleSplit.chars, {
-            opacity: 1,
-            yPercent: 0,
-            rotationX: 0,
-            duration: 0.5,
-            stagger: { amount: 0.35, from: 'start' },
-            ease: 'power3.out'
-          }, '-=0.35')
-        } else {
-          tl.fromTo(title,
-            { opacity: 0, y: 10 },
+            tl.to(titleSplit.chars, {
+              opacity: 1,
+              yPercent: 0,
+              rotationX: 0,
+              duration: 0.5,
+              stagger: { amount: 0.35, from: 'start' },
+              ease: 'power3.out'
+            }, '-=0.35')
+          } else {
+            tl.fromTo(title,
+              { opacity: 0, y: 10 },
             { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' },
-            '-=0.25'
-          )
-        }
+              '-=0.25'
+            )
+          }
 
-        if (cards.length > 0) {
-          tl.to(cards, {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotation: 0,
+          if (cards.length > 0) {
+            tl.to(cards, {
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              rotation: 0,
             duration: 0.6,
             stagger: 0.06,
-            ease: 'power2.out'
-          }, '-=0.35')
+              ease: 'power2.out'
+            }, '-=0.35')
+          }
         }
-      }
 
       // Refresh ScrollTrigger after a short delay
       if (ScrollTrigger) {

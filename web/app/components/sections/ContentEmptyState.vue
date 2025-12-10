@@ -94,70 +94,70 @@ function setupScrollAnimation() {
     storedElements = { box, icon, title, text }
 
     // Check if element is already in viewport
-    if (isInViewport) {
-      const immediateTl = gsap.timeline()
-      immediateTl.to(box, {
-        opacity: 1,
-        scale: 1,
-        rotation: 0,
+        if (isInViewport) {
+          const immediateTl = gsap.timeline()
+          immediateTl.to(box, {
+            opacity: 1,
+            scale: 1,
+            rotation: 0,
         duration: 0.6,
-        ease: 'back.out(1.4)'
-      })
+            ease: 'back.out(1.4)'
+          })
 
-      if (icon) {
-        immediateTl.to(icon, {
-          opacity: 1,
-          scale: 1,
-          y: 0,
+          if (icon) {
+            immediateTl.to(icon, {
+              opacity: 1,
+              scale: 1,
+              y: 0,
           duration: 0.6,
-          ease: 'back.out(1.4)'
-        }, '-=0.3')
-      }
+              ease: 'back.out(1.4)'
+            }, '-=0.3')
+          }
 
-      immediateTl.to([title, text].filter(Boolean), {
-        opacity: 1,
-        y: 0,
+          immediateTl.to([title, text].filter(Boolean), {
+            opacity: 1,
+            y: 0,
         duration: 0.6,
         stagger: 0.08,
-        ease: 'power2.out'
-      }, '-=0.3')
+            ease: 'power2.out'
+          }, '-=0.3')
     } else {
       // Use ScrollTrigger
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: box,
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: box,
           start: 'top 85%',
-          once: true,
-          invalidateOnRefresh: true
-        }
-      })
+            once: true,
+            invalidateOnRefresh: true
+          }
+        })
 
-      tl.to(box, {
-        opacity: 1,
-        scale: 1,
-        rotation: 0,
-        duration: 0.6,
-        ease: 'back.out(1.4)'
-      })
-
-      if (icon) {
-        tl.to(icon, {
+        tl.to(box, {
           opacity: 1,
           scale: 1,
-          y: 0,
-          duration: 0.6,
+          rotation: 0,
+        duration: 0.6,
           ease: 'back.out(1.4)'
-        }, '-=0.3')
-      }
+        })
 
-      tl.to([title, text].filter(Boolean), {
-        opacity: 1,
-        y: 0,
+        if (icon) {
+          tl.to(icon, {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+          duration: 0.6,
+            ease: 'back.out(1.4)'
+          }, '-=0.3')
+        }
+
+        tl.to([title, text].filter(Boolean), {
+          opacity: 1,
+          y: 0,
         duration: 0.6,
         stagger: 0.08,
-        ease: 'power2.out'
-      }, '-=0.3')
-    }
+          ease: 'power2.out'
+        }, '-=0.3')
+      }
 
     // Refresh ScrollTrigger after a short delay
     if (ScrollTrigger) {

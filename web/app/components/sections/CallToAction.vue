@@ -235,90 +235,90 @@ function setupScrollAnimation() {
       storedElements = { bento: bentoBox, title, desc, newsletter, buttons }
 
       // Check if element is already in viewport
-      if (isInViewport) {
-        const immediateTl = gsap.timeline()
+          if (isInViewport) {
+            const immediateTl = gsap.timeline()
         immediateTl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
 
         if (titleSplit && titleSplit.chars) {
-          immediateTl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-          immediateTl.to(titleSplit.chars, {
-            opacity: 1,
-            yPercent: 0,
-            rotationX: 0,
-            duration: 0.5,
-            stagger: { amount: 0.3, from: 'start' },
-            ease: 'power3.out'
-          }, '-=0.3')
-        } else {
+              immediateTl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+              immediateTl.to(titleSplit.chars, {
+                opacity: 1,
+                yPercent: 0,
+                rotationX: 0,
+                duration: 0.5,
+                stagger: { amount: 0.3, from: 'start' },
+                ease: 'power3.out'
+              }, '-=0.3')
+            } else {
           immediateTl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-        }
+            }
 
-        if (desc) {
+            if (desc) {
           immediateTl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
-        }
+            }
 
-        if (newsletter) {
+            if (newsletter) {
           immediateTl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
-        }
+            }
 
-        if (buttons && buttons.children.length > 0) {
-          immediateTl.to(Array.from(buttons.children) as HTMLElement[], {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            rotation: 0,
+            if (buttons && buttons.children.length > 0) {
+              immediateTl.to(Array.from(buttons.children) as HTMLElement[], {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                rotation: 0,
             duration: 0.6,
             stagger: 0.08,
-            ease: 'back.out(1.4)'
-          }, '-=0.3')
-        }
+                ease: 'back.out(1.4)'
+              }, '-=0.3')
+            }
       } else {
         // Use ScrollTrigger
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: bentoBox,
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: bentoBox,
             start: 'top 80%',
-            once: true,
-            invalidateOnRefresh: true
-          }
-        })
+              once: true,
+              invalidateOnRefresh: true
+            }
+          })
 
         tl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
 
         if (titleSplit && titleSplit.chars) {
-          tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-          tl.to(titleSplit.chars, {
-            opacity: 1,
-            yPercent: 0,
-            rotationX: 0,
-            duration: 0.5,
-            stagger: { amount: 0.3, from: 'start' },
-            ease: 'power3.out'
-          }, '-=0.3')
-        } else {
+            tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+            tl.to(titleSplit.chars, {
+              opacity: 1,
+              yPercent: 0,
+              rotationX: 0,
+              duration: 0.5,
+              stagger: { amount: 0.3, from: 'start' },
+              ease: 'power3.out'
+            }, '-=0.3')
+          } else {
           tl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-        }
+          }
 
-        if (desc) {
+          if (desc) {
           tl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
-        }
+          }
 
-        if (newsletter) {
+          if (newsletter) {
           tl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
-        }
+          }
 
-        if (buttons && buttons.children.length > 0) {
-          tl.to(Array.from(buttons.children) as HTMLElement[], {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            rotation: 0,
+          if (buttons && buttons.children.length > 0) {
+            tl.to(Array.from(buttons.children) as HTMLElement[], {
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              rotation: 0,
             duration: 0.6,
             stagger: 0.08,
-            ease: 'back.out(1.4)'
-          }, '-=0.3')
+              ease: 'back.out(1.4)'
+            }, '-=0.3')
+          }
         }
-      }
 
       // Refresh ScrollTrigger after a short delay to ensure proper initialization
       if (ScrollTrigger) {

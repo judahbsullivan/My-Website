@@ -73,7 +73,7 @@ export default defineNuxtPlugin({
     // Refresh ScrollTrigger after intro completes
     const refreshScrollTrigger = () => {
       const ScrollTrigger = nuxtApp.$scrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
-      if (ScrollTrigger) {
+        if (ScrollTrigger) {
         // Wait for next tick to ensure DOM is ready
         nextTick(() => {
           ScrollTrigger.refresh()
@@ -91,9 +91,9 @@ export default defineNuxtPlugin({
               setTimeout(() => ST.refresh(), 100)
               setTimeout(() => ST.refresh(), 300)
             })
-          }
-        }).catch(() => {})
-      }
+        }
+      }).catch(() => {})
+    }
     }
 
     // Wait for intro loader to complete before initializing
@@ -101,10 +101,10 @@ export default defineNuxtPlugin({
       if (isIntroLoaderComplete.value) {
         // Small delay to ensure layout is ready and ScrollTrigger is registered
         nextTick(() => {
-          setTimeout(() => {
-            initScrollSmoother()
-            refreshScrollTrigger()
-          }, 300)
+        setTimeout(() => {
+          initScrollSmoother()
+          refreshScrollTrigger()
+        }, 300)
         })
       } else {
         // Check again after a short delay

@@ -494,12 +494,12 @@ function startAnimation() {
           }
           // Refresh ScrollTrigger after intro completes to ensure proper initialization
           const { ScrollTrigger } = useGSAP()
-          if (ScrollTrigger) {
-            // Multiple refreshes to ensure everything is properly initialized
-            ScrollTrigger.refresh()
-            setTimeout(() => ScrollTrigger.refresh(), 100)
-            setTimeout(() => ScrollTrigger.refresh(), 300)
-          }
+            if (ScrollTrigger) {
+              // Multiple refreshes to ensure everything is properly initialized
+              ScrollTrigger.refresh()
+              setTimeout(() => ScrollTrigger.refresh(), 100)
+              setTimeout(() => ScrollTrigger.refresh(), 300)
+            }
         }, 50)
       })
     })

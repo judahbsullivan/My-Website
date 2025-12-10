@@ -16,7 +16,7 @@ export const useGSAP = () => {
   const nuxtApp = useNuxtApp()
   
   const gsap = nuxtApp.$gsap as typeof import('gsap').gsap | undefined
-  const ScrollTrigger = (nuxtApp.$scrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger) || null
+  const ScrollTrigger = (nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger) || null
   const SplitText = (nuxtApp.$SplitText as any) || null
 
   const isReady = !!(gsap && ScrollTrigger)
@@ -39,7 +39,7 @@ export const useGSAP = () => {
       const startTime = Date.now()
       const checkReady = () => {
         const currentGsap = nuxtApp.$gsap as typeof import('gsap').gsap | undefined
-        const currentST = (nuxtApp.$scrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger) || null
+        const currentST = (nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger) || null
         
         if (currentGsap && currentST) {
           resolve({
