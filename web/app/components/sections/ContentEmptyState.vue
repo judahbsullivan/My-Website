@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useNuxtApp } from '#app'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import { useGSAP } from '../../composables/useGSAP'
 
 interface Props {
   icon?: string
@@ -65,126 +65,126 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-function setupScrollAnimation() {
+async function setupScrollAnimation() {
   if (import.meta.server) return
-  const nuxtApp = useNuxtApp()
-  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-  if (!gsap) return
+  
+  const { waitForReady } = useGSAP()
+  const { gsap: readyGsap, ScrollTrigger: readyST } = await waitForReady()
+  
+  if (!readyGsap || !readyST) {
+    console.warn('GSAP or ScrollTrigger not available')
+    return
+  }
+  
+  await nextTick()
+  
+  const box = resolveEl(boxRef.value)
+  const icon = iconRef.value
+  const title = titleRef.value
+  const text = textRef.value
 
-  import('gsap/ScrollTrigger').then((stModule) => {
-    const ScrollTrigger = stModule.default || stModule
-    if (ScrollTrigger && gsap.registerPlugin) gsap.registerPlugin(ScrollTrigger)
+  if (!box) return
 
-    const box = resolveEl(boxRef.value)
-    const icon = iconRef.value
-    const title = titleRef.value
-    const text = textRef.value
+  // Check if element is already in viewport
+  const rect = box.getBoundingClientRect()
+  const isInViewport = rect.top < window.innerHeight * 0.85 && rect.bottom > 0
 
-    if (!box) return
+  readyGsap.set(box, { opacity: 0, scale: 0.9, rotation: -3 })
+  if (icon) readyGsap.set(icon, { opacity: 0, scale: 0.9, y: 10 })
+  if (title) readyGsap.set(title, { opacity: 0, y: 12 })
+  if (text) readyGsap.set(text, { opacity: 0, y: 12 })
 
-    // Check if element is already in viewport
-    const rect = box.getBoundingClientRect()
-    const isInViewport = rect.top < window.innerHeight * 0.85 && rect.bottom > 0
+  storedElements = { box, icon, title, text }
 
-    gsap.set(box, { opacity: 0, scale: 0.9, rotation: -3 })
-    if (icon) gsap.set(icon, { opacity: 0, scale: 0.9, y: 10 })
-    if (title) gsap.set(title, { opacity: 0, y: 12 })
-    if (text) gsap.set(text, { opacity: 0, y: 12 })
+  // Check if element is already in viewport
+  if (isInViewport) {
+    const immediateTl = readyGsap.timeline()
+    immediateTl.to(box, {
+      opacity: 1,
+      scale: 1,
+      rotation: 0,
+      duration: 0.6,
+      ease: 'back.out(1.4)'
+    })
 
-    storedElements = { box, icon, title, text }
-
-    // Check if element is already in viewport
-        if (isInViewport) {
-          const immediateTl = gsap.timeline()
-          immediateTl.to(box, {
-            opacity: 1,
-            scale: 1,
-            rotation: 0,
+    if (icon) {
+      immediateTl.to(icon, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
         duration: 0.6,
-            ease: 'back.out(1.4)'
-          })
-
-          if (icon) {
-            immediateTl.to(icon, {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-          duration: 0.6,
-              ease: 'back.out(1.4)'
-            }, '-=0.3')
-          }
-
-          immediateTl.to([title, text].filter(Boolean), {
-            opacity: 1,
-            y: 0,
-        duration: 0.6,
-        stagger: 0.08,
-            ease: 'power2.out'
-          }, '-=0.3')
-    } else {
-      // Use ScrollTrigger
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: box,
-          start: 'top 85%',
-            once: true,
-            invalidateOnRefresh: true
-          }
-        })
-
-        tl.to(box, {
-          opacity: 1,
-          scale: 1,
-          rotation: 0,
-        duration: 0.6,
-          ease: 'back.out(1.4)'
-        })
-
-        if (icon) {
-          tl.to(icon, {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-          duration: 0.6,
-            ease: 'back.out(1.4)'
-          }, '-=0.3')
-        }
-
-        tl.to([title, text].filter(Boolean), {
-          opacity: 1,
-          y: 0,
-        duration: 0.6,
-        stagger: 0.08,
-          ease: 'power2.out'
-        }, '-=0.3')
-      }
-
-    // Refresh ScrollTrigger after a short delay
-    if (ScrollTrigger) {
-      setTimeout(() => {
-        ScrollTrigger.refresh()
-      }, 100)
+        ease: 'back.out(1.4)'
+      }, '-=0.3')
     }
-  }).catch(() => {
-    console.warn('ScrollTrigger not available')
-  })
+
+    immediateTl.to([title, text].filter(Boolean), {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.08,
+      ease: 'power2.out'
+    }, '-=0.3')
+  } else {
+    // Use ScrollTrigger
+    const tl = readyGsap.timeline({
+      scrollTrigger: {
+        trigger: box,
+        start: 'top 85%',
+        once: true,
+        invalidateOnRefresh: true
+      }
+    })
+
+    tl.to(box, {
+      opacity: 1,
+      scale: 1,
+      rotation: 0,
+      duration: 0.6,
+      ease: 'back.out(1.4)'
+    })
+
+    if (icon) {
+      tl.to(icon, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'back.out(1.4)'
+      }, '-=0.3')
+    }
+
+    tl.to([title, text].filter(Boolean), {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.08,
+      ease: 'power2.out'
+    }, '-=0.3')
+  }
+
+  // Refresh ScrollTrigger after a short delay
+  if (readyST) {
+    setTimeout(() => {
+      readyST.refresh()
+    }, 100)
+  }
 }
 
-function animateExit(): Promise<void> {
+async function animateExit(): Promise<void> {
+  if (import.meta.server) return
+  
+  const { gsap: readyGsap } = useGSAP()
+  if (!readyGsap) return
+
+  const box = storedElements.box || resolveEl(boxRef.value)
+  const icon = storedElements.icon || iconRef.value
+  const title = storedElements.title || titleRef.value
+  const text = storedElements.text || textRef.value
+
+  if (!box) return
+
   return new Promise((resolve) => {
-    if (import.meta.server) return resolve()
-    const nuxtApp = useNuxtApp()
-    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-    if (!gsap) return resolve()
-
-    const box = storedElements.box || resolveEl(boxRef.value)
-    const icon = storedElements.icon || iconRef.value
-    const title = storedElements.title || titleRef.value
-    const text = storedElements.text || textRef.value
-
-    if (!box) return resolve()
-
-    const tl = gsap.timeline({ onComplete: () => resolve() })
+    const tl = readyGsap.timeline({ onComplete: () => resolve() })
     const contentDuration = 0.5
 
     tl.to([icon, title, text].filter(Boolean), {

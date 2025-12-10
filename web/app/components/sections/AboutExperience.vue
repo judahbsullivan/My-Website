@@ -210,134 +210,134 @@ async function setupScrollAnimation() {
   
   await nextTick()
 
-  const section = resolveEl(sectionRef.value)
-  const container = timelineContainerRef.value
-  const fillEl = timelineFillRef.value
-  const fillElMobile = timelineFillMobileRef.value
-  
-  if (!section || !container) return
-  
-  const timelineItemsAll = Array.from(container.querySelectorAll('.timeline-item')) as HTMLElement[]
-  storedElements = {
-    bentoBox: section,
-    headline: section.querySelector('.experience-headline') as HTMLElement | null,
-    items: timelineItemsAll
-  }
-  
-  const headlineEl = storedElements.headline
-  if (storedElements.bentoBox) {
+      const section = resolveEl(sectionRef.value)
+      const container = timelineContainerRef.value
+      const fillEl = timelineFillRef.value
+      const fillElMobile = timelineFillMobileRef.value
+      
+      if (!section || !container) return
+      
+      const timelineItemsAll = Array.from(container.querySelectorAll('.timeline-item')) as HTMLElement[]
+      storedElements = {
+        bentoBox: section,
+        headline: section.querySelector('.experience-headline') as HTMLElement | null,
+        items: timelineItemsAll
+      }
+      
+      const headlineEl = storedElements.headline
+      if (storedElements.bentoBox) {
     readyGsap.set(storedElements.bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
     if (headlineEl) readyGsap.set(headlineEl, { opacity: 0, y: 20 })
     if (timelineItemsAll.length > 0) readyGsap.set(timelineItemsAll, { opacity: 0, y: 30 })
-    
+        
     const enterTl = readyGsap.timeline({
-      scrollTrigger: {
-        trigger: storedElements.bentoBox,
-        start: 'top 80%',
-        once: true
-      }
-    })
-    
-    enterTl.to(storedElements.bentoBox, {
-      opacity: 1,
-      scale: 1,
-      rotation: 0,
-      duration: 0.7,
-      ease: 'back.out(1.4)'
-    })
-    
-    if (headlineEl) {
-      enterTl.to(headlineEl, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, '-=0.3')
-    }
-    
-    if (timelineItemsAll.length > 0) {
-      enterTl.to(timelineItemsAll, {
-        opacity: 1,
-        y: 0,
-        duration: 0.45,
-        stagger: 0.06,
-        ease: 'power2.out'
-      }, '-=0.35')
-    }
-    
-    scrollTriggers.push(enterTl)
-  }
-  
-  const headlineElAnim = section.querySelector('.experience-headline') as HTMLElement
-  if (headlineElAnim) {
-    let headlineSplit: any = null
-    try {
-      if (SplitText) {
-        readyGsap.set(headlineElAnim, { lineHeight: '0.9' })
-        headlineSplit = new SplitText(headlineElAnim, {
-          type: 'chars',
-          mask: 'chars',
-          smartWrap: true,
-          charsClass: 'char++',
+          scrollTrigger: {
+            trigger: storedElements.bentoBox,
+            start: 'top 80%',
+            once: true
+          }
         })
-        if (headlineSplit.chars && headlineSplit.chars.length > 0) {
-          headlineSplit.chars.forEach((char: HTMLElement) => {
-            readyGsap.set(char, {
-              opacity: 0,
-              yPercent: 120,
-              rotationX: -90,
-              lineHeight: '0.9'
+        
+        enterTl.to(storedElements.bentoBox, {
+          opacity: 1,
+          scale: 1,
+          rotation: 0,
+          duration: 0.7,
+          ease: 'back.out(1.4)'
+        })
+        
+        if (headlineEl) {
+          enterTl.to(headlineEl, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, '-=0.3')
+        }
+        
+        if (timelineItemsAll.length > 0) {
+          enterTl.to(timelineItemsAll, {
+            opacity: 1,
+            y: 0,
+            duration: 0.45,
+            stagger: 0.06,
+            ease: 'power2.out'
+          }, '-=0.35')
+        }
+        
+        scrollTriggers.push(enterTl)
+      }
+      
+      const headlineElAnim = section.querySelector('.experience-headline') as HTMLElement
+      if (headlineElAnim) {
+        let headlineSplit: any = null
+        try {
+          if (SplitText) {
+        readyGsap.set(headlineElAnim, { lineHeight: '0.9' })
+            headlineSplit = new SplitText(headlineElAnim, {
+              type: 'chars',
+              mask: 'chars',
+              smartWrap: true,
+              charsClass: 'char++',
             })
+            if (headlineSplit.chars && headlineSplit.chars.length > 0) {
+              headlineSplit.chars.forEach((char: HTMLElement) => {
+            readyGsap.set(char, {
+                  opacity: 0,
+                  yPercent: 120,
+                  rotationX: -90,
+                  lineHeight: '0.9'
+                })
+              })
+            }
+          }
+        } catch (e) {
+          // SplitText failed
+        }
+        
+    const headlineTl = readyGsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 85%',
+            once: true
+          }
+        })
+        
+        if (headlineSplit && headlineSplit.chars) {
+          headlineTl.to(headlineSplit.chars, {
+            opacity: 1,
+            yPercent: 0,
+            rotationX: 0,
+            duration: 0.5,
+            stagger: {
+              amount: 0.4,
+              from: 'start'
+            },
+            ease: 'power3.out'
+          })
+        } else {
+          headlineTl.fromTo(headlineElAnim, {
+            opacity: 0,
+            y: 20
+          }, {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            ease: 'power2.out'
           })
         }
+        
+        scrollTriggers.push(headlineTl)
       }
-    } catch (e) {
-      // SplitText failed
-    }
-    
-    const headlineTl = readyGsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: 'top 85%',
-        once: true
-      }
-    })
-    
-    if (headlineSplit && headlineSplit.chars) {
-      headlineTl.to(headlineSplit.chars, {
-        opacity: 1,
-        yPercent: 0,
-        rotationX: 0,
-        duration: 0.5,
-        stagger: {
-          amount: 0.4,
-          from: 'start'
-        },
-        ease: 'power3.out'
-      })
-    } else {
-      headlineTl.fromTo(headlineElAnim, {
-        opacity: 0,
-        y: 20
-      }, {
-        opacity: 1,
-        y: 0,
-        duration: 0.4,
-        ease: 'power2.out'
-      })
-    }
-    
-    scrollTriggers.push(headlineTl)
-  }
-  
-  const timelineItems = container.querySelectorAll('.timeline-item')
-  const dots: Array<{ y: number; inner: HTMLElement; outer: HTMLElement; filled: boolean }> = []
-  
-  timelineItems.forEach((item) => {
-    const companyEl = item.querySelector('.timeline-company') as HTMLElement
-    const dateEl = item.querySelector('.timeline-date') as HTMLElement
-    const titleEl = item.querySelector('.timeline-title') as HTMLElement
-    const locationEl = item.querySelector('.timeline-location') as HTMLElement
-    const bulletsEl = item.querySelector('.timeline-bullets') as HTMLElement
-    const dotInner = item.querySelector('.timeline-dot-inner') as HTMLElement
-    const dotOuter = item.querySelector('.timeline-dot') as HTMLElement
-    
-    // Set initial states
+      
+      const timelineItems = container.querySelectorAll('.timeline-item')
+      const dots: Array<{ y: number; inner: HTMLElement; outer: HTMLElement; filled: boolean }> = []
+      
+      timelineItems.forEach((item) => {
+        const companyEl = item.querySelector('.timeline-company') as HTMLElement
+        const dateEl = item.querySelector('.timeline-date') as HTMLElement
+        const titleEl = item.querySelector('.timeline-title') as HTMLElement
+        const locationEl = item.querySelector('.timeline-location') as HTMLElement
+        const bulletsEl = item.querySelector('.timeline-bullets') as HTMLElement
+        const dotInner = item.querySelector('.timeline-dot-inner') as HTMLElement
+        const dotOuter = item.querySelector('.timeline-dot') as HTMLElement
+        
+        // Set initial states
     if (companyEl) readyGsap.set(companyEl, { y: 20, autoAlpha: 0 })
     if (dateEl) readyGsap.set(dateEl, { y: 20, autoAlpha: 0 })
     if (titleEl) readyGsap.set(titleEl, { y: 20, autoAlpha: 0 })
@@ -345,170 +345,170 @@ async function setupScrollAnimation() {
     if (bulletsEl) readyGsap.set(bulletsEl.querySelectorAll('li'), { y: 20, autoAlpha: 0 })
     if (dotInner) readyGsap.set(dotInner, { scale: 0.8, backgroundColor: 'var(--foreground)', backgroundImage: 'none' })
     if (dotOuter) readyGsap.set(dotOuter, { backgroundImage: 'none' })
-    
+        
     const itemTl = readyGsap.timeline({
-      scrollTrigger: {
-        trigger: item as Element,
-        start: 'top 85%',
-        once: true
-      }
-    })
-    
-    if (companyEl) {
-      itemTl.to(companyEl, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, 0)
-    }
-    if (dateEl) {
-      itemTl.to(dateEl, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, 0.1)
-    }
-    if (titleEl) {
-      itemTl.to(titleEl, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'power2.out' }, 0.2)
-    }
-    if (locationEl) {
-      itemTl.to(locationEl, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, 0.3)
-    }
-    if (bulletsEl) {
-      const bullets = bulletsEl.querySelectorAll('li')
-      itemTl.to(bullets, {
-        y: 0,
-        autoAlpha: 1,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out'
-      }, 0.4)
-    }
-    if (dotInner) {
-      itemTl.to(dotInner, {
-        scale: 1,
-        duration: 0.25,
-        ease: 'power1.out',
-        backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.85), rgba(168,85,247,0.85))',
-        backgroundColor: 'transparent'
-      }, 0.15)
-    }
-    
-    // Register dot for line-fill logic
-    if (dotInner && dotOuter) {
-      const itemEl = item as HTMLElement
-      const dotY = itemEl.offsetTop + 14
-      dots.push({ y: dotY, inner: dotInner, outer: dotOuter, filled: false })
-    }
-    
-    scrollTriggers.push(itemTl)
-  })
-  
-  if (fillEl) {
+          scrollTrigger: {
+            trigger: item as Element,
+            start: 'top 85%',
+            once: true
+          }
+        })
+        
+        if (companyEl) {
+          itemTl.to(companyEl, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, 0)
+        }
+        if (dateEl) {
+          itemTl.to(dateEl, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, 0.1)
+        }
+        if (titleEl) {
+          itemTl.to(titleEl, { y: 0, autoAlpha: 1, duration: 0.8, ease: 'power2.out' }, 0.2)
+        }
+        if (locationEl) {
+          itemTl.to(locationEl, { y: 0, autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, 0.3)
+        }
+        if (bulletsEl) {
+          const bullets = bulletsEl.querySelectorAll('li')
+          itemTl.to(bullets, {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: 'power2.out'
+          }, 0.4)
+        }
+        if (dotInner) {
+          itemTl.to(dotInner, {
+            scale: 1,
+            duration: 0.25,
+            ease: 'power1.out',
+            backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.85), rgba(168,85,247,0.85))',
+            backgroundColor: 'transparent'
+          }, 0.15)
+        }
+        
+        // Register dot for line-fill logic
+        if (dotInner && dotOuter) {
+          const itemEl = item as HTMLElement
+          const dotY = itemEl.offsetTop + 14
+          dots.push({ y: dotY, inner: dotInner, outer: dotOuter, filled: false })
+        }
+        
+        scrollTriggers.push(itemTl)
+      })
+      
+      if (fillEl) {
     const setter = readyGsap.quickSetter(fillEl, 'height', 'px')
-    const maxDotY = dots.length ? Math.max(...dots.map(d => d.y)) : 0
-    const total = (maxDotY ? Math.max(0, maxDotY - 2) : 0) || (lineHeight.value > 0 ? Math.max(0, lineHeight.value - 2) : 400)
-    
-    if (total > 0 && Number.isFinite(total) && container && container instanceof Element && document.body.contains(container)) {
-      try {
-        const rect = container.getBoundingClientRect()
-        if (rect.width > 0 || rect.height > 0) {
+        const maxDotY = dots.length ? Math.max(...dots.map(d => d.y)) : 0
+        const total = (maxDotY ? Math.max(0, maxDotY - 2) : 0) || (lineHeight.value > 0 ? Math.max(0, lineHeight.value - 2) : 400)
+        
+        if (total > 0 && Number.isFinite(total) && container && container instanceof Element && document.body.contains(container)) {
+          try {
+            const rect = container.getBoundingClientRect()
+            if (rect.width > 0 || rect.height > 0) {
           const st = readyST.create({
-            trigger: container,
-            start: 'top 40%',
-            end: `+=${total}`,
-            onUpdate: (self) => {
-              const h = Math.min(total, total * self.progress)
-              setter(h)
-              
-              const current = h
-              dots.forEach((d) => {
-                if (!d.filled && current >= d.y) {
-                  d.filled = true
+                trigger: container,
+                start: 'top 40%',
+                end: `+=${total}`,
+                onUpdate: (self) => {
+                  const h = Math.min(total, total * self.progress)
+                  setter(h)
+                  
+                  const current = h
+                  dots.forEach((d) => {
+                    if (!d.filled && current >= d.y) {
+                      d.filled = true
                   readyGsap.to(d.inner, {
-                    backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.95), rgba(168,85,247,0.95))',
-                    backgroundColor: 'transparent',
-                    duration: 0.2,
-                    ease: 'power1.out'
-                  })
+                        backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.95), rgba(168,85,247,0.95))',
+                        backgroundColor: 'transparent',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
                   readyGsap.to(d.outer, {
-                    backgroundImage: 'linear-gradient(to bottom, rgba(59,130,246,0.2), rgba(168,85,247,0.2))',
-                    duration: 0.2,
-                    ease: 'power1.out'
-                  })
-                } else if (d.filled && current < d.y) {
-                  d.filled = false
+                        backgroundImage: 'linear-gradient(to bottom, rgba(59,130,246,0.2), rgba(168,85,247,0.2))',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
+                    } else if (d.filled && current < d.y) {
+                      d.filled = false
                   readyGsap.to(d.inner, {
-                    backgroundImage: 'none',
-                    backgroundColor: 'var(--foreground)',
-                    duration: 0.2,
-                    ease: 'power1.out'
-                  })
+                        backgroundImage: 'none',
+                        backgroundColor: 'var(--foreground)',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
                   readyGsap.to(d.outer, {
-                    backgroundImage: 'none',
-                    duration: 0.2,
-                    ease: 'power1.out'
+                        backgroundImage: 'none',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
+                    }
                   })
                 }
               })
+              scrollTriggers.push(st as any)
             }
-          })
-          scrollTriggers.push(st as any)
+          } catch (error) {
+            console.warn('Error creating desktop timeline ScrollTrigger:', error)
+          }
         }
-      } catch (error) {
-        console.warn('Error creating desktop timeline ScrollTrigger:', error)
       }
-    }
-  }
-  
-  if (fillElMobile) {
+      
+      if (fillElMobile) {
     const setterMobile = readyGsap.quickSetter(fillElMobile, 'height', 'px')
-    const maxDotY = dots.length ? Math.max(...dots.map(d => d.y)) : 0
-    const scrollHeight = container?.scrollHeight || 0
-    const totalMobile = (maxDotY ? Math.max(0, maxDotY - 2) : 0) || (scrollHeight > 0 ? scrollHeight : 400)
-    
-    if (totalMobile > 0 && Number.isFinite(totalMobile) && container && container instanceof Element && document.body.contains(container)) {
-      try {
-        const rect = container.getBoundingClientRect()
-        if (rect.width > 0 || rect.height > 0) {
+        const maxDotY = dots.length ? Math.max(...dots.map(d => d.y)) : 0
+        const scrollHeight = container?.scrollHeight || 0
+        const totalMobile = (maxDotY ? Math.max(0, maxDotY - 2) : 0) || (scrollHeight > 0 ? scrollHeight : 400)
+        
+        if (totalMobile > 0 && Number.isFinite(totalMobile) && container && container instanceof Element && document.body.contains(container)) {
+          try {
+            const rect = container.getBoundingClientRect()
+            if (rect.width > 0 || rect.height > 0) {
           const st = readyST.create({
-            trigger: container,
-            start: 'top 25%',
-            end: `+=${totalMobile}`,
-            onUpdate: (self) => {
-              const h = Math.min(totalMobile, totalMobile * self.progress)
-              setterMobile(h)
-              
-              dots.forEach((d) => {
-                if (!d.filled && h >= d.y) {
-                  d.filled = true
+                trigger: container,
+                start: 'top 25%',
+                end: `+=${totalMobile}`,
+                onUpdate: (self) => {
+                  const h = Math.min(totalMobile, totalMobile * self.progress)
+                  setterMobile(h)
+                  
+                  dots.forEach((d) => {
+                    if (!d.filled && h >= d.y) {
+                      d.filled = true
                   readyGsap.to(d.inner, {
-                    backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.95), rgba(168,85,247,0.95))',
-                    backgroundColor: 'transparent',
-                    duration: 0.2,
-                    ease: 'power1.out'
-                  })
+                        backgroundImage: 'linear-gradient(to right, rgba(59,130,246,0.95), rgba(168,85,247,0.95))',
+                        backgroundColor: 'transparent',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
                   readyGsap.to(d.outer, {
-                    backgroundImage: 'linear-gradient(to bottom, rgba(59,130,246,0.2), rgba(168,85,247,0.2))',
-                    duration: 0.2,
-                    ease: 'power1.out'
-                  })
-                } else if (d.filled && h < d.y) {
-                  d.filled = false
+                        backgroundImage: 'linear-gradient(to bottom, rgba(59,130,246,0.2), rgba(168,85,247,0.2))',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
+                    } else if (d.filled && h < d.y) {
+                      d.filled = false
                   readyGsap.to(d.inner, {
-                    backgroundImage: 'none',
-                    backgroundColor: 'var(--foreground)',
-                    duration: 0.2,
-                    ease: 'power1.out'
-                  })
+                        backgroundImage: 'none',
+                        backgroundColor: 'var(--foreground)',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
                   readyGsap.to(d.outer, {
-                    backgroundImage: 'none',
-                    duration: 0.2,
-                    ease: 'power1.out'
+                        backgroundImage: 'none',
+                        duration: 0.2,
+                        ease: 'power1.out'
+                      })
+                    }
                   })
                 }
               })
+              scrollTriggers.push(st as any)
             }
-          })
-          scrollTriggers.push(st as any)
+          } catch (error) {
+            console.warn('Error creating mobile timeline ScrollTrigger:', error)
+          }
         }
-      } catch (error) {
-        console.warn('Error creating mobile timeline ScrollTrigger:', error)
       }
-    }
-  }
   
   setTimeout(() => {
     try {

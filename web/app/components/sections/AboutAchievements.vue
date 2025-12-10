@@ -74,43 +74,43 @@ async function setupScrollAnimation() {
 
   await nextTick()
 
-  const grid = gridRef.value
-  const items = achievementRefs.value.map(resolveEl).filter(Boolean) as HTMLElement[]
-  if (!grid) return
+      const grid = gridRef.value
+      const items = achievementRefs.value.map(resolveEl).filter(Boolean) as HTMLElement[]
+      if (!grid) return
 
   readyGsap.set(grid, { opacity: 0, scale: 0.9, rotation: -3 })
   if (items.length > 0) readyGsap.set(items, { opacity: 0, y: 20, scale: 0.9, rotation: -3 })
 
   const tl = readyGsap.timeline({
-    scrollTrigger: {
-      trigger: grid,
-      start: 'top 80%',
-      once: true
-    }
-  })
+        scrollTrigger: {
+          trigger: grid,
+          start: 'top 80%',
+          once: true
+        }
+      })
 
-  tl.to(grid, {
-    opacity: 1,
-    scale: 1,
-    rotation: 0,
-    duration: 0.7,
-    ease: 'back.out(1.4)'
-  })
+      tl.to(grid, {
+        opacity: 1,
+        scale: 1,
+        rotation: 0,
+        duration: 0.7,
+        ease: 'back.out(1.4)'
+      })
 
-  if (items.length > 0) {
-    tl.to(items, {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      rotation: 0,
-      duration: 0.45,
-      stagger: 0.06,
-      ease: 'power2.out'
-    }, '-=0.35')
-  }
+      if (items.length > 0) {
+        tl.to(items, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotation: 0,
+          duration: 0.45,
+          stagger: 0.06,
+          ease: 'power2.out'
+        }, '-=0.35')
+      }
 
-  scrollTriggers.push(tl)
-  storedElements = { grid, items }
+      scrollTriggers.push(tl)
+      storedElements = { grid, items }
   setTimeout(() => readyST.refresh(), 100)
 }
 

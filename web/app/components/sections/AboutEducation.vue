@@ -88,78 +88,78 @@ async function setupScrollAnimation() {
 
   await nextTick()
 
-  const bentoBox = resolveEl(bentoBoxRef.value)
-  const title = titleRef.value
-  const items = eduItemRefs.value.filter(Boolean) as HTMLElement[]
+      const bentoBox = resolveEl(bentoBoxRef.value)
+      const title = titleRef.value
+      const items = eduItemRefs.value.filter(Boolean) as HTMLElement[]
 
-  if (!bentoBox || !title) return
+      if (!bentoBox || !title) return
 
   readyGsap.set(bentoBox, { opacity: 0, scale: 0.9, rotation: -3 })
   readyGsap.set(title, { opacity: 0, y: 20 })
   if (items.length > 0) readyGsap.set(items, { opacity: 0, y: 20 })
 
-  let titleSplit: any = null
-  try {
-    if (SplitText) {
+      let titleSplit: any = null
+      try {
+        if (SplitText) {
       readyGsap.set(title, { lineHeight: '0.9' })
-      titleSplit = new SplitText(title, {
-        type: 'chars',
-        mask: 'chars',
-        smartWrap: true,
-        charsClass: 'char++'
-      })
-      if (titleSplit.chars && titleSplit.chars.length > 0) {
-        titleSplit.chars.forEach((char: HTMLElement) => {
+          titleSplit = new SplitText(title, {
+            type: 'chars',
+            mask: 'chars',
+            smartWrap: true,
+            charsClass: 'char++'
+          })
+          if (titleSplit.chars && titleSplit.chars.length > 0) {
+            titleSplit.chars.forEach((char: HTMLElement) => {
           readyGsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '0.9' })
-        })
+            })
+          }
+        }
+      } catch (e) {
+        titleSplit = null
       }
-    }
-  } catch (e) {
-    titleSplit = null
-  }
 
   const tl = readyGsap.timeline({
-    scrollTrigger: {
-      trigger: bentoBox,
-      start: 'top 80%',
-      once: true
-    }
-  })
+        scrollTrigger: {
+          trigger: bentoBox,
+          start: 'top 80%',
+          once: true
+        }
+      })
 
-  tl.to(bentoBox, {
-    opacity: 1,
-    scale: 1,
-    rotation: 0,
-    duration: 0.7,
-    ease: 'back.out(1.4)'
-  })
+      tl.to(bentoBox, {
+        opacity: 1,
+        scale: 1,
+        rotation: 0,
+        duration: 0.7,
+        ease: 'back.out(1.4)'
+      })
 
-  if (titleSplit && titleSplit.chars) {
-    tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-    tl.to(titleSplit.chars, {
-      opacity: 1,
-      yPercent: 0,
-      rotationX: 0,
-      duration: 0.5,
-      stagger: { amount: 0.35, from: 'start' },
-      ease: 'power3.out'
-    }, '-=0.3')
-  } else {
-    tl.to(title, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, '-=0.3')
-  }
+      if (titleSplit && titleSplit.chars) {
+        tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+        tl.to(titleSplit.chars, {
+          opacity: 1,
+          yPercent: 0,
+          rotationX: 0,
+          duration: 0.5,
+          stagger: { amount: 0.35, from: 'start' },
+          ease: 'power3.out'
+        }, '-=0.3')
+      } else {
+        tl.to(title, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }, '-=0.3')
+      }
 
-  if (items.length > 0) {
-    tl.to(items, {
-      opacity: 1,
-      y: 0,
-      duration: 0.45,
-      stagger: 0.06,
-      ease: 'power2.out'
-    }, '-=0.3')
-  }
+      if (items.length > 0) {
+        tl.to(items, {
+          opacity: 1,
+          y: 0,
+          duration: 0.45,
+          stagger: 0.06,
+          ease: 'power2.out'
+        }, '-=0.3')
+      }
 
-  scrollTriggers.push(tl)
-  storedElements = { bentoBox, title, items }
+      scrollTriggers.push(tl)
+      storedElements = { bentoBox, title, items }
   setTimeout(() => readyST.refresh(), 100)
 }
 

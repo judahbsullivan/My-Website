@@ -230,8 +230,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useNuxtApp } from '#app'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import { useGSAP } from '../../composables/useGSAP'
 import type { Project } from '~/../../shared/types'
 import homeData from '../../data/home.json'
 
@@ -303,179 +303,174 @@ const resolveEl = (maybeEl: any): HTMLElement | null => {
   return null
 }
 
-function setupScrollAnimation() {
+async function setupScrollAnimation() {
   if (import.meta.server) return
   
-  const nuxtApp = useNuxtApp()
-  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-  const SplitText = nuxtApp.$SplitText as any
+  const { waitForReady } = useGSAP()
+  const { gsap: readyGsap, ScrollTrigger: readyST, SplitText } = await waitForReady()
   
-  if (!gsap) return
+  if (!readyGsap || !readyST) {
+    console.warn('GSAP or ScrollTrigger not available')
+    return
+  }
   
-  // Import ScrollTrigger
-  import('gsap/ScrollTrigger').then((stModule) => {
-    const ScrollTrigger = stModule.default || stModule
-    if (ScrollTrigger && gsap.registerPlugin) {
-      gsap.registerPlugin(ScrollTrigger)
-    }
-    
-    nextTick(() => {
-      const box = resolveEl(sectionBoxRef.value)
-      const titleComponent = sectionTitleRef.value as any
-      const title = titleComponent?.el || titleComponent?.$el || (box?.querySelector('h2') as HTMLElement)
-      const desc = sectionDescRef.value
-      
-      if (!box || !title) return
-      
-      // Split title with mask (matching Hero)
-      let titleSplit: any = null
-      try {
-        if (SplitText) {
-          gsap.set(title, { lineHeight: '0.9' })
-          titleSplit = new SplitText(title, {
-            type: 'chars',
-            mask: 'chars',
-            smartWrap: true,
-            charsClass: 'char++',
-          })
-          if (titleSplit.chars && titleSplit.chars.length > 0) {
-            titleSplit.chars.forEach((char: HTMLElement) => {
-              gsap.set(char, {
-                opacity: 0,
-                yPercent: 120,
-                rotationX: -90,
-                lineHeight: '0.9'
-              })
-            })
-          }
-        }
-      } catch (e) {
-        titleSplit = null
-      }
-      
-      // Split description with lines mask
-      let descSplit: any = null
-      try {
-        if (SplitText && desc) {
-          descSplit = new SplitText(desc, {
-            type: 'lines',
-            mask: 'lines',
-            smartWrap: true,
-            linesClass: 'line++',
-          })
-          if (descSplit.lines && descSplit.lines.length > 0) {
-            gsap.set(descSplit.lines, {
-              opacity: 0,
-              yPercent: 100
-            })
-          }
-        }
-      } catch (e) {
-        descSplit = null
-      }
-      
-      // Create timeline with ScrollTrigger
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: box,
-          start: 'top 80%',
-          once: true
-        }
+  await nextTick()
+  
+  const box = resolveEl(sectionBoxRef.value)
+  const titleComponent = sectionTitleRef.value as any
+  const title = titleComponent?.el || titleComponent?.$el || (box?.querySelector('h2') as HTMLElement)
+  const desc = sectionDescRef.value
+  
+  if (!box || !title) return
+  
+  // Split title with mask (matching Hero)
+  let titleSplit: any = null
+  try {
+    if (SplitText) {
+      readyGsap.set(title, { lineHeight: '0.9' })
+      titleSplit = new SplitText(title, {
+        type: 'chars',
+        mask: 'chars',
+        smartWrap: true,
+        charsClass: 'char++',
       })
-      
-      // 1. Fade in container with scale (matching Hero/IntroLoader exactly)
-      // Animate from Tailwind initial state (opacity-0 scale-95 translate-y-6)
-      tl.fromTo(box, 
-        {
-          opacity: 0,
-          scale: 0.95,
-          y: 24
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          y: 0,
-          duration: 0.6,
-          ease: 'power3.out'
-        }
-      )
-      
-      // 2. Animate title chars with stagger and 3D rotation (matching Hero/IntroLoader exactly)
-      if (titleSplit && titleSplit.chars) {
-        tl.to(titleSplit.chars, {
-          opacity: 1,
-          yPercent: 0,
-          rotationX: 0,
-          duration: 0.5,
-          stagger: {
-            amount: 0.4,
-            from: 'start'
-          },
-          ease: 'power3.out'
-        }, '-=0.3')
-      }
-      
-      // 3. Animate description lines (matching Hero paragraph exactly)
-      if (descSplit && descSplit.lines) {
-        tl.to(descSplit.lines, {
-          opacity: 1,
-          yPercent: 0,
-          duration: 0.5,
-          stagger: {
-            amount: 0.3,
-            from: 'start'
-          },
-          ease: 'power2.out'
-        }, '-=0.3')
-      } else if (desc) {
-        tl.fromTo(desc,
-          {
+      if (titleSplit.chars && titleSplit.chars.length > 0) {
+        titleSplit.chars.forEach((char: HTMLElement) => {
+          readyGsap.set(char, {
             opacity: 0,
-            y: 10
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.4,
-            ease: 'power2.out'
-          }, '-=0.2')
+            yPercent: 120,
+            rotationX: -90,
+            lineHeight: '0.9'
+          })
+        })
       }
-      
-      // Store split instances for exit animation
-      storedTitleSplit = titleSplit
-      storedDescSplit = descSplit
-      
-      // Store DOM elements for exit animation
-      storedElements = { box, title, desc }
-      console.log('[FeaturedWork] Stored DOM elements for exit')
-      
-      scrollTriggers.push(tl)
-    })
-  }).catch(() => {
-    console.warn('ScrollTrigger not available')
+    }
+  } catch (e) {
+    titleSplit = null
+  }
+  
+  // Split description with lines mask
+  let descSplit: any = null
+  try {
+    if (SplitText && desc) {
+      descSplit = new SplitText(desc, {
+        type: 'lines',
+        mask: 'lines',
+        smartWrap: true,
+        linesClass: 'line++',
+      })
+      if (descSplit.lines && descSplit.lines.length > 0) {
+        readyGsap.set(descSplit.lines, {
+          opacity: 0,
+          yPercent: 100
+        })
+      }
+    }
+  } catch (e) {
+    descSplit = null
+  }
+  
+  // Create timeline with ScrollTrigger
+  const tl = readyGsap.timeline({
+    scrollTrigger: {
+      trigger: box,
+      start: 'top 80%',
+      once: true
+    }
   })
+  
+  // 1. Fade in container with scale (matching Hero/IntroLoader exactly)
+  // Animate from Tailwind initial state (opacity-0 scale-95 translate-y-6)
+  tl.fromTo(box, 
+    {
+      opacity: 0,
+      scale: 0.95,
+      y: 24
+    },
+    {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power3.out'
+    }
+  )
+  
+  // 2. Animate title chars with stagger and 3D rotation (matching Hero/IntroLoader exactly)
+  if (titleSplit && titleSplit.chars) {
+    tl.to(titleSplit.chars, {
+      opacity: 1,
+      yPercent: 0,
+      rotationX: 0,
+      duration: 0.5,
+      stagger: {
+        amount: 0.4,
+        from: 'start'
+      },
+      ease: 'power3.out'
+    }, '-=0.3')
+  }
+  
+  // 3. Animate description lines (matching Hero paragraph exactly)
+  if (descSplit && descSplit.lines) {
+    tl.to(descSplit.lines, {
+      opacity: 1,
+      yPercent: 0,
+      duration: 0.5,
+      stagger: {
+        amount: 0.3,
+        from: 'start'
+      },
+      ease: 'power2.out'
+    }, '-=0.3')
+  } else if (desc) {
+    tl.fromTo(desc,
+      {
+        opacity: 0,
+        y: 10
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.4,
+        ease: 'power2.out'
+      }, '-=0.2')
+  }
+  
+  // Store split instances for exit animation
+  storedTitleSplit = titleSplit
+  storedDescSplit = descSplit
+  
+  // Store DOM elements for exit animation
+  storedElements = { box, title, desc }
+  console.log('[FeaturedWork] Stored DOM elements for exit')
+  
+  scrollTriggers.push(tl)
+  
+  // Refresh ScrollTrigger after a short delay
+  if (readyST) {
+    setTimeout(() => {
+      readyST.refresh()
+    }, 100)
+  }
 }
 
 // Exit animation - mirrors the enter animation
-function animateExit(): Promise<void> {
+async function animateExit(): Promise<void> {
   console.log('[FeaturedWork] animateExit called')
   
+  if (import.meta.server) {
+    console.log('[FeaturedWork] SSR guard - resolving immediately')
+    return
+  }
+
+  const { gsap: readyGsap, SplitText } = useGSAP()
+  if (!readyGsap) {
+    console.log('[FeaturedWork] No GSAP - resolving immediately')
+    return
+  }
+
   return new Promise((resolve) => {
-    if (import.meta.server) {
-      console.log('[FeaturedWork] SSR guard - resolving immediately')
-      resolve()
-      return
-    }
-
-    const nuxtApp = useNuxtApp()
-    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-    const SplitText = nuxtApp.$SplitText as any
-
-    if (!gsap) {
-      console.log('[FeaturedWork] No GSAP - resolving immediately')
-      resolve()
-      return
-    }
 
     // Use stored DOM elements (Vue refs are already cleaned up)
     const box = storedElements.box
@@ -496,7 +491,7 @@ function animateExit(): Promise<void> {
       return
     }
 
-    const tl = gsap.timeline({ 
+    const tl = readyGsap.timeline({ 
       onComplete: () => {
         console.log('[FeaturedWork] Exit animation timeline complete')
         resolve()

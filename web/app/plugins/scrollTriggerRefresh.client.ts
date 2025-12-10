@@ -9,7 +9,7 @@ export default defineNuxtPlugin({
 
     // Refresh ScrollTrigger after route changes
     nuxtApp.hook('page:finish', () => {
-      const ScrollTrigger = nuxtApp.$scrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
+      const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
       
       if (ScrollTrigger) {
         // Wait for next tick to ensure DOM is updated
@@ -23,7 +23,7 @@ export default defineNuxtPlugin({
 
     // Also refresh on app:mounted (initial load)
     nuxtApp.hook('app:mounted', () => {
-      const ScrollTrigger = nuxtApp.$scrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
+      const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
       
       if (ScrollTrigger) {
         nextTick(() => {

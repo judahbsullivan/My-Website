@@ -3,35 +3,23 @@ export default defineNuxtPlugin({
   setup(nuxtApp) {
     if (import.meta.server) return
 
-    // Wait for GSAP to be available from @hypernym/nuxt-gsap
+    // @hypernym/nuxt-gsap already provides ScrollTrigger as $ScrollTrigger
+    // Just ensure it's registered if needed
     const initScrollTrigger = () => {
       const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
+      const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
       
-      if (!gsap) {
-        // Retry if GSAP isn't ready yet
+      if (!gsap || !ScrollTrigger) {
+        // Retry if not ready yet
         setTimeout(initScrollTrigger, 50)
         return
       }
 
-      // Import ScrollTrigger synchronously (it's already configured in nuxt.config)
-      // The @hypernym/nuxt-gsap module should make it available, but we ensure it's registered
-      import('gsap/ScrollTrigger').then((stModule) => {
-        const ScrollTrigger = stModule.default || stModule.ScrollTrigger || stModule
-        
-        if (ScrollTrigger && gsap.registerPlugin) {
-          // Register ScrollTrigger if not already registered
-          if (!gsap.plugins?.scrollTrigger) {
-            gsap.registerPlugin(ScrollTrigger)
-          }
-          
-          // Make ScrollTrigger available on nuxtApp
-          nuxtApp.provide('scrollTrigger', ScrollTrigger)
-          
-          console.log('ScrollTrigger registered successfully')
-        }
-      }).catch((error) => {
-        console.warn('Failed to load ScrollTrigger:', error)
-      })
+      // Register ScrollTrigger if not already registered
+      if (gsap.registerPlugin && !gsap.plugins?.scrollTrigger) {
+        gsap.registerPlugin(ScrollTrigger)
+        console.log('ScrollTrigger registered successfully')
+      }
     }
 
     // Initialize after DOM is ready

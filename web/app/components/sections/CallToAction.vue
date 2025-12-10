@@ -93,8 +93,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useNuxtApp } from '#app'
 import { registerExitAnimation, unregisterExitAnimation } from '../../composables/usePageExitAnimations'
+import { useGSAP } from '../../composables/useGSAP'
 
 interface Props {
   ctaData: {
@@ -188,164 +188,163 @@ const handleNewsletterSubmit = async () => {
   }
 }
 
-function setupScrollAnimation() {
+async function setupScrollAnimation() {
   if (import.meta.server) return
-  const nuxtApp = useNuxtApp()
-  const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-  const SplitText = nuxtApp.$SplitText as any
-  if (!gsap) return
+  
+  const { waitForReady } = useGSAP()
+  const { gsap: readyGsap, ScrollTrigger: readyST, SplitText } = await waitForReady()
+  
+  if (!readyGsap || !readyST) {
+    console.warn('GSAP or ScrollTrigger not available')
+    return
+  }
+  
+  await nextTick()
+  
+  const bentoBox = resolveEl(bentoBoxRef.value)
+  const title = titleRef.value
+  const desc = descRef.value
+  const newsletter = newsletterRef.value
+  const buttons = buttonsRef.value
+  if (!bentoBox || !title) return
 
-  import('gsap/ScrollTrigger').then((stModule) => {
-    const ScrollTrigger = stModule.default || stModule
-    if (ScrollTrigger && gsap.registerPlugin) gsap.registerPlugin(ScrollTrigger)
+  // Check if element is already in viewport
+  const rect = bentoBox.getBoundingClientRect()
+  const isInViewport = rect.top < window.innerHeight * 0.8 && rect.bottom > 0
 
-    nextTick(() => {
-      const bentoBox = resolveEl(bentoBoxRef.value)
-      const title = titleRef.value
-      const desc = descRef.value
-      const newsletter = newsletterRef.value
-      const buttons = buttonsRef.value
-      if (!bentoBox || !title) return
+  readyGsap.set(bentoBox, { opacity: 0, scale: 0.95, y: 24 })
+  readyGsap.set(title, { opacity: 0, y: 20 })
+  if (desc) readyGsap.set(desc, { opacity: 0, y: 15 })
+  if (newsletter) readyGsap.set(newsletter, { opacity: 0, y: 16 })
+  if (buttons) readyGsap.set(buttons.children, { opacity: 0, scale: 0.8, y: 20, rotation: -3 })
 
-      // Check if element is already in viewport
-      const rect = bentoBox.getBoundingClientRect()
-      const isInViewport = rect.top < window.innerHeight * 0.8 && rect.bottom > 0
-
-      gsap.set(bentoBox, { opacity: 0, scale: 0.95, y: 24 })
-      gsap.set(title, { opacity: 0, y: 20 })
-      if (desc) gsap.set(desc, { opacity: 0, y: 15 })
-      if (newsletter) gsap.set(newsletter, { opacity: 0, y: 16 })
-      if (buttons) gsap.set(buttons.children, { opacity: 0, scale: 0.8, y: 20, rotation: -3 })
-
-      let titleSplit: any = null
-      try {
-        if (SplitText) {
-          gsap.set(title, { lineHeight: '1' })
-          titleSplit = new SplitText(title, { type: 'chars', mask: 'chars', smartWrap: true, charsClass: 'char++' })
-          if (titleSplit.chars && titleSplit.chars.length > 0) {
-            titleSplit.chars.forEach((char: HTMLElement) => {
-              gsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '1' })
-            })
-          }
-        }
-      } catch (e) {
-        titleSplit = null
+  let titleSplit: any = null
+  try {
+    if (SplitText) {
+      readyGsap.set(title, { lineHeight: '1' })
+      titleSplit = new SplitText(title, { type: 'chars', mask: 'chars', smartWrap: true, charsClass: 'char++' })
+      if (titleSplit.chars && titleSplit.chars.length > 0) {
+        titleSplit.chars.forEach((char: HTMLElement) => {
+          readyGsap.set(char, { opacity: 0, yPercent: 120, rotationX: -90, lineHeight: '1' })
+        })
       }
+    }
+  } catch (e) {
+    titleSplit = null
+  }
 
-      storedElements = { bento: bentoBox, title, desc, newsletter, buttons }
+  storedElements = { bento: bentoBox, title, desc, newsletter, buttons }
 
-      // Check if element is already in viewport
-          if (isInViewport) {
-            const immediateTl = gsap.timeline()
-        immediateTl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+  // Check if element is already in viewport
+  if (isInViewport) {
+    const immediateTl = readyGsap.timeline()
+    immediateTl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
 
-        if (titleSplit && titleSplit.chars) {
-              immediateTl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-              immediateTl.to(titleSplit.chars, {
-                opacity: 1,
-                yPercent: 0,
-                rotationX: 0,
-                duration: 0.5,
-                stagger: { amount: 0.3, from: 'start' },
-                ease: 'power3.out'
-              }, '-=0.3')
-            } else {
-          immediateTl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-            }
+    if (titleSplit && titleSplit.chars) {
+      immediateTl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+      immediateTl.to(titleSplit.chars, {
+        opacity: 1,
+        yPercent: 0,
+        rotationX: 0,
+        duration: 0.5,
+        stagger: { amount: 0.3, from: 'start' },
+        ease: 'power3.out'
+      }, '-=0.3')
+    } else {
+      immediateTl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+    }
 
-            if (desc) {
-          immediateTl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
-            }
+    if (desc) {
+      immediateTl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
+    }
 
-            if (newsletter) {
-          immediateTl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
-            }
+    if (newsletter) {
+      immediateTl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
+    }
 
-            if (buttons && buttons.children.length > 0) {
-              immediateTl.to(Array.from(buttons.children) as HTMLElement[], {
-                opacity: 1,
-                scale: 1,
-                y: 0,
-                rotation: 0,
-            duration: 0.6,
-            stagger: 0.08,
-                ease: 'back.out(1.4)'
-              }, '-=0.3')
-            }
-      } else {
-        // Use ScrollTrigger
-          const tl = gsap.timeline({
-            scrollTrigger: {
-              trigger: bentoBox,
-            start: 'top 80%',
-              once: true,
-              invalidateOnRefresh: true
-            }
-          })
-
-        tl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
-
-        if (titleSplit && titleSplit.chars) {
-            tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
-            tl.to(titleSplit.chars, {
-              opacity: 1,
-              yPercent: 0,
-              rotationX: 0,
-              duration: 0.5,
-              stagger: { amount: 0.3, from: 'start' },
-              ease: 'power3.out'
-            }, '-=0.3')
-          } else {
-          tl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-          }
-
-          if (desc) {
-          tl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
-          }
-
-          if (newsletter) {
-          tl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
-          }
-
-          if (buttons && buttons.children.length > 0) {
-            tl.to(Array.from(buttons.children) as HTMLElement[], {
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              rotation: 0,
-            duration: 0.6,
-            stagger: 0.08,
-              ease: 'back.out(1.4)'
-            }, '-=0.3')
-          }
-        }
-
-      // Refresh ScrollTrigger after a short delay to ensure proper initialization
-      if (ScrollTrigger) {
-        setTimeout(() => {
-          ScrollTrigger.refresh()
-        }, 100)
+    if (buttons && buttons.children.length > 0) {
+      immediateTl.to(Array.from(buttons.children) as HTMLElement[], {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: 'back.out(1.4)'
+      }, '-=0.3')
+    }
+  } else {
+    // Use ScrollTrigger
+    const tl = readyGsap.timeline({
+      scrollTrigger: {
+        trigger: bentoBox,
+        start: 'top 80%',
+        once: true,
+        invalidateOnRefresh: true
       }
     })
-  }).catch(() => console.warn('ScrollTrigger not available'))
+
+    tl.to(bentoBox, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+
+    if (titleSplit && titleSplit.chars) {
+      tl.to(title, { opacity: 1, duration: 0.001 }, '-=0.35')
+      tl.to(titleSplit.chars, {
+        opacity: 1,
+        yPercent: 0,
+        rotationX: 0,
+        duration: 0.5,
+        stagger: { amount: 0.3, from: 'start' },
+        ease: 'power3.out'
+      }, '-=0.3')
+    } else {
+      tl.to(title, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+    }
+
+    if (desc) {
+      tl.to(desc, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.25')
+    }
+
+    if (newsletter) {
+      tl.to(newsletter, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.2')
+    }
+
+    if (buttons && buttons.children.length > 0) {
+      tl.to(Array.from(buttons.children) as HTMLElement[], {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        rotation: 0,
+        duration: 0.6,
+        stagger: 0.08,
+        ease: 'back.out(1.4)'
+      }, '-=0.3')
+    }
+  }
+
+  // Refresh ScrollTrigger after a short delay to ensure proper initialization
+  if (readyST) {
+    setTimeout(() => {
+      readyST.refresh()
+    }, 100)
+  }
 }
 
-function animateExit(): Promise<void> {
+async function animateExit(): Promise<void> {
+  if (import.meta.server) return
+  
+  const { gsap: readyGsap } = useGSAP()
+  if (!readyGsap) return
+
+  const bento = storedElements.bento || resolveEl(bentoBoxRef.value)
+  const title = storedElements.title || titleRef.value
+  const desc = storedElements.desc || descRef.value
+  const newsletter = storedElements.newsletter || newsletterRef.value
+  const buttons = storedElements.buttons || buttonsRef.value
+
+  if (!bento) return
+
   return new Promise((resolve) => {
-    if (import.meta.server) return resolve()
-    const nuxtApp = useNuxtApp()
-    const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
-    if (!gsap) return resolve()
-
-    const bento = storedElements.bento || resolveEl(bentoBoxRef.value)
-    const title = storedElements.title || titleRef.value
-    const desc = storedElements.desc || descRef.value
-    const newsletter = storedElements.newsletter || newsletterRef.value
-    const buttons = storedElements.buttons || buttonsRef.value
-
-    if (!bento) return resolve()
-
-    const tl = gsap.timeline({ onComplete: () => resolve() })
+    const tl = readyGsap.timeline({ onComplete: () => resolve() })
     const contentDuration = 0.5
 
     if (title) tl.to(title, { y: -10, autoAlpha: 0, duration: contentDuration, ease: 'power2.in' }, 0)

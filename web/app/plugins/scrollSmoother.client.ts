@@ -10,7 +10,7 @@ export default defineNuxtPlugin({
     const initScrollSmoother = () => {
       const gsap = nuxtApp.$gsap as typeof import('gsap').gsap
       const ScrollSmoother = (nuxtApp.$ScrollSmoother as any) || (typeof window !== 'undefined' && (window as any).ScrollSmoother)
-      const ScrollTrigger = nuxtApp.$scrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
+      const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
 
       if (!gsap || !ScrollSmoother) {
         console.warn('GSAP or ScrollSmoother not available')
@@ -72,8 +72,8 @@ export default defineNuxtPlugin({
 
     // Refresh ScrollTrigger after intro completes
     const refreshScrollTrigger = () => {
-      const ScrollTrigger = nuxtApp.$scrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
-        if (ScrollTrigger) {
+      const ScrollTrigger = nuxtApp.$ScrollTrigger as typeof import('gsap/ScrollTrigger').ScrollTrigger
+      if (ScrollTrigger) {
         // Wait for next tick to ensure DOM is ready
         nextTick(() => {
           ScrollTrigger.refresh()
@@ -81,19 +81,7 @@ export default defineNuxtPlugin({
           setTimeout(() => ScrollTrigger.refresh(), 100)
           setTimeout(() => ScrollTrigger.refresh(), 300)
         })
-      } else {
-        // Fallback: try to import if not available yet
-        import('gsap/ScrollTrigger').then((stModule) => {
-          const ST = stModule.default || stModule.ScrollTrigger || stModule
-          if (ST) {
-            nextTick(() => {
-              ST.refresh()
-              setTimeout(() => ST.refresh(), 100)
-              setTimeout(() => ST.refresh(), 300)
-            })
-        }
-      }).catch(() => {})
-    }
+      }
     }
 
     // Wait for intro loader to complete before initializing
