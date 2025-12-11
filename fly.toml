@@ -1,0 +1,50 @@
+# fly.toml app configuration file for root-level deployment
+# This file tells Fly.io to build from the api/ directory
+
+app = 'your-portfolio-api-dry-feather-6260'
+primary_region = 'iad'
+
+[build]
+  dockerfile = 'Dockerfile'
+  build_args = {}
+
+[env]
+  ASPNETCORE_ENVIRONMENT = 'Production'
+  ASPNETCORE_URLS = 'http://0.0.0.0:8080'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[services]]
+  protocol = 'tcp'
+  internal_port = 8080
+
+  [[services.ports]]
+    port = 80
+    handlers = ['http']
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ['tls', 'http']
+
+  [services.concurrency]
+    type = 'requests'
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.http_checks]]
+    interval = '10s'
+    timeout = '2s'
+    grace_period = '5s'
+    method = 'GET'
+    path = '/weatherforecast'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

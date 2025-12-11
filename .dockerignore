@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Build outputs
+**/bin/
+**/obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# Docs and misc
+**/README.md
+**/*.md
+docs/
+web/
+
+# Test files
+**/*test*
+**/*Test*
+
+# Migrations (keep these, they're needed)
+# Migrations/
+
+# Logs
+*.log
+logs/
