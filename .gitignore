@@ -8,16 +8,57 @@
 # ═══════════════════════════════════════════════════════════════
 # .NET / C#
 # ═══════════════════════════════════════════════════════════════
-**/api/bin/*
-**/api/obj/*
-**/obj/*
-**/bin/*
+# Build directories
+**/bin/
+**/obj/
+bin/
+obj/
+
+# Build artifacts
 *.dll
+!**/runtimes/**/*.dll
 *.exe
 *.pdb
+*.cache
+
+# Project files
 *.user
 *.suo
-*.cache
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.swp
+*~
+*.swp
+*~
+
+# Rider
+.idea/
+*.sln.iml
+
+# Build results
 *.log
 
 # ═══════════════════════════════════════════════════════════════
