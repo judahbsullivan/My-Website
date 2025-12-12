@@ -6,16 +6,17 @@
       <ClientOnly>
         <!-- Show IntroLoader as the main content while loading -->
         <IntroLoader v-if="!isIntroLoaderComplete" />
-        
+
         <!-- Only render page content after intro is complete -->
         <template v-else>
+          <UiStagingBadge />
           <Navbar />
           <main class=" min-h-screen">
             <NuxtPage />
           </main>
           <Footer />
         </template>
-        
+
         <template #fallback>
           <!-- SSR fallback - show loader screen -->
           <div class="min-h-screen w-full bg-white dark:bg-gray-950" />

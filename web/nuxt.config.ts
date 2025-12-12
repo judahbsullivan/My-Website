@@ -14,6 +14,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:5266',
+      deployBranch: process.env.NUXT_PUBLIC_DEPLOY_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || process.env.GIT_BRANCH || 'main',
     },
   },
   css: [
