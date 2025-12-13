@@ -35,6 +35,7 @@ export default defineNuxtConfig({
     },
     extraPlugins: {
       scrollTrigger: true,
+      
     }
   },
   typescript: {
@@ -56,6 +57,15 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@hypernym/nuxt-gsap'
   ],
+  image: {
+    quality: 80,
+    format: ['webp'],
+    // Allow images from API domain and any external URLs used
+    domains: [
+      'localhost',
+      // Add production API domain here if needed
+    ],
+  },
   app: {
     pageTransition: {
       name: 'page',

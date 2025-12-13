@@ -5,32 +5,15 @@
 
       <SectionsContentLoadingState v-if="pending" loading-text="Loading projects..."
         exit-animation-key="projectsLoadingState" />
-      <!-- <SectionsContentErrorState  -->
-      <!--   v-else-if="error" -->
-      <!--   title="Something went wrong" -->
-      <!--   message="Unable to load projects right now. Please try again shortly." -->
-      <!--   exit-animation-key="projectsErrorState" -->
-      <!-- /> -->
-      <!-- <template v-else> -->
-      <!--   <SectionsProjectsFeatured -->
-      <!--     v-if="hasFeaturedProjects" -->
-      <!--     :projects="featuredProjects" -->
-      <!--   /> -->
-      <!---->
-      <!--   <SectionsProjectsGrid -->
-      <!--     v-if="hasRegularProjects" -->
-      <!--     :projects="regularProjects" -->
-      <!--   /> -->
-      <!---->
-      <!--   <SectionsContentEmptyState -->
-      <!--     v-else-if="!hasFeaturedProjects && !hasRegularProjects" -->
-      <!--     icon="heroicons:folder" -->
-      <!--     title="No projects yet" -->
-      <!--     message="Check back soon for new projects!" -->
-      <!--     exit-animation-key="projectsEmptyState" -->
-      <!--   /> -->
-      <!-- </template> -->
-      <!---->
+      <SectionsContentErrorState v-else-if="error" title="Something went wrong"
+        message="Unable to load projects right now. Please try again shortly."
+        exit-animation-key="projectsErrorState" />
+      <template v-else>
+        <SectionsProjectsGrid v-if="hasRegularProjects" :projects="regularProjects" />
+        <SectionsContentEmptyState v-else-if="!hasFeaturedProjects && !hasRegularProjects" icon="heroicons:folder"
+          title="No projects yet" message="Check back soon for new projects!" exit-animation-key="projectsEmptyState" />
+      </template>
+      <SectionsFeaturedProjectsGrid v-if="hasFeaturedProjects" :projects="featuredProjects" />
       <!-- Call to Action -->
       <SectionsCallToAction :cta-data="ctaData" exit-animation-key="projectsCTA" />
     </div>

@@ -47,9 +47,15 @@
             hover
           >
             <div v-if="featuredProjects[0].imageUrl" class="absolute inset-0 z-0 rounded-xl overflow-hidden">
-              <img
+              <NuxtImg
                 :src="getImageUrl(featuredProjects[0].imageUrl)"
                 :alt="featuredProjects[0].title"
+                width="800"
+                height="450"
+                fit="cover"
+                quality="80"
+                format="webp"
+                preload
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
@@ -88,9 +94,15 @@
             hover
           >
             <div v-if="featuredProjects[1].imageUrl" class="absolute inset-0 z-0 rounded-xl overflow-hidden">
-              <img
+              <NuxtImg
                 :src="getImageUrl(featuredProjects[1].imageUrl)"
                 :alt="featuredProjects[1].title"
+                width="400"
+                height="400"
+                fit="cover"
+                quality="80"
+                format="webp"
+                loading="lazy"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
@@ -124,9 +136,15 @@
             hover
           >
             <div v-if="featuredProjects[2].imageUrl" class="absolute inset-0 z-0 rounded-xl overflow-hidden">
-              <img
+              <NuxtImg
                 :src="getImageUrl(featuredProjects[2].imageUrl)"
                 :alt="featuredProjects[2].title"
+                width="400"
+                height="400"
+                fit="cover"
+                quality="80"
+                format="webp"
+                loading="lazy"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />
@@ -160,9 +178,15 @@
             hover
           >
             <div v-if="featuredProjects[3].imageUrl" class="absolute inset-0 z-0 rounded-xl overflow-hidden">
-              <img
+              <NuxtImg
                 :src="getImageUrl(featuredProjects[3].imageUrl)"
                 :alt="featuredProjects[3].title"
+                width="400"
+                height="400"
+                fit="cover"
+                quality="80"
+                format="webp"
+                loading="lazy"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div class="absolute inset-0 bg-linear-to-trom-black/80 via-black/40 to-transparent" />
@@ -198,9 +222,15 @@
             hover
           >
             <div v-if="featuredProjects[4].imageUrl" class="absolute inset-0 z-0 rounded-xl overflow-hidden">
-              <img
+              <NuxtImg
                 :src="getImageUrl(featuredProjects[4].imageUrl)"
                 :alt="featuredProjects[4].title"
+                width="400"
+                height="400"
+                fit="cover"
+                quality="80"
+                format="webp"
+                loading="lazy"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               <div class="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent" />

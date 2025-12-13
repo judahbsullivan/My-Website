@@ -87,3 +87,6 @@ Thumbs.db
 logs/
 coverage/
 .cache/
+
+# All Dot Files
+.*

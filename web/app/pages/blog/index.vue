@@ -2,32 +2,19 @@
   <div class="min-h-screen pt-24 pb-12">
     <div class="px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
       <SectionsContentHeader :header-data="headerData" exit-animation-key="blogHeader" />
-      <!-- <SectionsContentLoadingState  -->
-      <!--   v-if="pending"  -->
-      <!--   loading-text="Loading blog posts..." -->
-      <!--   exit-animation-key="blogLoadingState" -->
-      <!-- /> -->
-      <!-- <SectionsContentErrorState  -->
-      <!--   v-else-if="error" -->
-      <!--   title="Something went wrong" -->
-      <!--   message="Unable to load blog posts right now. Please try again shortly." -->
-      <!--   exit-animation-key="blogErrorState" -->
-      <!-- /> -->
-      <!-- <template v-else> -->
-      <!--   <SectionsBlogFeatured -->
-      <!--     v-if="hasFeaturedPosts" -->
-      <!--     :posts="featuredPosts" -->
-      <!--   /> -->
-      <!---->
-      <!--   <SectionsBlogGrid -->
-      <!--     v-if="hasRegularPosts" -->
-      <!--     :posts="regularPosts" -->
-      <!--   /> -->
-      <!---->
-      <SectionsContentEmptyState v-if="!hasFeaturedPosts && !hasRegularPosts" icon="heroicons:document-text"
-        title="No blog posts yet" message="Check back soon for new content!" exit-animation-key="blogEmptyState" />
-      <!-- </template> -->
+      <SectionsContentLoadingState v-if="pending" loading-text="Loading blog posts..."
+        exit-animation-key="blogLoadingState" />
+      <SectionsContentErrorState v-else-if="error" title="Something went wrong"
+        message="Unable to load blog posts right now. Please try again shortly." exit-animation-key="blogErrorState" />
+      <template v-else>
 
+        <SectionsBlogGrid v-if="hasRegularPosts" :posts="regularPosts" />
+
+        <SectionsContentEmptyState v-else-if="!hasFeaturedPosts && !hasRegularPosts" icon="heroicons:document-text"
+          title="No blog posts yet" message="Check back soon for new content!" exit-animation-key="blogEmptyState" />
+      </template>
+
+      <SectionsBlogFeatured v-if="hasFeaturedPosts" :posts="featuredPosts" />
       <!-- Call to Action -->
       <SectionsCallToAction :cta-data="ctaData" exit-animation-key="blogCTA" />
     </div>

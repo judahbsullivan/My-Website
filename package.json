@@ -1,0 +1,17 @@
+{
+  "name": "my-website",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "web": "cd web && bun run dev",
+    "api": "cd api && dotnet watch run",
+    "start:app": "bun run web && bun run api"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

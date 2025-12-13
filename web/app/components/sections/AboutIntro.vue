@@ -14,10 +14,16 @@
         ref="avatarRef"
         class="w-16 h-16 rounded-xl overflow-hidden border-2 border-border bg-primary/20 flex items-center justify-center shrink-0 opacity-0 scale-80 translate-y-8 -rotate-5"
       >
-        <img 
+        <NuxtImg 
           v-if="githubStats?.avatar_url" 
           :src="githubStats.avatar_url" 
           alt="Judah Sullivan"
+          width="64"
+          height="64"
+          fit="cover"
+          quality="80"
+          format="webp"
+          loading="lazy"
           class="w-full h-full object-cover"
         />
         <Icon v-else name="heroicons:user" class="w-8 h-8 text-primary" />

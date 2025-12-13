@@ -2,35 +2,22 @@
   <div class="min-h-screen pt-24 pb-12">
     <div class="px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
       <SectionsContentHeader :header-data="headerData" exit-animation-key="playgroundHeader" />
+      <SectionsContentLoadingState v-if="pending" loading-text="Loading playground items..."
+        exit-animation-key="playgroundLoadingState" />
+      <SectionsContentErrorState v-else-if="error" title="Something went wrong"
+        message="Unable to load playground items right now. Please try again shortly."
+        exit-animation-key="playgroundErrorState" />
+      <template v-else>
+        <SectionsPlaygroundFeatured v-if="hasFeaturedPlaygrounds" :playgrounds="featuredPlaygrounds" />
 
-      <!-- <SectionsContentLoadingState  -->
-      <!--   v-if="pending"  -->
-      <!--   loading-text="Loading playground items..." -->
-      <!--   exit-animation-key="playgroundLoadingState" -->
-      <!-- /> -->
-      <!-- <SectionsContentErrorState  -->
-      <!--   v-else-if="error" -->
-      <!--   title="Something went wrong" -->
-      <!--   message="Unable to load playground items right now. Please try again shortly." -->
-      <!--   exit-animation-key="playgroundErrorState" -->
-      <!-- /> -->
-      <!-- <template v-if> -->
-      <!--   <SectionsPlaygroundFeatured -->
-      <!--     v-if="hasFeaturedPlaygrounds" -->
-      <!--     :playgrounds="featuredPlaygrounds" -->
-      <!--   /> -->
-      <!---->
-      <!--   <SectionsPlaygroundGrid -->
-      <!--     v-if="hasRegularPlaygrounds" -->
-      <!--     :playgrounds="regularPlaygrounds" -->
-      <!--   /> -->
-      <!---->
-      <SectionsContentEmptyState v-if="!hasFeaturedPlaygrounds && !hasRegularPlaygrounds" icon="heroicons:code-bracket"
-        title="No playground items yet" message="Check back soon for new content!"
-        exit-animation-key="playgroundEmptyState" />
-      <!-- </template> -->
-      <!---->
-      <!-- <!-- Call to Action --> -->
+        <SectionsPlaygroundGrid v-if="hasRegularPlaygrounds" :playgrounds="regularPlaygrounds" />
+
+        <SectionsContentEmptyState v-else-if="!hasFeaturedPlaygrounds && !hasRegularPlaygrounds"
+          icon="heroicons:code-bracket" title="No playground items yet" message="Check back soon for new content!"
+          exit-animation-key="playgroundEmptyState" />
+      </template>
+
+      <!-- Call to Action -->
       <SectionsCallToAction :cta-data="ctaData" exit-animation-key="playgroundCTA" />
     </div>
   </div>

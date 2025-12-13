@@ -142,7 +142,7 @@
             rounded="2xl"
             :className="`${homeData.sections.avatarBox?.background || 'bg-card dark:bg-card/90'} opacity-0 scale-95 translate-y-6 -rotate-2`"
           >
-            <div class="grid grid-cols-3 gap-2 items-stretch">
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 items-stretch">
               <!-- Bento 1: Total Stars -->
               <UiBentoBox
                 ref="innerBox1Ref"
@@ -152,15 +152,15 @@
                 shadow
                 padding="sm"
                 rounded="xl"
-                className="opacity-0 scale-90 translate-y-2 bg-yellow-500/20 dark:bg-yellow-500/15 aspect-square"
+                className="opacity-0 scale-90 translate-y-2 bg-yellow-500/20 dark:bg-yellow-500/15 aspect-square min-w-0"
               >
-                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                  <div class="w-10 h-10 rounded-full bg-yellow-500/30 dark:bg-yellow-500/20 flex items-center justify-center">
-                    <Icon name="heroicons:star" class="w-5 h-5 text-orange-500 dark:text-yellow-400" />
+                <div class="w-full h-full flex flex-col items-center justify-center gap-1 sm:gap-2 min-w-0">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-yellow-500/30 dark:bg-yellow-500/20 flex items-center justify-center shrink-0">
+                    <Icon name="heroicons:star" class="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 dark:text-yellow-400" />
                   </div>
-                  <div class="text-center">
+                  <div class="text-center min-w-0 w-full px-1">
                     <p class="text-xs hidden sm:block text-muted-foreground mb-0.5">Total Stars</p>
-                    <p class="text-base font-bold text-foreground">{{ totalStars || '...' }}</p>
+                    <p class="text-sm sm:text-base font-bold text-foreground truncate">{{ totalStars || '...' }}</p>
                   </div>
                 </div>
               </UiBentoBox>
@@ -174,26 +174,32 @@
                 shadow
                 padding="sm"
                 rounded="xl"
-                className="opacity-0 scale-90  translate-y-2 bg-success/10 dark:bg-success/5 aspect-square"
+                className="opacity-0 scale-90  translate-y-2 bg-success/10 dark:bg-success/5 aspect-square min-w-0"
               >
-                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                  <div class="w-10 h-10 rounded-full bg-success/20 dark:bg-success/10 flex items-center justify-center">
-                    <Icon name="heroicons:chart-bar" class="w-5 h-5 text-success" />
+                <div class="w-full h-full flex flex-col items-center justify-center gap-1 sm:gap-2 min-w-0">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-success/20 dark:bg-success/10 flex items-center justify-center shrink-0">
+                    <Icon name="heroicons:chart-bar" class="w-4 h-4 sm:w-5 sm:h-5 text-success" />
                   </div>
-                  <div class="text-center">
+                  <div class="text-center min-w-0 w-full px-1">
                     <p class="text-xs text-muted-foreground hidden sm:block mb-0.5">Contributions</p>
-                    <p class="text-base font-bold text-foreground">{{ totalContributions || '...' }}</p>
+                    <p class="text-sm sm:text-base font-bold text-foreground truncate">{{ totalContributions || '...' }}</p>
                   </div>
                 </div>
               </UiBentoBox>
               
               <!-- Right: Avatar - takes 1/3 width -->
-              <div ref="avatarImageRef" class="w-full opacity-0 scale-90 translate-y-3 flex items-center justify-center">
+              <div ref="avatarImageRef" class="w-full opacity-0 scale-90 translate-y-3 flex items-center justify-center min-w-0">
                 <div class="aspect-square w-full rounded-xl overflow-hidden border-2 border-border bg-primary/10 flex items-center justify-center">
-                  <img 
+                  <NuxtImg 
                     v-if="githubAvatar" 
                     :src="githubAvatar" 
                     alt="Judah Sullivan"
+                    width="200"
+                    height="200"
+                    fit="cover"
+                    quality="80"
+                    format="webp"
+                    loading="lazy"
                     class="w-full h-full object-cover"
                   />
                   <Icon v-else name="heroicons:user" class="w-5 h-5 text-primary" />
@@ -686,7 +692,7 @@ function storeElementsOnMount() {
 }
 
 onMounted(() => {
-  // Register exit animation
+  // Register both exit and entrance animations
   registerExitAnimation('whatIDo', animateExit)
   
   // Store elements immediately as fallback

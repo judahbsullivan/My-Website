@@ -28,17 +28,12 @@
         <!-- <UiButton to="/auth" class="shrink-0">Login</UiButton> -->
       </div>
     </div>
-
-    <MobileMenu :is-open="isMobileMenuOpen" @close="isMobileMenuOpen = false" />
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useNuxtApp } from '#app'
-
-const route = useRoute()
-const isMobileMenuOpen = ref(false)
 
 // Refs for animation
 const headerRef = ref<HTMLElement | null>(null)
@@ -57,6 +52,8 @@ const navLinks = [
   { to: '/contact', label: 'Contact' },
 ]
 
+const route = useRoute()
+
 // Check if link is active - ensure consistent SSR/client rendering
 // Use computed to ensure reactivity and consistent rendering during hydration
 const currentPath = computed(() => route.path)
@@ -65,11 +62,6 @@ const isActive = (path: string) => {
   if (path === '/') return pathValue === '/'
   return pathValue.startsWith(path)
 }
-
-// Close mobile menu on route change
-watch(() => route.path, () => {
-  isMobileMenuOpen.value = false
-})
 
 // Animate navbar entrance after intro loader completes
 function animateNavbarEntrance() {
@@ -138,5 +130,6 @@ watch(isIntroLoaderComplete, (complete) => {
       }, 100)
     })
   }
-}, { immediate: true })
+  }, { immediate: true })
+
 </script>
